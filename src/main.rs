@@ -106,7 +106,7 @@ async fn main() {
                             } else {
                                 frm.set_color(Color::Red);
                             }
-                            pack.add(&frm.frm);
+                            pack.add(&*frm);
                         }
                     }
                     win.redraw();

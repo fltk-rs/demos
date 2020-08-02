@@ -1,6 +1,7 @@
 # fltk-rs-demos
 
 This is a repo for fltk-rs demo examples. These are usually associated with video tutorials from this [playlist](https://www.youtube.com/playlist?list=PLHqrrowPLkDu9U-uk60sGM-YWLOJFfLoE) on youtube.
+The fltk-rs repo also has an [examples directory](https://github.com/MoAlyousef/fltk-rs/tree/master/examples) for several standalone examples.
 
 The current demos include:
 - Creating an async web todo app using fltk, reqwest, serde and tokio.

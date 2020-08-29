@@ -9,14 +9,13 @@ The current demos include:
 - Creating a media player using fltk and the vlc crate.
 - Opengl demo for opengl drawing in an fltk GlWindow.
 
-The demos can be run using:
+The demos can be run by accessing any of the directories and running:
 ```
-cargo run --bin web-todo
-cargo run --bin gltriangle
-cargo run --bin vlc-fltk
+cargo run
 ```
 
 Screenshots:
+![alt_test](musicplayer/musicplayer.png)
 ![alt_test](web-todo/ex.jpg)
 ![alt_test](libvlc/ex.jpg)
 ![alt_test](opengl/ex.jpg)

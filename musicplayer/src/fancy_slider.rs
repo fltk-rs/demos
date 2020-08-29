@@ -1,7 +1,7 @@
-use fltk::app;
 use fltk::frame::*;
 use fltk::image::*;
 use plotters::prelude::*;
+use std::ops::{Deref, DerefMut};
 
 struct MyCircle {
     image: SvgImage,
@@ -32,32 +32,29 @@ pub struct FancySlider {
 }
 
 impl FancySlider {
-    pub fn new() -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         let mut f = FancySlider {
-            line: Frame::new(50, 163, 300, 5, ""),
-            circ: Frame::new(40, 150, 50, 50, ""),
+            line: Frame::new(x, y + 13, 300, 5, ""),
+            circ: Frame::new(x - 10, y, 50, 50, ""),
         };
         let circle = MyCircle::new();
         f.circ.set_image(Some(circle.image));
         f.line.set_frame(FrameType::RFlatBox);
         f.line.set_color(fltk::enums::Color::White);
-        let mut circle = f.circ.clone(); 
-        f.circ.handle(Box::new(move |ev| match ev {
-            Event::Push => true,
-            Event::Drag => {
-                let (x, _y) = app::event_coords();
-                if x > 45 && x < 350 {
-                    circle.resize(x - 15, 150, 50, 50);
-                }
-                app::redraw();
-                true
-            },
-            _ => false,
-        }));
         f
-    }
-    pub fn value(&self) -> f32 {
-        self.circ.x() as f32 / 50.0
     }
 }
 
+impl Deref for FancySlider {
+    type Target = Frame;
+
+    fn deref(&self) -> &Self::Target {
+        &self.circ
+    }
+}
+
+impl DerefMut for FancySlider {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.circ
+    }
+}

@@ -1,3 +1,4 @@
+use fltk::app;
 use fltk::frame::*;
 use fltk::image::*;
 use std::cell::RefCell;
@@ -122,12 +123,12 @@ impl PowerButton {
                 if *playing.borrow() {
                     let off = off.clone();
                     wid.set_image(Some(off));
-                    wid.redraw();
+                    app::redraw();
                     *playing.borrow_mut() = false;
                 } else {
                     let on = on.clone();
                     wid.set_image(Some(on));
-                    wid.redraw();
+                    app::redraw();
                     *playing.borrow_mut() = true;
                 }
                 wid.do_callback();

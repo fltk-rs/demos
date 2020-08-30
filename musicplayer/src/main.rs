@@ -63,7 +63,7 @@ fn main() {
         _ => false,
     }));
 
-    wind.set_callback(Box::new(move || { // Callback when an app closes
+    wind.set_callback(Box::new(move || { // Triggered when the window closes
         sl.borrow().stop_all(); // Stop any playing audio before quitting
         app.quit();
     }));

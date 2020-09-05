@@ -6,11 +6,6 @@ use std::rc::Rc;
 const W: i32 = 600;
 const H: i32 = 400;
 
-unsafe fn cb(_w: *mut fltk_sys::widget::Fl_Widget, data: *mut std::os::raw::c_void) {
-    let mut win = widget::Widget::from_raw(data as *mut fltk_sys::widget::Fl_Widget);
-    win.set_label("Closing!");
-}
-
 pub fn main() {
     let app = app::App::default();
     let mut wind = window::GlWindow::new(100, 100, W, H, "Rotate me!");
@@ -32,8 +27,6 @@ pub fn main() {
         }
         _ => false,
     }));
-
-    unsafe { fltk_sys::widget::Fl_Widget_callback_with_captures(wind.as_widget_ptr(), std::mem::transmute(Some(cb)), 0 as *mut _); }
 
     while app.wait().unwrap() {
         match r.recv() {

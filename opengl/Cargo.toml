@@ -8,6 +8,5 @@ edition = "2018"
 
 [dependencies]
 fltk = { version = "0.8.0", features = ["enable-glwindow"] }
-fltk-sys = { version = "0.8.0", features = ["enable-glwindow"] }
 glu-sys = "0.1.4"
 

@@ -58,7 +58,7 @@ fn main() {
     but_play.emit(s, Message::Play);
     but_stop.emit(s, Message::Stop);
 
-    while app.wait().unwrap() {
+    while app.wait() {
         match r.recv() {
             Some(val) => match val {
                 Message::Play => mdp.play().unwrap(),

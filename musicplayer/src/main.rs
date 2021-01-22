@@ -42,7 +42,7 @@ fn main() {
         wav.set_looping(true);
         sl_c.borrow().play(&wav);
         while sl_c.borrow().active_voice_count() > 0 {
-            app.wait().unwrap();
+            app.wait();
         }
     }));
 

@@ -1,0 +1,12 @@
+[package]
+name = "glutin"
+version = "0.1.0"
+authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gl = "0.14"
+glutin = "0.26"
+fltk = { version = "0.13.10", features = ["enable-glwindow"] }

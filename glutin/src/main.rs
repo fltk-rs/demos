@@ -1,6 +1,3 @@
-extern crate gl;
-extern crate glutin;
-
 use fltk::*;
 use gl::types::*;
 use std::ffi::CString;

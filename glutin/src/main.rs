@@ -1,10 +1,12 @@
 use fltk::*;
+
 use gl::types::*;
 use std::ffi::CString;
 use std::mem;
 use std::ptr;
 use std::str;
 
+// Vertex data
 static VERTEX_DATA: [GLfloat; 6] = [0.0, 0.5, 0.5, -0.5, -0.5, -0.5];
 
 // Shader sources
@@ -26,18 +28,21 @@ fn compile_shader(src: &str, ty: GLenum) -> GLuint {
     let shader;
     unsafe {
         shader = gl::CreateShader(ty);
+        // Attempt to compile the shader
         let c_str = CString::new(src.as_bytes()).unwrap();
         gl::ShaderSource(shader, 1, &c_str.as_ptr(), ptr::null());
         gl::CompileShader(shader);
 
+        // Get the compile status
         let mut status = gl::FALSE as GLint;
         gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut status);
 
+        // Fail on error
         if status != (gl::TRUE as GLint) {
             let mut len = 0;
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf = Vec::with_capacity(len as usize);
-            buf.set_len((len as usize) - 1);
+            buf.set_len((len as usize) - 1); // subtract 1 to skip the trailing null character
             gl::GetShaderInfoLog(
                 shader,
                 len,
@@ -61,6 +66,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
         gl::AttachShader(program, vs);
         gl::AttachShader(program, fs);
         gl::LinkProgram(program);
+        // Get the link status
         let mut status = gl::FALSE as GLint;
         gl::GetProgramiv(program, gl::LINK_STATUS, &mut status);
 
@@ -69,7 +75,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             let mut len: GLint = 0;
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf = Vec::with_capacity(len as usize);
-            buf.set_len((len as usize) - 1);
+            buf.set_len((len as usize) - 1); // subtract 1 to skip the trailing null character
             gl::GetProgramInfoLog(
                 program,
                 len,
@@ -87,7 +93,15 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
     }
 }
 
-pub fn draw_triangle() {
+fn main() {
+    gl_loader::init_gl();
+    let app = app::App::default();
+    let mut win = window::GlWindow::new(100, 100, 500, 400, "");
+    win.set_mode(Mode::Opengl3);
+    win.end();
+    win.show();
+    win.make_current();
+    gl::load_with(|s| gl_loader::get_proc_address(s) as *const _);
     let vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
     let fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER);
     let program = link_program(vs, fs);
@@ -96,8 +110,11 @@ pub fn draw_triangle() {
     let mut vbo = 0;
 
     unsafe {
+        // Create Vertex Array Object
         gl::GenVertexArrays(1, &mut vao);
         gl::BindVertexArray(vao);
+
+        // Create a Vertex Buffer Object and copy the vertex data to it
         gl::GenBuffers(1, &mut vbo);
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
@@ -107,9 +124,11 @@ pub fn draw_triangle() {
             gl::STATIC_DRAW,
         );
 
+        // Use shader program
         gl::UseProgram(program);
         gl::BindFragDataLocation(program, 0, CString::new("out_color").unwrap().as_ptr());
 
+        // Specify the layout of the vertex data
         let pos_attr = gl::GetAttribLocation(program, CString::new("position").unwrap().as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
@@ -121,48 +140,17 @@ pub fn draw_triangle() {
             ptr::null(),
         );
     }
-}
-
-fn main() {
-    let app = app::App::default();
-    let mut win = window::GlWindow::new(5, 5, 590, 490, "");
-    win.end();
-    win.show();
-
-    let winid = win.raw_handle();
-    let raw_context = unsafe { get_raw_context(winid) };
-    let raw_context = unsafe { raw_context.make_current().unwrap() };
-    gl::load_with(|s| raw_context.get_proc_address(s));
-
-    win.draw(move || {
-        draw_triangle();
-    });
-
-    while app.wait() {
+    win.draw2(|g| {
         unsafe {
+            // Clear the screen to black
             gl::ClearColor(0.3, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
+            // Draw a triangle from the 3 vertices
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
-        raw_context.swap_buffers().unwrap();
+        g.swap_buffers();
+    });
+    while app.wait() {
+        win.swap_buffers();
     }
-}
-
-#[cfg(target_os = "windows")]
-pub unsafe fn get_raw_context(
-    winid: *mut std::os::raw::c_void,
-) -> glutin::RawContext<glutin::NotCurrent> {
-    use glutin::platform::windows::RawContextExt;
-    glutin::ContextBuilder::new()
-        .build_raw_context(winid)
-        .unwrap()
-}
-
-#[cfg(not(target_os = "windows"))]
-pub unsafe fn get_raw_context(winid: u64) -> glutin::RawContext<glutin::NotCurrent> {
-    use glutin::platform::unix::RawContextExt;
-    let xconn = glutin::platform::unix::x11::XConnection::new(None).unwrap();
-    glutin::ContextBuilder::new()
-        .build_raw_x11_context(std::sync::Arc::from(xconn), winid)
-        .unwrap()
 }

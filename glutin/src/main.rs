@@ -150,7 +150,5 @@ fn main() {
         }
         g.swap_buffers();
     });
-    while app.wait() {
-        win.swap_buffers();
-    }
+    app.run().unwrap();
 }

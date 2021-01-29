@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 gl = "0.14"
-glutin = "0.26"
-fltk = { version = "0.13.10", features = ["enable-glwindow"] }
+gl_loader = "0.1.2"
+fltk = { version = "0.13.11", features = ["enable-glwindow"] }

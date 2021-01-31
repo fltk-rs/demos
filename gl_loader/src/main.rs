@@ -94,14 +94,14 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 }
 
 fn main() {
-    gl_loader::init_gl();
     let app = app::App::default();
     let mut win = window::GlWindow::new(100, 100, 500, 400, "");
     win.set_mode(Mode::Opengl3);
     win.end();
     win.show();
-    win.make_current();
-    gl::load_with(|s| gl_loader::get_proc_address(s) as *const _);
+
+    gl::load_with(|s| win.get_proc_address(s));
+
     let vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
     let fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER);
     let program = link_program(vs, fs);
@@ -140,6 +140,7 @@ fn main() {
             ptr::null(),
         );
     }
+
     win.draw2(|g| {
         unsafe {
             // Clear the screen to black
@@ -150,5 +151,6 @@ fn main() {
         }
         g.swap_buffers();
     });
+
     app.run().unwrap();
 }

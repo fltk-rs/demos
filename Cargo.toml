@@ -5,5 +5,5 @@ members = [
     "libvlc",
     "opengl",
     "musicplayer",
-    "glutin",
+    "gl_loader",
 ]

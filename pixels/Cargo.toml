@@ -9,5 +9,3 @@ edition = "2018"
 [dependencies]
 fltk = "0.13.13"
 pixels = "0.2.0"
-env_logger = "0.7"
-log = "0.4"

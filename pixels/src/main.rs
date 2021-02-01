@@ -1,13 +1,16 @@
-use pixels::{Error, Pixels, SurfaceTexture};
-use log::error;
 use fltk::{app, prelude::*, window::Window};
-use std::rc::Rc;
-use std::cell::RefCell;
+use pixels::{Error, Pixels, SurfaceTexture};
+
+pub enum Message {
+    DrawRequested,
+    Other,
+}
 
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
 const BOX_SIZE: i16 = 64;
 
+#[derive(Clone, Copy)]
 struct World {
     box_x: i16,
     box_y: i16,
@@ -16,33 +19,39 @@ struct World {
 }
 
 fn main() -> Result<(), Error> {
-	env_logger::init();
-	let app = app::App::default();
-	let mut win = Window::default().with_size(WIDTH as i32, HEIGHT as i32);
-	win.end();
-	win.show();
+    let app = app::App::default();
+    let (s, r) = app::channel::<Message>();
+    let mut win = Window::default().with_size(WIDTH as i32, HEIGHT as i32);
+    win.end();
+    win.show();
     let mut pixels = {
         let surface_texture = SurfaceTexture::new(WIDTH, HEIGHT, &win);
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
-    let world = Rc::new(RefCell::new(World::new()));
-    win.draw2({ let world = world.clone(); move |w| {
-    	     world.borrow().draw(pixels.get_frame());
-            if pixels
-                .render()
-                .map_err(|e| error!("pixels.render() failed: {}", e))
-                .is_err()
-            {
-                w.hide();
-                return;
+    let mut world = World::new();
+    win.draw(move || s.send(Message::DrawRequested));
+
+    while app.wait() {
+        if let Some(msg) = r.recv() {
+            match msg {
+                Message::DrawRequested => {
+                    world.draw(pixels.get_frame());
+                    if pixels
+                        .render()
+                        .map_err(|e| eprintln!("pixels.render() failed: {}", e))
+                        .is_err()
+                    {
+                        win.hide();
+                    }
+                }
+                _ => (),
             }
-    }});
-    
-    Ok(while app.wait() {
-            world.borrow_mut().update();
-            win.redraw();
-    })
+        }
+        world.update();
+        win.redraw();
+    }
+    Ok(())
 }
 
 impl World {

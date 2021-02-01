@@ -7,4 +7,5 @@ members = [
     "musicplayer",
     "gl_loader",
     "pixels",
+    "wgpu",
 ]

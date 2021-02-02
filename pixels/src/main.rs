@@ -1,18 +1,28 @@
 use fltk::{app, prelude::*, window::Window};
 use pixels::{Pixels, SurfaceTexture};
+use std::{cell::RefCell, rc::Rc, thread, time};
 
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
 const BOX_SIZE: i16 = 64;
 
+#[derive(Clone, Copy)]
+pub enum Message {
+    DrawRequest,
+}
+
 struct World {
     box_x: i16,
     box_y: i16,
+    velocity_x: i16,
+    velocity_y: i16,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = app::App::default();
-    let mut win = Window::default().with_size(WIDTH as i32, HEIGHT as i32).with_label("Pixels");
+    let mut win = Window::default()
+        .with_size(WIDTH as i32, HEIGHT as i32)
+        .with_label("Pixels");
     win.end();
     win.show();
 
@@ -21,14 +31,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
-    let world = World::new();
+    let world = Rc::new(RefCell::new(World::new()));
 
-    win.draw(move || {
-        world.draw(pixels.get_frame());
-        pixels.render().unwrap();
+    win.draw({
+        let world = world.clone();
+        move || {
+            world.borrow().draw(pixels.get_frame());
+            pixels.render().unwrap();
+        }
     });
 
-    Ok(app.run()?)
+    Ok(while app.wait() {
+        world.borrow_mut().update();
+        win.redraw();
+        thread::sleep(time::Duration::from_millis(16));
+    })
 }
 
 impl World {
@@ -36,7 +53,21 @@ impl World {
         Self {
             box_x: 24,
             box_y: 16,
+            velocity_x: 1,
+            velocity_y: 1,
         }
+    }
+
+    fn update(&mut self) {
+        if self.box_x <= 0 || self.box_x + BOX_SIZE > WIDTH as i16 {
+            self.velocity_x *= -1;
+        }
+        if self.box_y <= 0 || self.box_y + BOX_SIZE > HEIGHT as i16 {
+            self.velocity_y *= -1;
+        }
+
+        self.box_x += self.velocity_x;
+        self.box_y += self.velocity_y;
     }
 
     fn draw(&self, frame: &mut [u8]) {

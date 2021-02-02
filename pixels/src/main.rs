@@ -10,18 +10,16 @@ const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
 const BOX_SIZE: i16 = 64;
 
-#[derive(Clone, Copy)]
+
 struct World {
     box_x: i16,
     box_y: i16,
-    velocity_x: i16,
-    velocity_y: i16,
 }
 
 fn main() -> Result<(), Error> {
     let app = app::App::default();
     let (s, r) = app::channel::<Message>();
-    let mut win = Window::default().with_size(WIDTH as i32, HEIGHT as i32);
+    let mut win = Window::default().with_size(WIDTH as i32, HEIGHT as i32).with_label("Pixels");
     win.end();
     win.show();
     let mut pixels = {
@@ -29,7 +27,7 @@ fn main() -> Result<(), Error> {
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
-    let mut world = World::new();
+    let world = World::new();
     win.draw(move || s.send(Message::DrawRequested));
 
     while app.wait() {
@@ -48,8 +46,6 @@ fn main() -> Result<(), Error> {
                 _ => (),
             }
         }
-        world.update();
-        win.redraw();
     }
     Ok(())
 }
@@ -60,22 +56,7 @@ impl World {
         Self {
             box_x: 24,
             box_y: 16,
-            velocity_x: 1,
-            velocity_y: 1,
         }
-    }
-
-    /// Update the `World` internal state; bounce the box around the screen.
-    fn update(&mut self) {
-        if self.box_x <= 0 || self.box_x + BOX_SIZE > WIDTH as i16 {
-            self.velocity_x *= -1;
-        }
-        if self.box_y <= 0 || self.box_y + BOX_SIZE > HEIGHT as i16 {
-            self.velocity_y *= -1;
-        }
-
-        self.box_x += self.velocity_x;
-        self.box_y += self.velocity_y;
     }
 
     /// Draw the `World` state to the frame buffer.

@@ -1,6 +1,4 @@
 use fltk::*;
-use std::iter;
-
 struct State {
     device: wgpu::Device,
     queue: wgpu::Queue,
@@ -75,7 +73,7 @@ impl State {
             });
         }
 
-        self.queue.submit(iter::once(encoder.finish()));
+        self.queue.submit(std::iter::once(encoder.finish()));
 
         Ok(())
     }

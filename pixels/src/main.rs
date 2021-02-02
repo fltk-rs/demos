@@ -6,11 +6,6 @@ const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
 const BOX_SIZE: i16 = 64;
 
-#[derive(Clone, Copy)]
-pub enum Message {
-    DrawRequest,
-}
-
 struct World {
     box_x: i16,
     box_y: i16,

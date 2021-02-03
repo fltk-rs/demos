@@ -1,4 +1,4 @@
-use fltk::{app, frame, image, prelude::*, window::Window};
+use fltk::{app, frame, prelude::*, window::Window};
 use std::{thread, time::Duration};
 
 const WIDTH: u32 = 320;
@@ -24,16 +24,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut framebuf: Vec<u8> = vec![0; (WIDTH * HEIGHT * 4) as usize];
     let mut world = World::new();
-
-    frame.draw2(move |f| {
-        world.update();
-        world.draw(&mut framebuf);
-        let mut img = unsafe { image::RgbImage::from_data(&framebuf, WIDTH, HEIGHT, 4).unwrap() };
-        img.scale(f.width(), f.height(), false, true);
-        img.draw(f.x(), f.y(), f.width(), f.height());
-    });
+    
+    unsafe { frame.draw_framebuffer(&framebuf).unwrap(); }
 
     Ok(while app.wait() {
+        world.update();
+        world.draw(&mut framebuf);
         win.redraw();
         thread::sleep(Duration::from_millis(16));
     })

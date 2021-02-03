@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     frame.draw2(move |f| {
         world.update();
         world.draw(&mut framebuf);
-        let mut img = image::RgbImage::new(&framebuf, WIDTH, HEIGHT, 4).unwrap();
+        let mut img = unsafe { image::RgbImage::from_data(&framebuf, WIDTH, HEIGHT, 4).unwrap() };
         img.scale(f.width(), f.height(), false, true);
         img.draw(f.x(), f.y(), f.width(), f.height());
     });

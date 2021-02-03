@@ -1,6 +1,6 @@
 use fltk::{app, prelude::*, window::Window};
 use pixels::{Pixels, SurfaceTexture};
-use std::{cell::RefCell, rc::Rc, thread, time};
+use std::{thread, time::Duration};
 
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
@@ -19,6 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_size(WIDTH as i32, HEIGHT as i32)
         .with_label("Pixels");
     win.end();
+    win.make_resizable(true);
     win.show();
 
     let mut pixels = {
@@ -26,20 +27,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
-    let world = Rc::new(RefCell::new(World::new()));
+    let mut world = World::new();
 
-    win.draw({
-        let world = world.clone();
-        move || {
-            world.borrow().draw(pixels.get_frame());
-            pixels.render().unwrap();
-        }
+    win.draw(move || {
+        world.update();
+        world.draw(pixels.get_frame());
+        pixels.render().unwrap();
     });
 
     Ok(while app.wait() {
-        world.borrow_mut().update();
         win.redraw();
-        thread::sleep(time::Duration::from_millis(16));
+        thread::sleep(Duration::from_millis(16));
     })
 }
 

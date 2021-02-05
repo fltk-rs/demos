@@ -2,7 +2,7 @@
 
 This is a repo for fltk-rs demo examples. These are usually associated with video tutorials from this [playlist](https://www.youtube.com/playlist?list=PLHqrrowPLkDu9U-uk60sGM-YWLOJFfLoE) on youtube.
 
-Also the fltk-rs repo has an [examples directory](https://github.com/MoAlyousef/fltk-rs/tree/master/fltk/examples) for several standalone examples.
+Also the fltk-rs repo has an [examples directory](https://github.com/MoAlyousef/fltk-rs/tree/master/fltk/examples) for several standalone examples. These demo apps mainly show interop with other projects in the Rust ecosystem.
 
 The current demos include:
 - web-todo: Creating an async web todo app using fltk, reqwest, serde and tokio.
@@ -27,6 +27,7 @@ Screenshots:
 ![alt_test](web-todo/ex.jpg)
 ![alt_test](libvlc/ex.jpg)
 ![alt_test](opengl/ex.jpg)
+![alt_test](gl_loader/ex.png)
 ![alt_test](pixels/ex.jpg)
 ![alt_test](plotters/ex.jpg)
 ![alt_test](raqote/ex.jpg)

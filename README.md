@@ -27,3 +27,6 @@ Screenshots:
 ![alt_test](web-todo/ex.jpg)
 ![alt_test](libvlc/ex.jpg)
 ![alt_test](opengl/ex.jpg)
+![alt_test](pixels/ex.jpg)
+![alt_test](plotters/ex.jpg)
+![alt_test](raqote/ex.jpg)

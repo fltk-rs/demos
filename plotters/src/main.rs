@@ -99,8 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             drop(root);
             drop(chart);
 
-            let img = image::RgbImage::new(&buf, W as u32, H as u32, 3).unwrap();
-            frame.set_image(Some(img));
+            draw::draw_rgb(&mut frame, &buf).unwrap();
             last_flushed = epoch;
         }
 

@@ -9,4 +9,6 @@ members = [
     "pixels",
     "wgpu",
     "framebuffer",
+    "raqote",
+    "plotters",
 ]

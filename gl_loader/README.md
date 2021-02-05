@@ -1,4 +1,4 @@
-# fltk-gl_loader demo
-Demo application showing usage with the gl crate.
+# gl_loader
+Demo application showing usage with the gl crate (OpenGL function pointer loader).
 
 Notice the "enable-glwindow" in the Cargo.toml.

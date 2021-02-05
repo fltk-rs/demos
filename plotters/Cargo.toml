@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 fltk = "0.14"
 plotters = "0.3.0"
+plotters-bitmap = "0.3.0"

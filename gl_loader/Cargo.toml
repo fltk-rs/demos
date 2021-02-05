@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 gl = "0.14"
-fltk = { version = "0.13.13", features = ["enable-glwindow"] }
+fltk = { version = "0.14", features = ["enable-glwindow"] }

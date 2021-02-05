@@ -35,6 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         pixels.render().unwrap();
     });
 
+
     Ok(while app.wait() {
         win.redraw();
         thread::sleep(Duration::from_millis(16));

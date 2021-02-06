@@ -16,6 +16,7 @@ The current demos include:
 - pixels: Create live drawn animations using the pixels crate.
 - plotters: Use plotters for live plotting (drawing animations) with fltk.
 - raqote: Use raqote for custom drawing.
+- tinyskia: Use tiny-skia for custom drawing.
 
 The demos can be run by accessing any of the directories and running:
 ```
@@ -31,3 +32,4 @@ Screenshots:
 ![alt_test](pixels/ex.jpg)
 ![alt_test](plotters/ex.jpg)
 ![alt_test](raqote/ex.jpg)
+![alt_test](tinyskia/ex.jpg)

@@ -8,5 +8,7 @@ edition = "2018"
 
 [dependencies]
 fltk = "0.14"
-native-windows-gui = { version = "1.0.10", default-features=false, features=["tray-notification", "message-window", "menu", "cursor"] }
 lazy_static = "1.4.0"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+native-windows-gui = { version = "1.0.10", default-features=false, features=["tray-notification", "message-window", "menu", "cursor"] }

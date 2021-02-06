@@ -17,6 +17,7 @@ The current demos include:
 - plotters: Use plotters for live plotting (drawing animations) with fltk.
 - raqote: Use raqote for custom drawing.
 - tinyskia: Use tiny-skia for custom drawing.
+- systray: Use nwg to create an fltk app with systray functionalities on Windows.
 
 The demos can be run by accessing any of the directories and running:
 ```

@@ -1,0 +1,12 @@
+[package]
+name = "systray"
+version = "0.1.0"
+authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fltk = "0.14"
+native-windows-gui = { version = "1.0.10", default-features=false, features=["tray-notification", "message-window", "menu", "cursor"] }
+lazy_static = "1.4.0"

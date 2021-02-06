@@ -23,13 +23,22 @@ The demos can be run by accessing any of the directories and running:
 cargo run
 ```
 
-Screenshots:
+## Screenshots:
+- musicplayer:
 ![alt_test](musicplayer/musicplayer.png)
+- web-todo:
 ![alt_test](web-todo/ex.jpg)
+- libvlc
 ![alt_test](libvlc/ex.jpg)
+- opengl
 ![alt_test](opengl/ex.jpg)
+- gl_loader
 ![alt_test](gl_loader/ex.png)
+- pixels
 ![alt_test](pixels/ex.jpg)
+- plotters
 ![alt_test](plotters/ex.jpg)
+- raqote
 ![alt_test](raqote/ex.jpg)
+- tinyskia
 ![alt_test](tinyskia/ex.jpg)

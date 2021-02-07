@@ -15,6 +15,9 @@ struct FlatButton {
     frm: frame::Frame,
 }
 
+const RED: u32 = 0xf44336;
+const GREEN: u32 = 0x66bb6a;
+
 impl FlatButton {
     pub fn new(w: i32, h: i32, title: &str) -> FlatButton {
         let mut w = FlatButton {
@@ -25,10 +28,10 @@ impl FlatButton {
         let mut w_c = w.clone();
         w.frm.handle(Box::new(move |ev| match ev {
             Event::Push => {
-                if w_c.color() == Color::Green {
-                    w_c.set_color(Color::Red);
+                if w_c.color() == Color::from_u32(GREEN) {
+                    w_c.set_color(Color::from_u32(RED));
                 } else {
-                    w_c.set_color(Color::Green);
+                    w_c.set_color(Color::from_u32(GREEN));
                 }
                 w_c.redraw();
                 true
@@ -58,7 +61,7 @@ async fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::DoubleWindow::new(200, 200, 600, 400, "Todos");
     let mut scroll = group::Scroll::new(0, 0, 600, 360, "");
-    let mut pack = group::Pack::new(10, 0, 580, 360, "");
+    let mut pack = group::Pack::new(5, 0, 580, 360, "");
     pack.end();
     scroll.end();
 
@@ -67,15 +70,16 @@ async fn main() {
     win.end();
     win.show();
 
-    win.set_color(Color::White);
+    app::background(0, 0, 0);
     pack.set_spacing(5);
-    choice.set_color(Color::Cyan);
-    scroll.set_color(Color::White);
-    scroll.set_scrollbar_size(5);
+    choice.set_color(Color::from_u32(0x757575));
+    choice.set_text_color(Color::White);
+    scroll.set_scrollbar_size(7);
     scroll.set_type(group::ScrollType::Vertical);
     let mut scrollbar = scroll.scrollbar();
     scrollbar.set_type(valuator::ScrollbarType::VerticalNice);
-    scrollbar.set_color(Color::Black);
+    scrollbar.set_color(Color::from_u32(0x757575));
+    scrollbar.set_selection_color(Color::Red);
 
     for user in 1..=10 {
         let pack = pack.clone();
@@ -102,9 +106,9 @@ async fn main() {
                         if item.user_id == user {
                             let mut frm = FlatButton::new(580, 100, &item.title);
                             if item.completed {
-                                frm.set_color(Color::Green);
+                                frm.set_color(Color::from_u32(GREEN));
                             } else {
-                                frm.set_color(Color::Red);
+                                frm.set_color(Color::from_u32(RED));
                             }
                             pack.add(&*frm);
                         }

@@ -21,7 +21,7 @@ The current demos include:
 
 The demos can be run by accessing any of the directories and running:
 ```
-cargo run
+cargo run --release
 ```
 
 ## Screenshots:

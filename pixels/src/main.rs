@@ -1,11 +1,17 @@
+#![deny(clippy::all)]
+#![forbid(unsafe_code)]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use fltk::{app, prelude::*, window::Window};
-use pixels::{Pixels, SurfaceTexture};
+use pixels::{Error, Pixels, SurfaceTexture};
 use std::{thread, time::Duration};
 
 const WIDTH: u32 = 600;
 const HEIGHT: u32 = 400;
 const CIRCLE_RADIUS: i16 = 64;
+const SLEEP: u64 = 16;
 
+/// Representation of the application state. In this example, a circle will bounce around the screen.
 struct World {
     circle_x: i16,
     circle_y: i16,
@@ -13,11 +19,11 @@ struct World {
     velocity_y: i16,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Error> {
     let app = app::App::default();
     let mut win = Window::default()
         .with_size(WIDTH as i32, HEIGHT as i32)
-        .with_label("Pixels");
+        .with_label("Hello Pixels");
     win.end();
     win.make_resizable(true);
     win.show();
@@ -29,20 +35,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut world = World::new();
 
-    win.draw(move || {
+    while app.wait() {
+        // Update internal state
         world.update();
+        // Draw the current frame
         world.draw(pixels.get_frame());
         pixels.render().unwrap();
-    });
-
-
-    Ok(while app.wait() {
         win.redraw();
-        thread::sleep(Duration::from_millis(16));
-    })
+        // Calls to redraw in the event loop require an explicit sleep
+        thread::sleep(Duration::from_millis(SLEEP));
+    }
+
+    Ok(())
 }
 
 impl World {
+    /// Create a new `World` instance that can draw a moving circle.
     fn new() -> Self {
         Self {
             circle_x: 300,
@@ -52,6 +60,7 @@ impl World {
         }
     }
 
+    /// Update the `World` internal state; bounce the circle around the screen.
     fn update(&mut self) {
         if self.circle_x - CIRCLE_RADIUS <= 0 || self.circle_x + CIRCLE_RADIUS > WIDTH as i16 {
             self.velocity_x *= -1;
@@ -64,6 +73,9 @@ impl World {
         self.circle_y += self.velocity_y;
     }
 
+    /// Draw the `World` state to the frame buffer.
+    ///
+    /// Assumes the default texture format: `wgpu::TextureFormat::Rgba8UnormSrgb`
     fn draw(&self, frame: &mut [u8]) {
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
             let x = (i % WIDTH as usize) as i16;

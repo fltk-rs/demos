@@ -15,8 +15,8 @@ struct FlatButton {
     frm: frame::Frame,
 }
 
-const RED: u32 = 0xf44336;
-const GREEN: u32 = 0x66bb6a;
+const RED: u32 = 0xe51c23;
+const GREEN: u32 = 0x8bc34a;
 
 impl FlatButton {
     pub fn new(w: i32, h: i32, title: &str) -> FlatButton {
@@ -60,19 +60,19 @@ impl ops::DerefMut for FlatButton {
 async fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::DoubleWindow::new(200, 200, 600, 400, "Todos");
-    let mut scroll = group::Scroll::new(0, 0, 600, 360, "");
-    let mut pack = group::Pack::new(5, 0, 580, 360, "");
+    let mut scroll = group::Scroll::default().with_size(600, 350);
+    let mut pack = group::Pack::default().with_size(580, 350).center_of(&scroll);
     pack.end();
     scroll.end();
 
-    let mut choice = menu::Choice::new(260, 360, 80, 40, "User");
+    let mut choice = menu::Choice::new(260, 355, 80, 40, "User");
 
     win.end();
     win.show();
 
-    app::background(0, 0, 0);
+    app::background(255, 255, 255);
     pack.set_spacing(5);
-    choice.set_color(Color::from_u32(0x757575));
+    choice.set_color(Color::from_u32(0x673ab7));
     choice.set_text_color(Color::White);
     scroll.set_scrollbar_size(7);
     scroll.set_type(group::ScrollType::Vertical);

@@ -88,7 +88,7 @@ fn main() {
     use futures::executor::block_on;
     let mut state: State = block_on(State::new(&window));
 
-    window.draw(move || state.render().unwrap());
-
-    app.run().unwrap();
+    while app.wait() {
+        state.render().unwrap();
+    }
 }

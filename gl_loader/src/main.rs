@@ -99,7 +99,7 @@ fn main() {
     win.set_mode(Mode::Opengl3);
     win.end();
     win.show();
-
+	
     gl::load_with(|s| win.get_proc_address(s));
 
     let vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);

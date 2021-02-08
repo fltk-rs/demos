@@ -15,10 +15,11 @@ fn main() {
     let dt = Rc::from(RefCell::from(dt));
     let dt_c = dt.clone();
 
-    let app = app::App::default();
-    let mut win = window::Window::default().with_size(WIDTH, HEIGHT);
-    win.set_color(enums::Color::White);
-    let mut frame = frame::Frame::default().size_of(&win);
+    let app = app::App::default().with_scheme(app::Scheme::Gtk);
+    let mut win = window::Window::default().with_size(WIDTH + 10, HEIGHT + 10);
+    let mut frame = frame::Frame::new(5, 5, WIDTH, HEIGHT, "");
+    frame.set_frame(enums::FrameType::DownBox);
+    frame.set_color(enums::Color::White);
     win.end();
     win.show();
 

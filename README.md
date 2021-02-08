@@ -15,7 +15,7 @@ The current demos include:
 - framebuffer: Using fltk for framebuffer drawing.
 - pixels: Create live drawn animations using the pixels crate.
 - plotters: Use plotters for live plotting (drawing animations) with fltk.
-- raqote: Use raqote for custom drawing.
+- raqote: Use raqote for custom drawing (paint example).
 - tinyskia: Use tiny-skia for custom drawing.
 - systray: Use nwg to create an fltk app with systray functionalities on Windows.
 

@@ -95,10 +95,11 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 
 fn main() {
     let app = app::App::default();
-    let mut win = window::GlWindow::new(100, 100, 500, 400, "");
+    let mut win = window::GlutWindow::new(100, 100, 500, 400, "");
     win.set_mode(Mode::Opengl3);
     win.end();
     win.show();
+    win.make_current();
 	
     gl::load_with(|s| win.get_proc_address(s));
 

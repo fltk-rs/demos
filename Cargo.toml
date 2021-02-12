@@ -5,7 +5,7 @@ members = [
     "libvlc",
     "opengl",
     "musicplayer",
-    "gl_loader",
+    "glut",
     "pixels",
     "wgpu",
     "framebuffer",

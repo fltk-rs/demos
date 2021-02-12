@@ -9,7 +9,7 @@ The current demos include:
 - libvlc: Creating a media player using fltk and the vlc crate.
 - musicplayer: Creating a music player using custom widgets and the soloud crate. 
 - opengl: Raw OpenGL drawing in an fltk GlWindow.
-- gl_loader: Use the gl crate (An OpenGL function pointer loader) to do OpenGL drawing.
+- glut: Use the gl crate (An OpenGL function pointer loader) to do OpenGL drawing.
 - wgpu: Use wgpu-rs for gpu accelerated drawing.
 - pixels: Use the pixels crate to draw a wgpu accelerated framebuffer.
 - framebuffer: Using fltk for framebuffer drawing.
@@ -34,7 +34,7 @@ cargo run --release
 - opengl
 ![alt_test](opengl/ex.jpg)
 - gl_loader
-![alt_test](gl_loader/ex.png)
+![alt_test](glut/ex.png)
 - pixels
 ![alt_test](pixels/ex.jpg)
 - plotters

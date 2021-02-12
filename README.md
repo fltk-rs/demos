@@ -33,7 +33,7 @@ cargo run --release
 ![alt_test](libvlc/ex.jpg)
 - opengl
 ![alt_test](opengl/ex.jpg)
-- gl_loader
+- glut
 ![alt_test](glut/ex.png)
 - pixels
 ![alt_test](pixels/ex.jpg)

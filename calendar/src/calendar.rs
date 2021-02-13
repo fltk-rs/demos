@@ -1,4 +1,7 @@
-use chrono::{DateLike, DateTime, Local, NaiveDate};
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::Local;
+use chrono::NaiveDate;
 use fltk::{app, draw, menu, prelude::*, table, window};
 use std::{cell::RefCell, rc::Rc};
 

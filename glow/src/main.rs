@@ -11,7 +11,7 @@ fn main() {
 
     unsafe {
         let gl = glow::Context::from_loader_function(|s| {
-            win.get_proc_address(Box::leak(s.to_owned().into_boxed_str())) as *const _
+            win.get_proc_address(s) as *const _
         });
 
         let vertex_array = gl

@@ -19,6 +19,7 @@ The current demos include:
 - tinyskia: Use tiny-skia for custom drawing.
 - systray: Use nwg to create an fltk app with systray functionalities on Windows.
 - glow: Use the glow crate to do OpengGL drawing.
+- calendar: Uses the chrono crate to create an fltk calendar dialog.
 
 The demos can be run by accessing any of the directories and running:
 ```

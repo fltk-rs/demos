@@ -18,6 +18,7 @@ The current demos include:
 - raqote: Use raqote for custom drawing (paint example).
 - tinyskia: Use tiny-skia for custom drawing.
 - systray: Use nwg to create an fltk app with systray functionalities on Windows.
+- glow: Use the glow crate to do OpengGL drawing.
 
 The demos can be run by accessing any of the directories and running:
 ```
@@ -43,3 +44,5 @@ cargo run --release
 ![alt_test](raqote/ex.jpg)
 - tinyskia
 ![alt_test](tinyskia/ex.jpg)
+- glow
+![alt_test](glow/ex.jpg)

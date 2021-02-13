@@ -13,4 +13,5 @@ members = [
     "plotters",
     "tinyskia",
     "systray",
+    "glow",
 ]

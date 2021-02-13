@@ -2,12 +2,14 @@ use fltk::*;
 use glow::*;
 
 fn main() {
+
+    let app = app::App::default();
+    let mut win = window::GlutWindow::default().with_size(800, 600);
+    win.set_mode(Mode::Opengl3);
+    win.end();
+    win.show();
+
     unsafe {
-        let app = app::App::default();
-        let mut win = window::GlutWindow::default().with_size(800, 600);
-        win.set_mode(Mode::Opengl3);
-        win.end();
-        win.show();
         let gl = glow::Context::from_loader_function(|s| {
             win.get_proc_address(Box::leak(s.to_owned().into_boxed_str())) as *const _
         });
@@ -76,7 +78,7 @@ fn main() {
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
             w.swap_buffers();
         });
-
-        app.run().unwrap();
     }
+    
+    app.run().unwrap();
 }

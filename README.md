@@ -6,6 +6,7 @@ Also the fltk-rs repo has an [examples directory](https://github.com/MoAlyousef/
 
 The current demos include:
 - web-todo: Creating an async web todo app using fltk, reqwest, serde and tokio.
+- web-todo2: Creating an async web todo app using fltk, surf, serde and async-std.
 - libvlc: Creating a media player using fltk and the vlc crate.
 - musicplayer: Creating a music player using custom widgets and the soloud crate. 
 - opengl: Raw OpenGL drawing in an fltk GlWindow.

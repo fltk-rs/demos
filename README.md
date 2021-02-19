@@ -22,6 +22,7 @@ The current demos include:
 - glow: Use the glow crate to do OpengGL drawing.
 - glium: Use the glium crate for OpenGL drawing.
 - calendar: Uses the chrono crate to create an fltk calendar dialog.
+- image: Uses rust-embed and the image crates to load images into fltk.
 
 The demos can be run by accessing any of the directories and running:
 ```

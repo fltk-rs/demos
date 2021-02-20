@@ -1,5 +1,5 @@
 use fltk::{app, frame, image as fl_image, prelude::*, window};
-use image::GenericImageView;
+use image::{GenericImageView, ColorType};
 
 #[macro_use]
 extern crate rust_embed;
@@ -22,7 +22,14 @@ fn main() {
 
     let img2 = image::open("../glut/ex.png").unwrap();
     let (x, y) = img2.dimensions();
-    let mut rgb = fl_image::RgbImage::new(&img2.to_bytes(), x, y, 4).unwrap();
+    let depth = match img2.color() { // convert image::ColorType to supported fltk ColorDepth
+        ColorType::L8 => ColorDepth::L8,
+        ColorType::La8 => ColorDepth::La8,
+        ColorType::Rgb8 => ColorDepth::Rgb8,
+        ColorType::Rgba8 => ColorDepth::Rgba8,
+        _ => panic!("Unsupported color depth!"),
+    };
+    let mut rgb = fl_image::RgbImage::new(&img2.to_bytes(), x, y, depth).unwrap();
 
     frame1.set_image(Some(jpg));
     frame2.draw2(move |f| {

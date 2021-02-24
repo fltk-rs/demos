@@ -29,7 +29,7 @@ fn main() {
         ColorType::La8 => ColorDepth::La8,
         ColorType::Rgb8 => ColorDepth::Rgb8,
         ColorType::Rgba8 => ColorDepth::Rgba8,
-        _ => panic!("Unsupported color depth!"),
+        _ => panic!("Image needs conversion to an FLTK supported ColorDepth"),
     };
     let mut rgb = fl_image::RgbImage::new(&img2.to_bytes(), x, y, depth).unwrap();
     println!("{:?}", rgb.depth());

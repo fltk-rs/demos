@@ -26,13 +26,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut world = World::new();
     unsafe { draw::draw_rgba_nocopy(&mut frame, &framebuf); }
 
-    Ok(while app.wait() {
+    while app.wait() {
         world.update();
         world.draw(&mut framebuf);
         // draw::draw_rgba(&mut frame, &framebuf).unwrap(); // A safe variant of draw_rgba_nocopy
         win.redraw();
         thread::sleep(Duration::from_millis(16));
-    })
+    }
+    Ok(())
 }
 
 impl World {

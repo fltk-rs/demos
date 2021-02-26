@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let start_ts = SystemTime::now();
     let mut last_flushed = 0.0;
 
-    Ok(while app.wait() {
+    while app.wait() {
         let epoch = SystemTime::now()
             .duration_since(start_ts)
             .unwrap()
@@ -111,5 +111,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         win.redraw();
         std::thread::sleep(std::time::Duration::from_millis(16));
-    })
+    }
+    Ok(())
 }

@@ -1,5 +1,10 @@
-use fltk::{app, frame, image as fl_image, prelude::*, window};
+#![allow(unused_imports)]
+
+use fltk::{app, draw, frame, image as fl_image, prelude::*, window};
+use image::io::Reader as ImageReader;
 use image::GenericImageView;
+use std::error::Error;
+use std::io::Cursor;
 
 #[macro_use]
 extern crate rust_embed;
@@ -8,27 +13,27 @@ extern crate rust_embed;
 #[folder = "../glow/"]
 struct Asset;
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
+    let img = Asset::get("ex.jpg").ok_or_else(|| "")?;
+    let img = ImageReader::new(Cursor::new(img))
+        .with_guessed_format()?
+        .decode()?;
+    let (w, h) = img.dimensions();
+
     let app = app::App::default();
-    let mut wind = window::Window::default().with_size(800, 400);
-    let mut frame1 = frame::Frame::new(0, 0, 400, 400, "");
-    let mut frame2 = frame::Frame::new(400, 0, 400, 400, "");
+    let mut wind = window::Window::default().with_size(w as i32, h as i32);
+    let mut frame = frame::Frame::default().size_of(&wind);
     wind.end();
     wind.show();
 
-    let img1 = Asset::get("ex.jpg").unwrap();
-    let mut jpg = fl_image::JpegImage::from_data(&img1).unwrap();
-    jpg.scale(frame1.width(), frame1.height(), false, true);
-    println!("{:?}", jpg.depth());
-
-    let img2 = image::open("../glut/ex.png").unwrap();
-    let (x, y) = img2.dimensions();
-    let mut rgb = fl_image::RgbImage::new(&img2.to_rgb8(), x, y, ColorDepth::Rgb8).unwrap();
-
-    frame1.set_image(Some(jpg));
-    frame2.draw2(move |f| {
-        rgb.draw(f.x(), f.y(), f.width(), f.height());
+    frame.draw(move || {
+        draw::draw_image(&img.to_rgb8(), 0, 0, w as i32, h as i32, ColorDepth::Rgb8).unwrap();
     });
 
-    app.run().unwrap();
+    // // Or just convert to fltk::image::RgbImage
+    // let rgb = fl_image::RgbImage::new(&img.to_rgb8(), w, h, ColorDepth::Rgb8)?;
+    // frame.set_image(Some(rgb));
+
+    app.run()?;
+    Ok(())
 }

@@ -1,13 +1,16 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use fltk::{
-    app,
+    app, enums,
     prelude::{GroupExt, WidgetBase, WidgetExt, WindowExt},
     window::GlutWindow,
 };
 
 fn main() {
     let app = app::App::default();
-    let mut win = GlutWindow::default().with_size(640, 480);
+    let mut win = GlutWindow::default()
+        .with_size(640, 480)
+        .with_label("femtovg example");
+    win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
     win.make_current();

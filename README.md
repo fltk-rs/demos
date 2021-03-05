@@ -23,6 +23,7 @@ The current demos include:
 - calendar: Uses the chrono crate to create an fltk calendar dialog.
 - image: Uses rust-embed and the image crates to load images into fltk.
 - speedy2d: Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlutWindow.
+- femtovg: Uses femtovg for 2D drawing in a GlutWindow.
 
 The demos can be run by accessing any of the directories and running:
 ```
@@ -56,3 +57,5 @@ cargo run --release
 ![alt_test](calendar/ex.jpg)
 - speedy2d
 ![alt_test](speedy2d/ex.jpg)
+- femtovg
+![alt_test](femtovg/ex.png)

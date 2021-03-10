@@ -12,7 +12,7 @@ pub fn fltk_gui() {
     }
     let mut win = window::Window::default().with_size(400, 300);
     let mut frame = frame::Frame::new(10, 10, 380, 200, "");
-    frame.set_frame(FrameType::EngraveBox);
+    frame.set_frame(FrameType::EngravedBox);
     let mut but = button::Button::new(160, 220, 80, 40, "Click me!");
     win.end();
     win.show();

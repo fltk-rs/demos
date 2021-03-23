@@ -1,0 +1,13 @@
+[package]
+name = "csv"
+version = "0.1.0"
+authors = ["MoAlyousef <may642_2000@hotmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fltk = { path = "../../../fltk-rs/fltk" }
+csv = "1.1.6"
+serde = { version = "1", features = ["derive"] }
+lazy_static = "1.4"

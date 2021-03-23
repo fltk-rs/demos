@@ -99,7 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             drop(root);
             drop(chart);
 
-            unsafe { draw::draw_rgb_nocopy(&mut frame, &buf) }
+            draw::draw_rgb(&mut frame, &buf).unwrap();
             last_flushed = epoch;
         }
 

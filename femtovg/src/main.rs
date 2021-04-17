@@ -18,7 +18,7 @@ fn main() {
         OpenGl::new(|s| win.get_proc_address(s) as *const _).expect("Cannot create renderer");
     let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
 
-    win.draw2(move |w| {
+    win.draw(move |w| {
         canvas.set_size(w.width() as u32, w.height() as u32, 1.);
         canvas.clear_rect(
             0,

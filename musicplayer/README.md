@@ -1,6 +1,6 @@
 # Music Player Demo
 
-This example shows using fltk, soloud and plotters to create an audio player with customized widgets.
+This example shows using fltk and soloud to create an audio player with customized widgets.
 
 ![alt_test](musicplayer.png)
 

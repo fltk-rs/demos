@@ -25,7 +25,7 @@ fn main() {
 
     let mut x = 0;
     let mut y = 0;
-    frame.handle2(move |f, ev| match ev {
+    frame.handle(move |f, ev| match ev {
         enums::Event::Push => {
             let coords = app::event_coords();
             let path = draw_line(coords.0, coords.1, coords.0, coords.1);

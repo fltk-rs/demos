@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{prelude::*, *};
 use tiny_skia::*;
 
 fn main() {

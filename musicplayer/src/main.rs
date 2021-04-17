@@ -1,7 +1,7 @@
-use fltk::{app, frame::*, window::*};
+use fltk::{app, enums::*, frame::*, prelude::*, window::*};
+use soloud::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use soloud::*;
 
 mod power_button;
 use power_button::PowerButton;
@@ -31,42 +31,48 @@ fn main() {
     wind.show();
 
     let sl = Rc::from(RefCell::from(sl));
-    let sl_c = sl.clone();
-    but.set_callback(Box::new(move || {
-        if sl_c.borrow().active_voice_count() > 0 { // Checks that no active audio is playing
-            sl_c.borrow().stop_all();
-            return;
-        }
-    	let mut wav = audio::Wav::default();
-        wav.load(&std::path::Path::new(TRACK)).unwrap();
-        wav.set_looping(true);
-        sl_c.borrow().play(&wav);
-        while sl_c.borrow().active_voice_count() > 0 {
-            app.wait();
-        }
-    }));
 
-    let sl_c = sl.clone();
-    let mut slider_c =slider.clone();
-    slider.handle(Box::new(move |ev| match ev {
-        Event::Push => true,
-        Event::Drag => {
-            let slider_x = slider_c.x() as f32 / 50.0;
-            let (x, _y) = app::event_coords();
-            if x > 45 && x < 350 {
-                slider_c.set_pos(x - 15, 150);
-                sl_c.borrow_mut().set_global_volume(slider_x);
+    but.set_callback({
+        let sl = sl.clone();
+        move |_| {
+            if sl.borrow().active_voice_count() > 0 {
+                // Checks that no active audio is playing
+                sl.borrow().stop_all();
+                return;
             }
-            app::redraw();
-            true
-        },
-        _ => false,
-    }));
+            let mut wav = audio::Wav::default();
+            wav.load(&std::path::Path::new(TRACK)).unwrap();
+            wav.set_looping(true);
+            sl.borrow().play(&wav);
+            while sl.borrow().active_voice_count() > 0 {
+                app.wait();
+            }
+        }
+    });
 
-    wind.set_callback(Box::new(move || { // Triggered when the window closes
+    slider.handle({
+        let sl = sl.clone();
+        move |s, ev| match ev {
+            Event::Push => true,
+            Event::Drag => {
+                let slider_x = s.x() as f32 / 50.0;
+                let (x, _y) = app::event_coords();
+                if x > 45 && x < 350 {
+                    s.set_pos(x - 15, 150);
+                    sl.borrow_mut().set_global_volume(slider_x);
+                }
+                app::redraw();
+                true
+            }
+            _ => false,
+        }
+    });
+
+    wind.set_callback(move |_| {
+        // Triggered when the window closes
         sl.borrow().stop_all(); // Stop any playing audio before quitting
         app.quit();
-    }));
+    });
 
     app.run().unwrap();
 }

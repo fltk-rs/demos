@@ -1,6 +1,6 @@
-use fltk::*;
+use fltk::{enums::*, prelude::*, *};
 use serde::{Deserialize, Serialize};
-use std::*;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Item {
@@ -21,28 +21,28 @@ const GREEN: u32 = 0x8bc34a;
 impl FlatButton {
     pub fn new(w: i32, h: i32, title: &str) -> FlatButton {
         let mut w = FlatButton {
-            frm: frame::Frame::new(0, 0, w, h, title),
+            frm: frame::Frame::new(0, 0, w, h, None),
         };
+        w.frm.set_label(title);
         w.frm.set_frame(FrameType::RFlatBox);
         w.frm.set_color(Color::Red);
-        let mut w_c = w.clone();
-        w.frm.handle(Box::new(move |ev| match ev {
+        w.frm.handle(move |w, ev| match ev {
             Event::Push => {
-                if w_c.color() == Color::from_u32(GREEN) {
-                    w_c.set_color(Color::from_u32(RED));
+                if w.color() == Color::from_u32(GREEN) {
+                    w.set_color(Color::from_u32(RED));
                 } else {
-                    w_c.set_color(Color::from_u32(GREEN));
+                    w.set_color(Color::from_u32(GREEN));
                 }
-                w_c.redraw();
+                w.redraw();
                 true
             }
             _ => false,
-        }));
+        });
         w
     }
 }
 
-impl ops::Deref for FlatButton {
+impl Deref for FlatButton {
     type Target = frame::Frame;
 
     fn deref(&self) -> &Self::Target {
@@ -50,7 +50,7 @@ impl ops::Deref for FlatButton {
     }
 }
 
-impl ops::DerefMut for FlatButton {
+impl DerefMut for FlatButton {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.frm
     }
@@ -61,7 +61,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::DoubleWindow::new(200, 200, 600, 400, "Todos");
     let mut scroll = group::Scroll::default().with_size(600, 350);
-    let mut pack = group::Pack::default().with_size(580, 350).center_of(&scroll);
+    let mut pack = group::Pack::default()
+        .with_size(580, 350)
+        .center_of(&scroll);
     pack.end();
     scroll.end();
 
@@ -88,7 +90,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             &user.to_string(),
             Shortcut::None,
             menu::MenuFlag::Normal,
-            Box::new(move || {
+            move |_| {
                 let mut pack = pack.clone();
                 let mut win = win.clone();
                 async_std::task::spawn(async move {
@@ -113,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     win.redraw();
                 });
-            }),
+            },
         );
     }
 

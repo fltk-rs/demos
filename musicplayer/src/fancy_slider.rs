@@ -1,60 +1,41 @@
-use fltk::frame::*;
-use fltk::image::*;
-use plotters::prelude::*;
+use fltk::{enums::*, prelude::*, *};
 use std::ops::{Deref, DerefMut};
 
-struct MyCircle {
-    image: SvgImage,
-}
-
-impl MyCircle {
-    pub fn new() -> MyCircle {
-        let mut buf = String::from("");
-        let mut root = SVGBackend::with_string(&mut buf, (300, 200));
-        root.draw_circle(
-            (100, 100),
-            50,
-            &Into::<ShapeStyle>::into(&RED).filled(),
-            true,
-        ).unwrap();
-        drop(root);
-        let mut img = SvgImage::from_data(&buf).unwrap();
-        img.scale(50, 50, true, true);
-        MyCircle {
-            image: img,
-        }
-    }
-}
-
 pub struct FancySlider {
-    line: Frame,
-    circ: Frame,
+    s: valuator::Slider,
 }
 
 impl FancySlider {
     pub fn new(x: i32, y: i32) -> Self {
-        let mut f = FancySlider {
-            line: Frame::new(x, y + 13, 300, 5, ""),
-            circ: Frame::new(x - 10, y, 50, 50, ""),
-        };
-        let circle = MyCircle::new();
-        f.circ.set_image(Some(circle.image));
-        f.line.set_frame(FrameType::RFlatBox);
-        f.line.set_color(fltk::enums::Color::White);
-        f
+        let mut s = valuator::Slider::new(x, y, 300, 10, "");
+        s.set_type(valuator::SliderType::Horizontal);
+        s.set_frame(FrameType::RFlatBox);
+        s.set_color(Color::from_u32(0x868db1));
+        s.draw(|s| {
+            draw::set_draw_color(Color::Blue);
+            draw::draw_pie(
+                s.x() - 10 + (s.w() as f64 * s.value()) as i32,
+                s.y() - 10,
+                30,
+                30,
+                0.,
+                360.,
+            );
+        });
+        Self { s }
     }
 }
 
 impl Deref for FancySlider {
-    type Target = Frame;
+    type Target = valuator::Slider;
 
     fn deref(&self) -> &Self::Target {
-        &self.circ
+        &self.s
     }
 }
 
 impl DerefMut for FancySlider {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.circ
+        &mut self.s
     }
 }

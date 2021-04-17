@@ -1,5 +1,5 @@
 use glu_sys::*;
-use fltk::*;
+use fltk::{prelude::*, *};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -16,17 +16,17 @@ pub fn main() {
     let rotangle = Rc::from(RefCell::from(0.0));
     let rotangle_rc = rotangle.clone();
 
-    wind.draw(Box::new(move || draw_triangle(&rotangle_rc.borrow())));
+    wind.draw(move |_| draw_triangle(&rotangle_rc.borrow()));
 
     let (s, r) = app::channel::<(i32, i32)>();
 
-    wind.handle(Box::new(move |ev| match ev {
-        Event::Drag => {
+    wind.handle(move |_, ev| match ev {
+        enums::Event::Drag => {
             s.send(app::event_coords());
             true
         }
         _ => false,
-    }));
+    });
 
     while app.wait() {
         match r.recv() {

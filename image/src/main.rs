@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 
-use fltk::{app, draw, frame, image as fl_image, prelude::*, window};
+use fltk::{app, draw, enums::*, frame, image as fl_image, prelude::*, window};
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
 use std::error::Error;
@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     wind.end();
     wind.show();
 
-    frame.draw(move || {
+    frame.draw(move |_| {
         draw::draw_image(&img.to_rgb8(), 0, 0, w as i32, h as i32, ColorDepth::Rgb8).unwrap();
     });
 

@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{prelude::*, *};
 struct State {
     device: wgpu::Device,
     queue: wgpu::Queue,

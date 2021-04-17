@@ -1,11 +1,11 @@
-use fltk::*;
+use fltk::{prelude::*, *};
 use glow::*;
 
 fn main() {
 
     let app = app::App::default();
     let mut win = window::GlutWindow::default().with_size(800, 600);
-    win.set_mode(Mode::Opengl3);
+    win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
 
@@ -73,7 +73,7 @@ fn main() {
         gl.use_program(Some(program));
         gl.clear_color(0.1, 0.2, 0.3, 1.0);
 
-        win.draw2(move |w| {
+        win.draw(move |w| {
             gl.clear(glow::COLOR_BUFFER_BIT);
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
             w.swap_buffers();

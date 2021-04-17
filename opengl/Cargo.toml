@@ -7,6 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "0.16", features = ["enable-glwindow"] }
+fltk = { version = "1", features = ["enable-glwindow"] }
 glu-sys = "0.1.4"
 

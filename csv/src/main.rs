@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{enums::*, prelude::*, *};
 use serde::Deserialize;
 use std::sync::Mutex;
 
@@ -50,7 +50,7 @@ fn main() {
     frame.set_frame(FrameType::DownBox);
     frame.set_color(Color::Black);
 
-    frame.draw2(|f| {
+    frame.draw(|f| {
         let data = PRICES.lock().unwrap();
         let mut highest = data
             .iter()
@@ -84,7 +84,7 @@ fn main() {
         }
     });
 
-    browser.set_callback2(move |t| {
+    browser.set_callback(move |t| {
         if let Some(file) = t.selected_text() {
             let file = format!("historical_data/{}.csv", file);
             let mut rdr = csv::Reader::from_reader(std::fs::File::open(file).unwrap());

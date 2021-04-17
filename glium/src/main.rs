@@ -2,7 +2,7 @@
 extern crate glium;
 
 use glium::Surface;
-use fltk::*; 
+use fltk::{prelude::*, *}; 
 
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -20,7 +20,7 @@ use std::os::raw::c_void;
 fn main() {
     let app = app::App::default();
     let mut win = window::GlutWindow::default().with_size(500, 400);
-    win.set_mode(Mode::Opengl3);
+    win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
     let gl_window = Rc::new(RefCell::new(win.clone()));

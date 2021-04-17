@@ -1,10 +1,10 @@
-use fltk::*;
+use fltk::{enums::*, prelude::*, *};
 use lazy_static::lazy_static;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 lazy_static! {
     static ref FLTK_WIN_SHOWN: AtomicBool = AtomicBool::new(false);
-}   
+}
 
 pub fn fltk_gui() {
     if FLTK_WIN_SHOWN.load(Ordering::Relaxed) {
@@ -16,12 +16,12 @@ pub fn fltk_gui() {
     let mut but = button::Button::new(160, 220, 80, 40, "Click me!");
     win.end();
     win.show();
-    win.set_callback2(|w| {
+    win.set_callback(|w| {
         if app::event() == Event::Hide || app::event() == Event::Close {
             FLTK_WIN_SHOWN.store(false, Ordering::Relaxed);
             w.hide();
         }
     });
-    but.set_callback(move || frame.set_label("Hello world!"));
+    but.set_callback(move |_| frame.set_label("Hello world!"));
     FLTK_WIN_SHOWN.store(true, Ordering::Relaxed);
 }

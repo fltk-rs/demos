@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::app;
 
 mod fltk_gui;
 #[cfg(target_os = "windows")]

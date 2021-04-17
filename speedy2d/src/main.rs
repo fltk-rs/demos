@@ -27,7 +27,7 @@ fn main() {
     main_win.show();
     win.make_current();
 
-    win.handle(|ev| match ev {
+    win.handle(|_, ev| match ev {
         Event::Push => {
             println!("Pushed");
             true

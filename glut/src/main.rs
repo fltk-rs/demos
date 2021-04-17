@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{prelude::*, *};
 
 use gl::types::*;
 use std::ffi::CString;
@@ -96,7 +96,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 fn main() {
     let app = app::App::default();
     let mut win = window::GlutWindow::new(100, 100, 500, 400, "");
-    win.set_mode(Mode::Opengl3);
+    win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
     win.make_current();
@@ -142,7 +142,7 @@ fn main() {
         );
     }
 
-    win.draw2(|g| {
+    win.draw(|g| {
         unsafe {
             // Clear the screen to black
             gl::ClearColor(0.3, 0.3, 0.3, 1.0);

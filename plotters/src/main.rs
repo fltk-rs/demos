@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{prelude::*, *};
 use plotters::prelude::*;
 use plotters::style::Color;
 use plotters_bitmap::bitmap_pixel::RGBPixel;

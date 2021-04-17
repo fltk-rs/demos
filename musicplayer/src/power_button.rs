@@ -1,6 +1,6 @@
-use fltk::app;
 use fltk::frame::*;
 use fltk::image::*;
+use fltk::{enums::*, prelude::*};
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
@@ -53,46 +53,41 @@ const POWER: &str = r#"<?xml version="1.0" encoding="iso-8859-1"?>
 
 #[derive(Clone)]
 pub struct PowerButton {
-    wid: Frame,
-    on: SvgImage,
-    off: SvgImage,
-    playing: Rc<RefCell<bool>>
+    frm: Frame,
+    on: Rc<RefCell<bool>>
 }
 
 impl PowerButton {
     pub fn new(x: i32, y: i32) -> Self {
-        let mut p = PowerButton {
-            wid: Frame::new(x, y, 80, 80, ""),
-            on: SvgImage::from_data(&POWER.to_string().replace("red", "green")).unwrap(),
-            off: SvgImage::from_data(POWER).unwrap(),
-            playing: Rc::from(RefCell::from(false)),
-        };
-        p.on.scale(80, 80, true, true);
-        p.off.scale(80, 80, true, true);
-        let off = p.off.clone();
-        p.wid.set_image(Some(off.clone()));
-        let on = p.on.clone();
-        let mut wid = p.wid.clone();
-        let playing = p.playing.clone();
-        p.wid.handle(Box::new(move |ev| match ev {
-            Event::Push => {
-                if *playing.borrow() {
-                    let off = off.clone();
-                    wid.set_image(Some(off));
-                    app::redraw();
-                    *playing.borrow_mut() = false;
+        let mut frm = Frame::new(x, y, 80, 80, "");
+        let on = Rc::from(RefCell::from(false));
+        frm.draw({
+            let on = on.clone();
+            move |f| {
+                let image_data = if *on.borrow() {
+                    POWER.to_string().replace("red", "green")
                 } else {
-                    let on = on.clone();
-                    wid.set_image(Some(on));
-                    app::redraw();
-                    *playing.borrow_mut() = true;
+                    POWER.to_string()
+                };
+                let mut svg = SvgImage::from_data(&image_data).unwrap();
+                svg.scale(f.width(), f.height(), true, true);
+                svg.draw(f.x(), f.y(), f.width(), f.height());
+            }
+        });
+        frm.handle({
+            let on = on.clone();
+            move |f, ev| match ev {
+                Event::Push => {
+                    let prev = *on.borrow();
+                    *on.borrow_mut() = !prev;
+                    f.do_callback();
+                    f.redraw();
+                    true
                 }
-                wid.do_callback();
-                true
-            },
-            _ => false,
-        }));
-        p
+                _ => false,
+            }
+        });
+        Self { frm, on }
     }
 }
 
@@ -100,12 +95,12 @@ impl Deref for PowerButton {
     type Target = Frame;
 
     fn deref(&self) -> &Self::Target {
-        &self.wid
+        &self.frm
     }
 }
 
 impl DerefMut for PowerButton {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.wid
+        &mut self.frm
     }
 }

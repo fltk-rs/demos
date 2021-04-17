@@ -1,4 +1,4 @@
-use fltk::*;
+use fltk::{enums::Color, prelude::*, *};
 use vlc::*;
 
 #[derive(Copy, Clone)]

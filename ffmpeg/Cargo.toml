@@ -7,6 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "1.0.3", git = "https://github.com/moalyouse/fltk-rs" }
+fltk = "1"
 signal-hook = "0.3"
 lazy_static = "1.4"

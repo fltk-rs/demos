@@ -59,8 +59,8 @@ fn main() -> Result<(), Box<dyn error::Error>> {
         if *i.borrow() == 0 { return; }
         let file = format!("{}/{}.bmp", &*VIDEO_TEMP_DIR, *i.borrow());
         if std::path::Path::new(&file).exists() {
-            let mut bmp = image::BmpImage::load(&file);
-            if let Ok(bmp) = bmp {
+            let bmp = image::BmpImage::load(&file);
+            if let Ok(mut bmp) = bmp {
                 bmp.draw(f.x(), f.y(), f.w(), f.h());
             }
             fs::remove_file(file).unwrap();

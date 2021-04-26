@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     process::Command::new("ffmpeg")
         .args(&[
             "-i",
-            "video.mp4",
+            "../libvlc/video.mp4",
             &format!("{}/%d.bmp", &*VIDEO_TEMP_DIR),
             "-y",
         ])

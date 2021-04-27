@@ -7,7 +7,7 @@ use fltk::{
     window,
 };
 use signal_hook::{consts::signal::SIGINT, iterator::Signals};
-use std::{cell, env, error, fs, process, rc, thread};
+use std::{env, error, fs, process, thread};
 
 lazy_static::lazy_static! {
     pub static ref VIDEO_TEMP_DIR: String = env::temp_dir().join("video_mp4").to_string_lossy().to_string();
@@ -53,27 +53,24 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     win.end();
     win.show();
 
-    let i = rc::Rc::from(cell::RefCell::from(0));
-
-    frame.draw({ let i = i.clone(); move |f| {
-        if *i.borrow() == 0 { return; }
-        let file = format!("{}/{}.bmp", &*VIDEO_TEMP_DIR, *i.borrow());
-        if std::path::Path::new(&file).exists() {
-            let bmp = image::BmpImage::load(&file);
-            if let Ok(mut bmp) = bmp {
-                bmp.draw(f.x(), f.y(), f.w(), f.h());
-            }
-            fs::remove_file(file).unwrap();
-        }
-    }});
-
     but.set_callback(move |_| {
         let mut frame = frame.clone();
         thread::spawn(move || {
+            let mut i = 1;
             loop {
-                *i.borrow_mut() += 1;
-                frame.redraw();
+                let file = format!("{}/{}.bmp", &*VIDEO_TEMP_DIR, i);
+                if std::path::Path::new(&file).exists() {
+                    let bmp = image::BmpImage::load(&file);
+                    if let Ok(bmp) = bmp {
+                        frame.set_image(Some(bmp));
+                    }
+                    fs::remove_file(file).unwrap();
+                } else {
+                    break;
+                }
                 app::sleep(0.001);
+                frame.redraw();
+                i += 1;
             }
         });
     });

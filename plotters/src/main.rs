@@ -48,8 +48,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let start_ts = SystemTime::now();
     let mut last_flushed = 0.0;
 
-    // unsafe { draw::draw_rgb_nocopy(&mut frame, &buf); }
-
     while app.wait() {
         let epoch = SystemTime::now()
             .duration_since(start_ts)

@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 fltk = "1"
-soloud = "0.3.4"
+soloud = "0.4"

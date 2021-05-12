@@ -25,6 +25,7 @@ The current demos include:
 - speedy2d: Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlutWindow.
 - femtovg: Uses femtovg for 2D drawing in a GlutWindow.
 - ffmpeg: Uses ffmpeg for software video rendering.
+- webview: Embeds a webview inside an fltk app.
 
 The demos can be run by accessing any of the directories and running:
 ```

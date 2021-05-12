@@ -26,6 +26,7 @@ The current demos include:
 - femtovg: Uses femtovg for 2D drawing in a GlutWindow.
 - ffmpeg: Uses ffmpeg for software video rendering.
 - webview: Embeds a webview inside an fltk app.
+- csv: Uses serde and csv to perform custom drawing of data.
 
 The demos can be run by accessing any of the directories and running:
 ```
@@ -61,3 +62,7 @@ cargo run --release
 ![alt_test](speedy2d/ex.jpg)
 - femtovg
 ![alt_test](femtovg/ex.png)
+- webview
+![alt_test](webview/ex.jpg)
+- csv
+![alt_test](csv/ex.jpg)

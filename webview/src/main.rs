@@ -10,7 +10,9 @@ fn main() {
         .center_of_parent();
     win.end();
     win.show();
+    
     let mut wv = fltk_webview::Webview::from(false, &mut wv_win);
     wv.navigate("http://wikipedia.com");
+    
     app.run().unwrap();
 }

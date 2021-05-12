@@ -13,7 +13,6 @@ fn main() {
     inner_win.set_color(Color::White);
     inner_win.end();
     win.end();
-
     win.show();
 
     let w;

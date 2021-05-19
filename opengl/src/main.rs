@@ -42,6 +42,11 @@ pub fn main() {
 
 fn draw_triangle(rotangle: &f32) {
     unsafe {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_ALWAYS); 
+        glDepthFunc(GL_LEQUAL);
+        glDepthRange(0.0, 1.0);
+        glDepthMask(1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();

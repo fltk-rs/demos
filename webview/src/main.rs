@@ -14,5 +14,5 @@ fn main() {
     let mut wv = fltk_webview::Webview::from(false, &mut wv_win);
     wv.navigate("http://wikipedia.com");
     
-    app.run().unwrap();
+    wv.run();
 }

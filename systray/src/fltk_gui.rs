@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 lazy_static! {
-    static ref FLTK_WIN_SHOWN: AtomicBool = AtomicBool::new(false);
+    pub static ref FLTK_WIN_SHOWN: AtomicBool = AtomicBool::new(false);
 }
 
 pub fn fltk_gui() {

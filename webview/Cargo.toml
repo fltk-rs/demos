@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 fltk = "1"
-fltk-webview = "=0.1.10"
+fltk-webview = "0.1.12"

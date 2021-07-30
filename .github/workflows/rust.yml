@@ -22,103 +22,103 @@ jobs:
          fi
       shell: bash
     - name: Build ex1
-      working_directory: calendar
+      working-directory: calendar
       shell: bash
       run: cargo build --verbose
     - name: Build ex2
       run: cargo build --verbose
-      working_directory: csv
+      working-directory: csv
       shell: bash
     - name: Build ex3
       run: cargo build --verbose
-      working_directory: femtovg
+      working-directory: femtovg
       shell: bash
     - name: Build ex4
       run: cargo build --verbose
-      working_directory: ffmpeg
+      working-directory: ffmpeg
       shell: bash
     - name: Build ex5
       run: cargo build --verbose
-      working_directory: framebuffer
+      working-directory: framebuffer
       shell: bash
     - name: Build ex6
       run: cargo build --verbose
-      working_directory: glium
+      working-directory: glium
       shell: bash
     - name: Build ex7
       run: cargo build --verbose
-      working_directory: glow
+      working-directory: glow
       shell: bash
     - name: Build ex8
       run: cargo build --verbose
-      working_directory: glut
+      working-directory: glut
       shell: bash
     - name: Build ex9
       run: cargo build --verbose
-      working_directory: image
+      working-directory: image
       shell: bash
     - name: Build ex10
       run: cargo build --verbose
-      working_directory: libvlc
+      working-directory: libvlc
       shell: bash
     - name: Build ex11
       run: cargo build --verbose
-      working_directory: mpv
+      working-directory: mpv
       shell: bash
     - name: Build ex12
       run: cargo build --verbose
-      working_directory: musicplayer
+      working-directory: musicplayer
       shell: bash
     - name: Build ex13
       run: cargo build --verbose
-      working_directory: opengl
+      working-directory: opengl
       shell: bash
     - name: Build ex14
       run: cargo build --verbose
-      working_directory: pixels
+      working-directory: pixels
       shell: bash
     - name: Build ex15
       run: cargo build --verbose
-      working_directory: plotters
+      working-directory: plotters
       shell: bash
     - name: Build ex16
       run: cargo build --verbose
-      working_directory: raqote
+      working-directory: raqote
       shell: bash
     - name: Build ex17
       run: cargo build --verbose
-      working_directory: rounded-svg
+      working-directory: rounded-svg
       shell: bash
     - name: Build ex18
       run: cargo build --verbose
-      working_directory: speedy2d
+      working-directory: speedy2d
       shell: bash
     - name: Build ex19
       run: cargo build --verbose
-      working_directory: systray
+      working-directory: systray
       shell: bash
     - name: Build ex20
       run: cargo build --verbose
-      working_directory: tinyskia
+      working-directory: tinyskia
       shell: bash
     - name: Build ex21
       run: cargo build --verbose
-      working_directory: web-todo
+      working-directory: web-todo
       shell: bash
     - name: Build ex22
       run: cargo build --verbose
-      working_directory: web-todo2
+      working-directory: web-todo2
       shell: bash
     - name: Build ex23
       run: cargo build --verbose
-      working_directory: webview
+      working-directory: webview
       shell: bash
     - name: Build ex24
       run: cargo build --verbose
-      working_directory: wgpu
+      working-directory: wgpu
       shell: bash
     - name: Build ex25
       run: cargo build --verbose
-      working_directory: xterm
+      working-directory: xterm
       shell: bash
     - uses: actions/checkout@v2

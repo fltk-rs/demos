@@ -20,9 +20,30 @@ jobs:
          if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build
          fi
-         for dir in demos/*/
-         do
-            cargo build --verbose
-         done
+         cd calendar && cargo build --verbose
+         cd ../csv && cargo build --verbose
+         cd ../femtovg && cargo build --verbose
+         cd ../ffmpeg && cargo build --verbose
+         cd ../framebuffer && cargo build --verbose
+         cd ../glium && cargo build --verbose
+         cd ../glow && cargo build --verbose
+         cd ../glut && cargo build --verbose
+         cd ../image && cargo build --verbose
+         cd ../libvlc && cargo build --verbose
+         cd ../mpv && cargo build --verbose
+         cd ../musicplayer && cargo build --verbose
+         cd ../opengl && cargo build --verbose
+         cd ../pixels && cargo build --verbose
+         cd ../plotters && cargo build --verbose
+         cd ../raqote && cargo build --verbose
+         cd ../rounded-svg && cargo build --verbose
+         cd ../speedy2d && cargo build --verbose
+         cd ../systray && cargo build --verbose
+         cd ../tinyskia && cargo build --verbose
+         cd ../web-todo && cargo build --verbose
+         cd ../web-todo2 && cargo build --verbose
+         cd ../webview && cargo build --verbose
+         cd ../wgpu && cargo build --verbose
+         cd ../xterm && cargo build --verbose
       shell: bash
     - uses: actions/checkout@v2

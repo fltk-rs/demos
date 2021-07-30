@@ -27,6 +27,9 @@ The current demos include:
 - ffmpeg: Uses ffmpeg for software video rendering.
 - webview: Embeds a webview inside an fltk app.
 - csv: Uses serde and csv to perform custom drawing of data.
+- rounded-svg: Use the svg crate along with fltk to create images with rounded borders.
+- mpv: Use mpv to play a video inside an fltk window.
+- xterm: embed an xterm window inside an fltk window.
 
 The demos can be run by accessing any of the directories and running:
 ```

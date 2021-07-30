@@ -21,7 +21,6 @@ jobs:
           sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev
          fi
     - name: Build all
-      run: cargo build --verbose
       working_directory: calendar
       run: cargo build --verbose
       working_directory: csv

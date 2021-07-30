@@ -20,56 +20,105 @@ jobs:
          if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev
          fi
-    - name: Build all
+      shell: bash
+    - name: Build ex1
       working_directory: calendar
+      shell: bash
+      run: cargo build --verbose
+    - name: Build ex2
       run: cargo build --verbose
       working_directory: csv
+      shell: bash
+    - name: Build ex3
       run: cargo build --verbose
       working_directory: femtovg
+      shell: bash
+    - name: Build ex4
       run: cargo build --verbose
       working_directory: ffmpeg
+      shell: bash
+    - name: Build ex5
       run: cargo build --verbose
       working_directory: framebuffer
+      shell: bash
+    - name: Build ex6
       run: cargo build --verbose
       working_directory: glium
+      shell: bash
+    - name: Build ex7
       run: cargo build --verbose
       working_directory: glow
+      shell: bash
+    - name: Build ex8
       run: cargo build --verbose
       working_directory: glut
+      shell: bash
+    - name: Build ex9
       run: cargo build --verbose
       working_directory: image
+      shell: bash
+    - name: Build ex10
       run: cargo build --verbose
       working_directory: libvlc
+      shell: bash
+    - name: Build ex11
       run: cargo build --verbose
       working_directory: mpv
+      shell: bash
+    - name: Build ex12
       run: cargo build --verbose
       working_directory: musicplayer
+      shell: bash
+    - name: Build ex13
       run: cargo build --verbose
       working_directory: opengl
+      shell: bash
+    - name: Build ex14
       run: cargo build --verbose
       working_directory: pixels
+      shell: bash
+    - name: Build ex15
       run: cargo build --verbose
       working_directory: plotters
+      shell: bash
+    - name: Build ex16
       run: cargo build --verbose
       working_directory: raqote
+      shell: bash
+    - name: Build ex17
       run: cargo build --verbose
       working_directory: rounded-svg
+      shell: bash
+    - name: Build ex18
       run: cargo build --verbose
       working_directory: speedy2d
+      shell: bash
+    - name: Build ex19
       run: cargo build --verbose
       working_directory: systray
+      shell: bash
+    - name: Build ex20
       run: cargo build --verbose
       working_directory: tinyskia
+      shell: bash
+    - name: Build ex21
       run: cargo build --verbose
       working_directory: web-todo
+      shell: bash
+    - name: Build ex22
       run: cargo build --verbose
       working_directory: web-todo2
+      shell: bash
+    - name: Build ex23
       run: cargo build --verbose
       working_directory: webview
+      shell: bash
+    - name: Build ex24
       run: cargo build --verbose
       working_directory: wgpu
+      shell: bash
+    - name: Build ex25
       run: cargo build --verbose
       working_directory: xterm
-      run: cargo build --verbose
       shell: bash
     - uses: actions/checkout@v2

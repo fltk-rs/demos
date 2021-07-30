@@ -18,32 +18,32 @@ jobs:
     - name: Download deps
       run: |
          if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build
+          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev
          fi
-         cd /home/runner/demos/demos/calendar && cargo build --verbose
-         cd /home/runner/demos/demos/csv && cargo build --verbose
-         cd /home/runner/demos/demos/femtovg && cargo build --verbose
-         cd /home/runner/demos/demos/ffmpeg && cargo build --verbose
-         cd /home/runner/demos/demos/framebuffer && cargo build --verbose
-         cd /home/runner/demos/demos/glium && cargo build --verbose
-         cd /home/runner/demos/demos/glow && cargo build --verbose
-         cd /home/runner/demos/demos/glut && cargo build --verbose
-         cd /home/runner/demos/demos/image && cargo build --verbose
-         cd /home/runner/demos/demos/libvlc && cargo build --verbose
-         cd /home/runner/demos/demos/mpv && cargo build --verbose
-         cd /home/runner/demos/demos/musicplayer && cargo build --verbose
-         cd /home/runner/demos/demos/opengl && cargo build --verbose
-         cd /home/runner/demos/demos/pixels && cargo build --verbose
-         cd /home/runner/demos/demos/plotters && cargo build --verbose
-         cd /home/runner/demos/demos/raqote && cargo build --verbose
-         cd /home/runner/demos/demos/rounded-svg && cargo build --verbose
-         cd /home/runner/demos/demos/speedy2d && cargo build --verbose
-         cd /home/runner/demos/demos/systray && cargo build --verbose
-         cd /home/runner/demos/demos/tinyskia && cargo build --verbose
-         cd /home/runner/demos/demos/web-todo && cargo build --verbose
-         cd /home/runner/demos/demos/web-todo2 && cargo build --verbose
-         cd /home/runner/demos/demos/webview && cargo build --verbose
-         cd /home/runner/demos/demos/wgpu && cargo build --verbose
-         cd /home/runner/demos/demos/xterm && cargo build --verbose
+         cd /home/runner/work/demos/demos/calendar && cargo build --verbose
+         cd /home/runner/work/demos/demos/csv && cargo build --verbose
+         cd /home/runner/work/demos/demos/femtovg && cargo build --verbose
+         cd /home/runner/work/demos/demos/ffmpeg && cargo build --verbose
+         cd /home/runner/work/demos/demos/framebuffer && cargo build --verbose
+         cd /home/runner/work/demos/demos/glium && cargo build --verbose
+         cd /home/runner/work/demos/demos/glow && cargo build --verbose
+         cd /home/runner/work/demos/demos/glut && cargo build --verbose
+         cd /home/runner/work/demos/demos/image && cargo build --verbose
+         cd /home/runner/work/demos/demos/libvlc && cargo build --verbose
+         cd /home/runner/work/demos/demos/mpv && cargo build --verbose
+         cd /home/runner/work/demos/demos/musicplayer && cargo build --verbose
+         cd /home/runner/work/demos/demos/opengl && cargo build --verbose
+         cd /home/runner/work/demos/demos/pixels && cargo build --verbose
+         cd /home/runner/work/demos/demos/plotters && cargo build --verbose
+         cd /home/runner/work/demos/demos/raqote && cargo build --verbose
+         cd /home/runner/work/demos/demos/rounded-svg && cargo build --verbose
+         cd /home/runner/work/demos/demos/speedy2d && cargo build --verbose
+         cd /home/runner/work/demos/demos/systray && cargo build --verbose
+         cd /home/runner/work/demos/demos/tinyskia && cargo build --verbose
+         cd /home/runner/work/demos/demos/web-todo && cargo build --verbose
+         cd /home/runner/work/demos/demos/web-todo2 && cargo build --verbose
+         cd /home/runner/work/demos/demos/webview && cargo build --verbose
+         cd /home/runner/work/demos/demos/wgpu && cargo build --verbose
+         cd /home/runner/work/demos/demos/xterm && cargo build --verbose
       shell: bash
     - uses: actions/checkout@v2

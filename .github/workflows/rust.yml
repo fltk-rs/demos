@@ -20,30 +20,57 @@ jobs:
          if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev
          fi
-         cd /home/runner/work/demos/demos/calendar && cargo build --verbose
-         cd /home/runner/work/demos/demos/csv && cargo build --verbose
-         cd /home/runner/work/demos/demos/femtovg && cargo build --verbose
-         cd /home/runner/work/demos/demos/ffmpeg && cargo build --verbose
-         cd /home/runner/work/demos/demos/framebuffer && cargo build --verbose
-         cd /home/runner/work/demos/demos/glium && cargo build --verbose
-         cd /home/runner/work/demos/demos/glow && cargo build --verbose
-         cd /home/runner/work/demos/demos/glut && cargo build --verbose
-         cd /home/runner/work/demos/demos/image && cargo build --verbose
-         cd /home/runner/work/demos/demos/libvlc && cargo build --verbose
-         cd /home/runner/work/demos/demos/mpv && cargo build --verbose
-         cd /home/runner/work/demos/demos/musicplayer && cargo build --verbose
-         cd /home/runner/work/demos/demos/opengl && cargo build --verbose
-         cd /home/runner/work/demos/demos/pixels && cargo build --verbose
-         cd /home/runner/work/demos/demos/plotters && cargo build --verbose
-         cd /home/runner/work/demos/demos/raqote && cargo build --verbose
-         cd /home/runner/work/demos/demos/rounded-svg && cargo build --verbose
-         cd /home/runner/work/demos/demos/speedy2d && cargo build --verbose
-         cd /home/runner/work/demos/demos/systray && cargo build --verbose
-         cd /home/runner/work/demos/demos/tinyskia && cargo build --verbose
-         cd /home/runner/work/demos/demos/web-todo && cargo build --verbose
-         cd /home/runner/work/demos/demos/web-todo2 && cargo build --verbose
-         cd /home/runner/work/demos/demos/webview && cargo build --verbose
-         cd /home/runner/work/demos/demos/wgpu && cargo build --verbose
-         cd /home/runner/work/demos/demos/xterm && cargo build --verbose
+    - name: Build all
+      run: cargo build --verbose
+      working_directory: calendar
+      run: cargo build --verbose
+      working_directory: csv
+      run: cargo build --verbose
+      working_directory: femtovg
+      run: cargo build --verbose
+      working_directory: ffmpeg
+      run: cargo build --verbose
+      working_directory: framebuffer
+      run: cargo build --verbose
+      working_directory: glium
+      run: cargo build --verbose
+      working_directory: glow
+      run: cargo build --verbose
+      working_directory: glut
+      run: cargo build --verbose
+      working_directory: image
+      run: cargo build --verbose
+      working_directory: libvlc
+      run: cargo build --verbose
+      working_directory: mpv
+      run: cargo build --verbose
+      working_directory: musicplayer
+      run: cargo build --verbose
+      working_directory: opengl
+      run: cargo build --verbose
+      working_directory: pixels
+      run: cargo build --verbose
+      working_directory: plotters
+      run: cargo build --verbose
+      working_directory: raqote
+      run: cargo build --verbose
+      working_directory: rounded-svg
+      run: cargo build --verbose
+      working_directory: speedy2d
+      run: cargo build --verbose
+      working_directory: systray
+      run: cargo build --verbose
+      working_directory: tinyskia
+      run: cargo build --verbose
+      working_directory: web-todo
+      run: cargo build --verbose
+      working_directory: web-todo2
+      run: cargo build --verbose
+      working_directory: webview
+      run: cargo build --verbose
+      working_directory: wgpu
+      run: cargo build --verbose
+      working_directory: xterm
+      run: cargo build --verbose
       shell: bash
     - uses: actions/checkout@v2

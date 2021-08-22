@@ -111,7 +111,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             data.pop_front();
         }
         win.redraw();
-        std::thread::sleep(std::time::Duration::from_millis(16));
+        app::sleep(0.016);
+        app::awake();
     }
     Ok(())
 }

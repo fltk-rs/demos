@@ -31,7 +31,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         world.draw(&mut framebuf);
         // draw::draw_rgba(&mut frame, &framebuf).unwrap(); // A safe variant of draw_rgba_nocopy
         win.redraw();
-        thread::sleep(Duration::from_millis(16));
+        app::sleep(0.016);
+        app::awake();
     }
     Ok(())
 }

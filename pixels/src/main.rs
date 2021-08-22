@@ -40,7 +40,8 @@ fn main() -> Result<(), Error> {
         world.draw(pixels.get_frame());
         pixels.render().unwrap();
         win.flush();
-        std::thread::sleep(std::time::Duration::from_millis(16));
+        app::sleep(0.016);
+        app::awake();
     }
 
     Ok(())

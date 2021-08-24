@@ -52,28 +52,18 @@ fn main() {
         }
     });
 
-    if !cfg!(target_os = "windows") {
-        while a.wait() {
-            render_context
-                .render::<window::GlutWindow>(0, mpv_win.w() as _, mpv_win.h() as _, true)
-                .expect("Failed to draw on GlutWindow");
-            mpv_win.swap_buffers();
-            app::awake();
-        }
-    } else {
-        mpv_win.draw(move |w| {
-            render_context
-                .render::<window::GlutWindow>(0, w.w() as _, w.h() as _, true)
-                .expect("Failed to draw on GlutWindow");
-            w.swap_buffers();
-        });
-    
-        app::add_idle(move || {
-            mpv_win.redraw();
-            app::sleep(0.016);
-            app::awake();
-        });
-        
-        a.run().unwrap();
-    }
+    mpv_win.draw(move |w| {
+        render_context
+            .render::<window::GlutWindow>(0, w.w() as _, w.h() as _, true)
+            .expect("Failed to draw on GlutWindow");
+        w.swap_buffers();
+    });
+
+    app::add_idle(move || {
+        mpv_win.redraw();
+        app::sleep(0.016);
+        app::awake();
+    });
+
+    a.run().unwrap();
 }

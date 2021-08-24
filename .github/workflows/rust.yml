@@ -124,7 +124,3 @@ jobs:
       run: cargo build --verbose
       working-directory: xterm
       shell: bash
-    - name: Build libmpv
-      run: cargo build --verbose
-      working-directory: libmpv
-      shell: bash

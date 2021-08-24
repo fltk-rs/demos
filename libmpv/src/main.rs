@@ -61,9 +61,7 @@ fn main() {
 
     app::add_idle(move || {
         mpv_win.redraw();
-        app::sleep(0.016);
-        app::awake();
     });
-
+    
     a.run().unwrap();
 }

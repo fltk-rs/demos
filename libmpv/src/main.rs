@@ -1,7 +1,7 @@
 // the current libmpv-rs doesn't have the render_gl api
-// So we use a fork
+// So we use a fork as can be seen in the Cargo.toml
 
-use fltk::{prelude::*, *};
+use fltk::{enums::Mode, prelude::*, *};
 use libmpv::{
     render::{OpenGLInitParams, RenderContext, RenderParam, RenderParamApiType},
     FileState, Mpv,
@@ -18,12 +18,12 @@ fn main() {
         println!("Usage: mpv <video file>");
         std::process::exit(1);
     }
-
-    let a = app::App::default();
-    let mut win = window::Window::default().with_size(400, 300);
-    let mut mpv_win = window::GlutWindow::default()
-        .with_size(390, 290)
-        .center_of_parent();
+    let a = app::App::default().with_scheme(app::Scheme::Gleam);
+    app::get_system_colors();
+    let mut win = window::Window::default().with_size(800, 600);
+    let mut mpv_win = window::GlutWindow::new(5, 5, 790, 530, None);
+    mpv_win.set_mode(Mode::Opengl3);
+    let mut btn = button::Button::new(360, 545, 80, 40, "@||");
     win.end();
     win.make_resizable(true);
     win.show();
@@ -45,6 +45,15 @@ fn main() {
     mpv.playlist_load_files(&[(&args[1], FileState::AppendPlay, None)])
         .unwrap();
 
+    btn.set_callback(move |b| {
+        let prop: bool = mpv.get_property("pause").unwrap();
+        mpv.set_property("pause", !prop).unwrap();
+        if prop {
+            b.set_label("@||");
+        } else {
+            b.set_label("@>");
+        }
+    });
     while a.wait() {
         render_context
             .render::<window::GlutWindow>(0, mpv_win.w() as _, mpv_win.h() as _, true)
@@ -53,3 +62,4 @@ fn main() {
         app::awake();
     }
 }
+

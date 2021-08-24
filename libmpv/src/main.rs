@@ -1,16 +1,15 @@
-use fltk::{enums::*, prelude::*, *};
-use libmpv_sys::*;
-use std::ffi::{CStr, CString};
-use std::mem::transmute;
-use std::os::raw::*;
-use std::ptr::*;
+// the current libmpv-rs doesn't have the render_gl api
+// So we use a fork
 
-pub unsafe extern "C" fn get_proc_address_mpv(
-    ctx: *mut c_void,
-    name: *const c_char,
-) -> *mut c_void {
-    let win = window::GlutWindow::from_widget_ptr(ctx as _);
-    win.get_proc_address(&CStr::from_ptr(name).to_string_lossy().to_string()) as _
+use fltk::{prelude::*, *};
+use libmpv::{
+    render::{OpenGLInitParams, RenderContext, RenderParam, RenderParamApiType},
+    FileState, Mpv,
+};
+use std::os::raw::c_void;
+
+pub fn get_proc_address(win: &window::GlutWindow, name: &str) -> *mut c_void {
+    win.get_proc_address(name) as _
 }
 
 fn main() {
@@ -19,87 +18,38 @@ fn main() {
         println!("Usage: mpv <video file>");
         std::process::exit(1);
     }
+
     let a = app::App::default();
     let mut win = window::Window::default().with_size(400, 300);
     let mut mpv_win = window::GlutWindow::default()
         .with_size(390, 290)
         .center_of_parent();
-    mpv_win.set_mode(Mode::Opengl3);
     win.end();
     win.make_resizable(true);
     win.show();
     mpv_win.make_current();
 
-    let mut mpv_gl: *mut mpv_render_context = null_mut();
-
-    unsafe {
-        let mpv = mpv_create();
-        assert!(!mpv.is_null());
-        if mpv_initialize(mpv) < 0 {
-            std::process::exit(1);
-        }
-
-        let mut params = vec![
-            mpv_render_param {
-                type_: mpv_render_param_type_MPV_RENDER_PARAM_API_TYPE,
-                data: transmute(MPV_RENDER_API_TYPE_OPENGL),
-            },
-            mpv_render_param {
-                type_: mpv_render_param_type_MPV_RENDER_PARAM_OPENGL_INIT_PARAMS,
-                data: transmute(&mut mpv_opengl_init_params {
-                    get_proc_address: Some(get_proc_address_mpv),
-                    get_proc_address_ctx: mpv_win.as_widget_ptr() as _,
-                    extra_exts: null(),
-                }),
-            },
-            mpv_render_param {
-                type_: mpv_render_param_type_MPV_RENDER_PARAM_ADVANCED_CONTROL,
-                data: transmute(&mut 1),
-            },
-            mpv_render_param {
-                type_: 0,
-                data: null_mut(),
-            },
-        ];
-
-        if mpv_render_context_create(&mut mpv_gl, mpv, params.as_mut_ptr()) < 0 {
-            std::process::exit(1);
-        }
-
-        let mut cmd: Vec<*const c_char> = vec![
-            "loadfile\0".as_ptr() as _,
-            CString::new(args[1].as_str()).unwrap().into_raw(),
-            null(),
-        ];
-        mpv_command(mpv, cmd.as_mut_ptr());
-    }
+    let mut mpv = Mpv::new().expect("Error while creating MPV");
+    let render_context = RenderContext::new(
+        unsafe { mpv.ctx.as_mut() },
+        vec![
+            RenderParam::ApiType(RenderParamApiType::OpenGl),
+            RenderParam::InitParams(OpenGLInitParams {
+                get_proc_address,
+                ctx: mpv_win.clone(),
+            }),
+        ],
+    )
+    .expect("Failed creating render context");
+    mpv.event_context_mut().disable_deprecated_events().unwrap();
+    mpv.playlist_load_files(&[(&args[1], FileState::AppendPlay, None)])
+        .unwrap();
 
     while a.wait() {
-        unsafe {
-            let mut render_params = vec![
-                mpv_render_param {
-                    type_: mpv_render_param_type_MPV_RENDER_PARAM_OPENGL_FBO,
-                    data: transmute(&mut mpv_opengl_fbo {
-                        fbo: 0,
-                        w: mpv_win.w(),
-                        h: mpv_win.h(),
-                        internal_format: 0,
-                    }),
-                },
-                mpv_render_param {
-                    type_: mpv_render_param_type_MPV_RENDER_PARAM_FLIP_Y,
-                    data: transmute(&mut 1),
-                },
-                mpv_render_param {
-                    type_: 0,
-                    data: null_mut(),
-                },
-            ];
-            mpv_render_context_render(mpv_gl, render_params.as_mut_ptr());
-            mpv_render_context_update(mpv_gl);
-        }
+        render_context
+            .render::<window::GlutWindow>(0, mpv_win.w() as _, mpv_win.h() as _, true)
+            .expect("Failed to draw on glutin window");
         mpv_win.swap_buffers();
-        app::sleep(0.016);
         app::awake();
     }
 }

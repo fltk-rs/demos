@@ -7,5 +7,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = {version = "1.1", features=["enable-glwindow"]}
-libmpv-sys = "3"
+fltk = {version = "1.1", features=["enable-glwindow", "no-pango"]}
+libmpv = { git = "https://github.com/anlumo/libmpv-rs" }

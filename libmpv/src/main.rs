@@ -1,6 +1,3 @@
-// the current libmpv-rs doesn't have the render_gl api
-// So we use a fork as can be seen in the Cargo.toml
-
 use fltk::{enums::Mode, prelude::*, *};
 use libmpv::{
     render::{OpenGLInitParams, RenderContext, RenderParam, RenderParamApiType},
@@ -54,12 +51,29 @@ fn main() {
             b.set_label("@>");
         }
     });
-    while a.wait() {
-        render_context
-            .render::<window::GlutWindow>(0, mpv_win.w() as _, mpv_win.h() as _, true)
-            .expect("Failed to draw on glutin window");
-        mpv_win.swap_buffers();
-        app::awake();
+
+    if !cfg!(target_os = "windows") {
+        while a.wait() {
+            render_context
+                .render::<window::GlutWindow>(0, mpv_win.w() as _, mpv_win.h() as _, true)
+                .expect("Failed to draw on GlutWindow");
+            mpv_win.swap_buffers();
+            app::awake();
+        }
+    } else {
+        mpv_win.draw(move |w| {
+            render_context
+                .render::<window::GlutWindow>(0, w.w() as _, w.h() as _, true)
+                .expect("Failed to draw on GlutWindow");
+            w.swap_buffers();
+        });
+    
+        app::add_idle(move || {
+            mpv_win.redraw();
+            app::sleep(0.016);
+            app::awake();
+        });
+        
+        a.run().unwrap();
     }
 }
-

@@ -20,7 +20,7 @@ jobs:
     - name: Download deps
       run: |
          if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev libvlc-dev libpango1.0-dev libpng-dev libgl1-mesa-dev libglu1-mesa-dev
+          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev libvlc-dev libpango1.0-dev libpng-dev libgl1-mesa-dev libglu1-mesa-dev libmpv-dev
          fi
       shell: bash
     - uses: actions/checkout@v2
@@ -123,4 +123,8 @@ jobs:
     - name: Build xterm
       run: cargo build --verbose
       working-directory: xterm
+      shell: bash
+    - name: Build libmpv
+      run: cargo build --verbose
+      working-directory: libmpv
       shell: bash

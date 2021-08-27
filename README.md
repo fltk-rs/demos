@@ -1,4 +1,4 @@
-# fltk-rs-demos
+# fltk-rs demos
 
 This is a repo for fltk-rs demo examples. These are usually associated with video tutorials from this [playlist](https://www.youtube.com/playlist?list=PLHqrrowPLkDu9U-uk60sGM-YWLOJFfLoE) on youtube.
 

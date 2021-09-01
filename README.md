@@ -31,6 +31,7 @@ The current demos include:
 - libmpv: use libmpv to play a video inside an fltk GlutWindow.
 - mpv: Use mpv (the command line app) to play a video inside an fltk window.
 - xterm: embed an xterm window inside an fltk window.
+- egui-demo: Use fltk as a backend for egui.
 
 The demos can be run by accessing any of the directories and running:
 ```

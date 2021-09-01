@@ -124,3 +124,7 @@ jobs:
       run: cargo build --verbose
       working-directory: xterm
       shell: bash
+    - name: Build egui-demo
+      run: cargo build --verbose
+      working-directory: egui-demo
+      shell: bash

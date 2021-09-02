@@ -11,7 +11,6 @@ fn main() {
     let mut win = window::GlutWindow::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
     win.set_mode(Mode::Opengl3);
     win.end();
-    win.make_resizable(true);
     win.show();
     win.make_current();
 

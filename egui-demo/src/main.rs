@@ -1,43 +1,59 @@
 use fltk::{enums::*, prelude::*, *};
 use fltk_egui as egui_backend;
-use egui_backend::DpiScaling;
-use std::{cell::RefCell, time::Instant};
+use egui_backend::{DpiScaling, egui, gl};
 use std::rc::Rc;
+use std::{cell::RefCell, time::Instant};
 
-// Working fine with Low power (CPU) usage 
+// Working fine with Low power (CPU) usage
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 
 fn main() {
     let a = app::App::default();
-    let mut win = window::GlutWindow::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
-    win.set_mode(Mode::Opengl3);
-    win.end();
-    win.make_resizable(true);
-    win.show();
-    win.make_current();
+    app::set_font_size(20);
+    let mut main_win = window::Window::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
+    let mut glut_win = window::GlutWindow::new(5, 5, main_win.w() - 200, main_win.h() - 10, None);
+    glut_win.set_mode(Mode::Opengl3);
+    glut_win.end();
+    let mut frm = frame::Frame::default()
+        .with_size(185, 590)
+        .right_of(&glut_win, 5);
+    frm.set_color(Color::Red);
+    frm.set_frame(FrameType::FlatBox);
+    main_win.end();
+    main_win.make_resizable(true);
+    main_win.show();
+    glut_win.make_current();
 
-    let (painter, egui_input_state) = egui_backend::with_fltk(&mut win, DpiScaling::Custom(1.5));
+    let (painter, egui_input_state) = egui_backend::with_fltk(&mut glut_win, DpiScaling::Custom(1.5));
     let mut egui_ctx = egui::CtxRef::default();
 
     let state_rc = Rc::from(RefCell::from(egui_input_state));
     let painter_rc = Rc::from(RefCell::from(painter));
     let state = state_rc.clone();
     let painter = painter_rc.clone();
-    win.handle(move |win, ev| match ev {
-        enums::Event::Push
-        | enums::Event::Released
-        | enums::Event::KeyDown
-        | enums::Event::KeyUp
-        | enums::Event::MouseWheel
-        | enums::Event::Resize
-        | enums::Event::Move
-        | enums::Event::Drag => {
-            egui_backend::input_to_egui(win, ev, &mut state.borrow_mut(), &mut painter.borrow_mut());
-            true
+    main_win.handle({
+        let mut w = glut_win.clone();
+        move |_, ev| match ev {
+            enums::Event::Push
+            | enums::Event::Released
+            | enums::Event::KeyDown
+            | enums::Event::KeyUp
+            | enums::Event::MouseWheel
+            | enums::Event::Resize
+            | enums::Event::Move
+            | enums::Event::Drag => {
+                egui_backend::input_to_egui(
+                    &mut w,
+                    ev,
+                    &mut state.borrow_mut(),
+                    &mut painter.borrow_mut(),
+                );
+                true
+            }
+            _ => false,
         }
-        _ => false,
     });
 
     let start_time = Instant::now();
@@ -50,6 +66,7 @@ fn main() {
         let mut painter = painter_rc.borrow_mut();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
         egui_ctx.begin_frame(state.input.take());
+        frm.set_label(&format!("Hello {}", &name));
 
         unsafe {
             // Clear the screen to black
@@ -68,13 +85,17 @@ fn main() {
             }
             ui.label(format!("Hello '{}', age {}", name, age));
             ui.separator();
-            if ui.button("Quit?").on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+            if ui
+                .button("Quit?")
+                .on_hover_cursor(egui::CursorIcon::PointingHand)
+                .clicked()
+            {
                 quit = true;
             }
         });
 
         let (egui_output, paint_cmds) = egui_ctx.end_frame();
-        egui_backend::translate_cursor(&mut win, &mut state.fuse_cursor, egui_output.cursor_icon);
+        egui_backend::translate_cursor(&mut glut_win, &mut state.fuse_cursor, egui_output.cursor_icon);
 
         //Handle cut, copy text from egui
         if !egui_output.copied_text.is_empty() {
@@ -84,14 +105,10 @@ fn main() {
         let paint_jobs = egui_ctx.tessellate(paint_cmds);
 
         //Draw egui texture
-        painter.paint_jobs(
-            None,
-            paint_jobs,
-            &egui_ctx.texture(),
-        );
+        painter.paint_jobs(None, paint_jobs, &egui_ctx.texture());
 
-        win.swap_buffers();
-        win.flush();
+        glut_win.swap_buffers();
+        glut_win.flush();
         app::sleep(0.006);
         app::awake();
         if quit {

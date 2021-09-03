@@ -9,4 +9,4 @@ edition = "2018"
 fltk = { version = "1.1", features = ["enable-glwindow"] }
 gl = "0.14.0"
 egui = "0.14.0"
-fltk-egui = "0.1"
+fltk-egui = { git = "https://github.com/fltk-rs/fltk-egui" }

@@ -1,32 +1,45 @@
-use fltk::{enums::*, prelude::*, *};
+use egui_backend::{
+    egui,
+    fltk::{enums::*, prelude::*, *},
+    gl, DpiScaling,
+};
 use fltk_egui as egui_backend;
-use egui_backend::{DpiScaling, egui, gl};
 use std::rc::Rc;
 use std::{cell::RefCell, time::Instant};
-
-// Working fine with Low power (CPU) usage
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 
 fn main() {
-    let a = app::App::default();
+    let a = app::App::default().with_scheme(app::Scheme::Gtk);
+    app::get_system_colors();
     app::set_font_size(20);
     let mut main_win = window::Window::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
     let mut glut_win = window::GlutWindow::new(5, 5, main_win.w() - 200, main_win.h() - 10, None);
     glut_win.set_mode(Mode::Opengl3);
     glut_win.end();
-    let mut frm = frame::Frame::default()
+    let mut col = group::Flex::default()
+        .column()
         .with_size(185, 590)
         .right_of(&glut_win, 5);
-    frm.set_color(Color::Red);
+    col.set_frame(FrameType::DownBox);
+    let mut frm = frame::Frame::default();
+    frm.set_color(Color::Red.inactive());
     frm.set_frame(FrameType::FlatBox);
+    let mut slider = valuator::Slider::default().with_type(valuator::SliderType::HorizontalFill);
+    slider.set_slider_frame(FrameType::RFlatBox);
+    slider.set_slider_size(0.20);
+    slider.set_color(Color::Blue.inactive());
+    slider.set_selection_color(Color::Red);
+    col.set_size(&mut slider, 20);
+    col.end();
     main_win.end();
     main_win.make_resizable(true);
     main_win.show();
     glut_win.make_current();
 
-    let (painter, egui_input_state) = egui_backend::with_fltk(&mut glut_win, DpiScaling::Custom(1.5));
+    let (painter, egui_input_state) =
+        egui_backend::with_fltk(&mut glut_win, DpiScaling::Custom(1.5));
     let mut egui_ctx = egui::CtxRef::default();
 
     let state_rc = Rc::from(RefCell::from(egui_input_state));
@@ -44,12 +57,8 @@ fn main() {
             | enums::Event::Resize
             | enums::Event::Move
             | enums::Event::Drag => {
-                egui_backend::input_to_egui(
-                    &mut w,
-                    ev,
-                    &mut state.borrow_mut(),
-                    &mut painter.borrow_mut(),
-                );
+                let mut state = state.borrow_mut();
+                state.fuse_input(&mut w, ev, &mut painter.borrow_mut());
                 true
             }
             _ => false,
@@ -67,12 +76,14 @@ fn main() {
         state.input.time = Some(start_time.elapsed().as_secs_f64());
         egui_ctx.begin_frame(state.input.take());
         frm.set_label(&format!("Hello {}", &name));
+        slider.set_value(age as f64 / 120.);
 
         unsafe {
             // Clear the screen to black
             gl::ClearColor(0.6, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
+
         egui::CentralPanel::default().show(&egui_ctx, |ui| {
             ui.heading("My egui Application");
             ui.horizontal(|ui| {
@@ -95,12 +106,7 @@ fn main() {
         });
 
         let (egui_output, paint_cmds) = egui_ctx.end_frame();
-        egui_backend::translate_cursor(&mut glut_win, &mut state.fuse_cursor, egui_output.cursor_icon);
-
-        //Handle cut, copy text from egui
-        if !egui_output.copied_text.is_empty() {
-            egui_backend::copy_to_clipboard(&mut state.clipboard, egui_output.copied_text);
-        }
+        state.fuse_output(&mut glut_win, &egui_output);
 
         let paint_jobs = egui_ctx.tessellate(paint_cmds);
 

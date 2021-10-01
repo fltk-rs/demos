@@ -71,3 +71,5 @@ cargo run --release
 ![alt_test](webview/ex.jpg)
 - csv
 ![alt_test](csv/ex.jpg)
+- egui-demo
+![alt_test](egui-demo/egui.jpg)

@@ -1,4 +1,3 @@
-
 extern crate native_windows_gui as nwg;
 pub use nwg::*;
 
@@ -19,11 +18,17 @@ impl SystemTray {
     }
 
     fn show_main_win(&self) {
-        crate::fltk_gui::fltk_gui();
+        extern "C" {
+            pub fn ShowWindow(hwnd: crate::HWND, nCmdShow: i32) -> bool;
+        }
+        unsafe {
+            ShowWindow(crate::WINDOW, 9);
+        }
     }
 
     fn exit(&self) {
         nwg::stop_thread_dispatch();
+        std::process::exit(0); // We just exit the process to cleanup for simplicity
     }
 }
 

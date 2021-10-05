@@ -4,7 +4,7 @@ use glow::*;
 fn main() {
 
     let app = app::App::default();
-    let mut win = window::GlutWindow::default().with_size(800, 600);
+    let mut win = window::GlWindow::default().with_size(800, 600);
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();

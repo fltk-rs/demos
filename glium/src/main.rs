@@ -19,14 +19,14 @@ use std::os::raw::c_void;
 
 fn main() {
     let app = app::App::default();
-    let mut win = window::GlutWindow::default().with_size(500, 400);
+    let mut win = window::GlWindow::default().with_size(500, 400);
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
     let gl_window = Rc::new(RefCell::new(win.clone()));
     
     struct Backend {
-        gl_window: Rc<RefCell<window::GlutWindow>>,
+        gl_window: Rc<RefCell<window::GlWindow>>,
     }
 
     unsafe impl glium::backend::Backend for Backend {

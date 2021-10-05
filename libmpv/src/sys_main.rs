@@ -12,7 +12,7 @@ pub unsafe extern "C" fn get_proc_address_mpv(
     ctx: *mut c_void,
     name: *const c_char,
 ) -> *mut c_void {
-    let win = window::GlutWindow::from_widget_ptr(ctx as _);
+    let win = window::GlWindow::from_widget_ptr(ctx as _);
     win.get_proc_address(&CStr::from_ptr(name).to_string_lossy().to_string()) as _
 }
 
@@ -24,7 +24,7 @@ fn main() {
     }
     let a = app::App::default();
     let mut win = window::Window::default().with_size(400, 300);
-    let mut mpv_win = window::GlutWindow::default()
+    let mut mpv_win = window::GlWindow::default()
         .with_size(390, 290)
         .center_of_parent();
     mpv_win.set_mode(Mode::Opengl3);

@@ -5,7 +5,7 @@ use libmpv::{
 };
 use std::os::raw::c_void;
 
-pub fn get_proc_address(win: &window::GlutWindow, name: &str) -> *mut c_void {
+pub fn get_proc_address(win: &window::GlWindow, name: &str) -> *mut c_void {
     win.get_proc_address(name) as _
 }
 
@@ -18,7 +18,7 @@ fn main() {
     let a = app::App::default().with_scheme(app::Scheme::Gleam);
     app::get_system_colors();
     let mut win = window::Window::default().with_size(800, 600);
-    let mut mpv_win = window::GlutWindow::new(5, 5, 790, 530, None);
+    let mut mpv_win = window::GlWindow::new(5, 5, 790, 530, None);
     mpv_win.set_mode(Mode::Opengl3);
     let mut btn = button::Button::new(360, 545, 80, 40, "@||");
     win.end();
@@ -54,8 +54,8 @@ fn main() {
 
     mpv_win.draw(move |w| {
         render_context
-            .render::<window::GlutWindow>(0, w.w() as _, w.h() as _, true)
-            .expect("Failed to draw on GlutWindow");
+            .render::<window::GlWindow>(0, w.w() as _, w.h() as _, true)
+            .expect("Failed to draw on GlWindow");
         w.swap_buffers();
     });
 

@@ -95,7 +95,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 
 fn main() {
     let app = app::App::default();
-    let mut win = window::GlutWindow::new(100, 100, 500, 400, "");
+    let mut win = window::GlWindow::new(100, 100, 500, 400, "");
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();

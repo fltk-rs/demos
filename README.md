@@ -22,13 +22,13 @@ The current demos include:
 - glium: Use the glium crate for OpenGL drawing.
 - calendar: Uses the chrono crate to create an fltk calendar dialog.
 - image: Uses rust-embed and the image crates to load images into fltk.
-- speedy2d: Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlutWindow.
-- femtovg: Uses femtovg for 2D drawing in a GlutWindow.
+- speedy2d: Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlWindow.
+- femtovg: Uses femtovg for 2D drawing in a GlWindow.
 - ffmpeg: Uses ffmpeg for software video rendering.
 - webview: Embeds a webview inside an fltk app.
 - csv: Uses serde and csv to perform custom drawing of data.
 - rounded-svg: Use the svg crate along with fltk to create images with rounded borders.
-- libmpv: use libmpv to play a video inside an fltk GlutWindow.
+- libmpv: use libmpv to play a video inside an fltk GlWindow.
 - mpv: Use mpv (the command line app) to play a video inside an fltk window.
 - xterm: embed an xterm window inside an fltk window.
 - egui-demo: Use fltk as a backend for egui.

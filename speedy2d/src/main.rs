@@ -2,7 +2,7 @@ use fltk::{
     app,
     enums::Event,
     prelude::{WidgetBase, WidgetExt, GroupExt, WindowExt},
-    window::{GlutWindow, Window},
+    window::{GlWindow, Window},
     utils
 };
 use speedy2d::GLRenderer;
@@ -21,7 +21,7 @@ fn main() {
 
     let app = app::App::default();
     let mut main_win = Window::default().with_size(800, 600);
-    let mut win = GlutWindow::default().with_size(300, 300).center_of(&main_win);
+    let mut win = GlWindow::default().with_size(300, 300).center_of(&main_win);
     win.end();
     main_win.end();
     main_win.show();

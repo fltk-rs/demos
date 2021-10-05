@@ -2,7 +2,7 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use fltk::{app, prelude::*, window::Window};
+use fltk::{app, enums::Event, prelude::*, window::Window};
 use pixels::{Error, Pixels, SurfaceTexture};
 
 const WIDTH: u32 = 600;
@@ -22,25 +22,41 @@ fn main() -> Result<(), Error> {
     let mut win = Window::default()
         .with_size(WIDTH as i32, HEIGHT as i32)
         .with_label("Hello Pixels");
-    win.end();
     win.make_resizable(true);
+    win.end();
     win.show();
 
     let mut pixels = {
-        let surface_texture = SurfaceTexture::new(WIDTH, HEIGHT, &win);
+        let pixel_width = win.w() as u32;
+        let pixel_height = win.h() as u32;
+        let surface_texture = SurfaceTexture::new(pixel_width, pixel_height, &win);
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
     let mut world = World::new();
 
     while app.wait() {
+        // Handle window events
+        if app::event() == Event::Resize {
+            let pixel_width = win.w() as u32;
+            let pixel_height = win.h() as u32;
+            pixels.resize_surface(pixel_width, pixel_height);
+        }
+
         // Update internal state
         world.update();
+
         // Draw the current frame
         world.draw(pixels.get_frame());
-        pixels.render().unwrap();
-        win.flush();
-        app::sleep(0.016);
+        if pixels
+            .render()
+            .map_err(|e| eprintln!("pixels.render() failed: {}", e))
+            .is_err()
+        {
+            app.quit();
+        }
+
+        app::flush();
         app::awake();
     }
 

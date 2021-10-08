@@ -10,4 +10,4 @@ resolver = "2"
 [dependencies]
 fltk = { version = "1", features = ["raw-window-handle"] }
 wgpu = "0.10.0"
-futures = "0.3"
+pollster = "0.2"

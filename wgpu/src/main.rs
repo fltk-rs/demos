@@ -85,10 +85,7 @@ fn main() {
     let mut win = window::Window::default().with_size(400, 300);
     win.end();
     win.show();
-
-    use futures::executor::block_on;
-    let state: State = block_on(State::new(&win));
-
+    let state: State = pollster::block_on(State::new(&win));
     while a.wait() {
         let frame = state.surface
                     .get_current_frame()

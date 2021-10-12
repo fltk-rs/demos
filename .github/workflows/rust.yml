@@ -46,7 +46,10 @@ jobs:
       working-directory: femtovg
       shell: bash
     - name: Build ffmpeg
-      run: cargo build --verbose --features=fltk/fltk-bundled
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          cargo build --verbose --features=fltk/fltk-bundled
+        fi
       working-directory: ffmpeg
       shell: bash
     - name: Build framebuffer
@@ -70,7 +73,10 @@ jobs:
       working-directory: image
       shell: bash
     - name: Build libvlc
-      run: cargo build --verbose --features=fltk/fltk-bundled
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          cargo build --verbose --features=fltk/fltk-bundled
+        fi
       working-directory: libvlc
       shell: bash
     - name: Build mpv

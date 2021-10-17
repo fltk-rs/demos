@@ -46,7 +46,13 @@ fn main() {
     mdp.set_hwnd(handle);
     // For MacOS
     #[cfg(target_os = "macos")]
-    mdp.set_nsobject(handle);
+    {
+        use std::os::raw;
+        extern "C" {
+            pub fn my_getContentView(xid: *mut raw::c_void) -> *mut raw::c_void;
+        }
+        mdp.set_nsobject(unsafe { my_getContentView(handle as _) as _ });
+    }
 
     // Disable event handling on vlc's side
     // Do it thru fltk

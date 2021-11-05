@@ -19,16 +19,10 @@ fn main() {
 
     #[cfg(target_os = "windows")]
     {
-        unsafe {
-            WINDOW = win.raw_handle();
-        }
-        win.set_callback(|_| {
+        win.set_callback(|w| {
             // We intercept the closing of the window here
-            extern "C" {
-                pub fn ShowWindow(hwnd: HWND, nCmdShow: i32) -> bool;
-            }
             unsafe {
-                ShowWindow(WINDOW, 0); // this hides the window
+                w.platform_hide();
             }
         });
         use crate::systray::NativeUi;

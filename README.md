@@ -34,6 +34,7 @@ The current demos include:
 - egui-demo: Use fltk as a backend for egui.
 - gst: Use libgstreamer to play a video inside an fltk window
 - cairo-demo: Use cairo for custom drawing inside fltk widgets
+- glyphmap: Maps glyphs (specifically font icons) to their unicode codepoint.
 
 The demos can be run by accessing any of the directories and running:
 ```
@@ -75,3 +76,5 @@ cargo run --release
 ![alt_test](csv/ex.jpg)
 - egui-demo
 ![alt_test](egui-demo/egui.jpg)
+- glyphmap
+![alt_test](glyphmap/image.jpg)

@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 glium = { version = "0.29", default-features = false } # no need for glutin
-fltk = { version = "1", features = ["enable-glwindow", "fltk-bundled"] }
+fltk = { version = "1", features = ["enable-glwindow"] }

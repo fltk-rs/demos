@@ -148,4 +148,3 @@ jobs:
       run: cargo build --verbose
       working-directory: egui-demo
       shell: bash
-

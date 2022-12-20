@@ -1,7 +1,8 @@
 mod term {
     use fltk::{enums::*, prelude::*, *};
     use portable_pty::{native_pty_system, CommandBuilder, PtySize};
-    use std::io::{self, Read, Write};
+    use std::io::{Read, Write};
+
     pub struct AnsiTerm {
         st: text::SimpleTerminal,
     }
@@ -21,36 +22,37 @@ mod term {
             label: L,
         ) -> Self {
             let mut st = text::SimpleTerminal::new(x, y, w, h, label);
+            // SimpleTerminal handles many common ansi escape sequence
             st.set_ansi(true);
             let pair = native_pty_system()
                 .openpty(PtySize {
-                    rows: 24,
                     cols: 80,
+                    rows: 24,
                     pixel_width: 80 * 10,
                     pixel_height: 24 * 16,
                 })
-                .expect("pty");
+                .unwrap();
 
             let cmd = if cfg!(target_os = "windows") {
                 CommandBuilder::new("cmd.exe")
             } else {
                 let mut cmd = CommandBuilder::new("/bin/bash");
-                cmd.args(&["-i"]);
+                cmd.args(["-i"]);
                 cmd
             };
 
-            let mut writer = pair.master.try_clone_writer().unwrap();
             let mut child = pair.slave.spawn_command(cmd).unwrap();
+            let mut writer = pair.master.try_clone_writer().unwrap();
+            let mut reader = pair.master.try_clone_reader().unwrap();
+
             std::thread::spawn({
                 let mut st = st.clone();
                 move || {
-                    let reader = pair.master.try_clone_reader().expect("reader");
-                    let mut reader = io::BufReader::new(reader);
-
                     while child.try_wait().is_ok() {
-                        let mut msg = [0u8; 512];
+                        let mut msg = [0u8; 1024];
                         if let Ok(sz) = reader.read(&mut msg) {
                             let msg = &msg[0..sz];
+                            // we want to handle some escape sequences that the default SimpleTerminal doesn't
                             format(msg, &mut st);
                             app::awake();
                         }
@@ -127,6 +129,7 @@ mod term {
     fltk::widget_extends!(AnsiTerm, text::SimpleTerminal, st);
 
     fn format(msg: &[u8], st: &mut text::SimpleTerminal) {
+        // handles the sticky title-bell sequence
         if let Some(pos0) = msg.windows(4).position(|m| m == b"\x1b]0;") {
             let mut pos1 = pos0;
             while pos1 < msg.len() && msg[pos1] != b'[' {
@@ -135,7 +138,7 @@ mod term {
             st.append2(&msg[0..pos0]);
             st.append2(&msg[pos1 - 1..]);
         } else {
-            st.append2(&msg);
+            st.append2(msg);
         }
     }
 }

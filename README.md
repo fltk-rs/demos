@@ -35,6 +35,7 @@ The current demos include:
 - gst: Use libgstreamer to play a video inside an fltk window
 - cairo-demo: Use cairo for custom drawing inside fltk widgets
 - glyphmap: Maps glyphs (specifically font icons) to their unicode codepoint.
+- terminal: A minimal terminal emulator.
 
 The demos can be run by accessing any of the directories and running:
 ```

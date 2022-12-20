@@ -148,3 +148,7 @@ jobs:
       run: cargo build --verbose
       working-directory: egui-demo
       shell: bash
+    - name: Build terminal
+      run: cargo build --verbose
+      working-directory: terminal
+      shell: bash

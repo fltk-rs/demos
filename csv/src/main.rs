@@ -1,3 +1,4 @@
+use ::image::{ImageBuffer, RgbImage};
 use fltk::{enums::*, prelude::*, *};
 use serde::Deserialize;
 use std::sync::Mutex;
@@ -32,10 +33,15 @@ fn main() {
     app::background2(41, 41, 41);
     app::foreground(255, 255, 255);
     let mut wind = window::Window::default().with_size(800, 600);
-    let mut browser = browser::Browser::new(5, 10, 100, 580, "");
+    let mut browser = browser::Browser::new(5, 10, 100, 520, "");
     let mut frame = frame::Frame::default()
-        .with_size(680, 580)
+        .with_size(680, 520)
         .right_of(&browser, 10);
+    let mut btn = button::Button::default()
+        .with_label("Save image")
+        .with_size(100, 30)
+        .below_of(&frame, 15)
+        .center_x(&wind);
     wind.make_resizable(true);
     wind.show();
 
@@ -81,6 +87,22 @@ fn main() {
                 draw::set_draw_color(Color::White);
                 idx += step;
             }
+        }
+    });
+
+    btn.set_callback({
+        let frame = frame.clone();
+        move |_| {
+            let sur = surface::ImageSurface::new(frame.w(), frame.h(), false);
+            surface::ImageSurface::push_current(&sur);
+            draw::set_draw_color(enums::Color::White);
+            draw::draw_rectf(0, 0, frame.w(), frame.h());
+            sur.draw(&frame, 0, 0);
+            let img = sur.image().unwrap();
+            surface::ImageSurface::pop_current();
+            let mut imgbuf: RgbImage = ImageBuffer::new(frame.w() as _, frame.h() as _); // this is from the image crate
+            imgbuf.copy_from_slice(&img.to_rgb_data());
+            imgbuf.save("image.jpg").unwrap();
         }
     });
 

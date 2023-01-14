@@ -11,3 +11,4 @@ fltk = "1"
 csv = "1.1.6"
 serde = { version = "1", features = ["derive"] }
 lazy_static = "1.4"
+image = { version = "0.24.5", default-features = false, features = ["jpeg"] }

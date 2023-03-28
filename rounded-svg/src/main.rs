@@ -1,9 +1,21 @@
-use fltk::{enums::*, prelude::*, *};
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
-use svg::node::element::Rectangle;
-use svg::Document;
+use fltk::{
+    enums::*,
+    prelude::*,
+    *,
+    image::IcoImage
+};
+use std::{
+    cell::RefCell,
+    ops::{
+        Deref,
+        DerefMut
+    },
+    rc::Rc,
+};
+use svg::{
+    node::element::Rectangle,
+    Document
+};
 
 struct RoundedImageDisplay {
     frame_: frame::Frame,
@@ -94,7 +106,9 @@ fn main() {
     let mut win = window::Window::default()
         .with_size(1000, 800)
         .with_label("Rounded Corners");
-
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.set_color(Color::from_rgb(border[0], border[1], border[2]));
 
     let jpg = image::JpegImage::load("../opengl/ex.jpg").expect("Failed to open jpg file");

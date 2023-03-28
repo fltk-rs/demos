@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 fltk = "1"
 image = "0.23"
-rust-embed = "5.9"
+rust-embed = "6.6.1"

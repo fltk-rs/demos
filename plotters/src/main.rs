@@ -1,13 +1,24 @@
-use fltk::{prelude::*, *};
-use plotters::prelude::*;
-use plotters::style::Color;
-use plotters_bitmap::bitmap_pixel::RGBPixel;
-use plotters_bitmap::BitMapBackend;
-use std::collections::VecDeque;
-use std::error::Error;
-use std::time::SystemTime;
-const W: usize = 480;
-const H: usize = 320;
+use fltk::{
+    prelude::*,
+    *,
+    image::IcoImage
+};
+use plotters::{
+    prelude::*,
+    style::Color,
+};
+use plotters_bitmap::{
+    BitMapBackend,
+    bitmap_pixel::RGBPixel
+};
+use std::{
+    error::Error,
+    collections::VecDeque,
+    time::SystemTime
+};
+
+const W: usize = 737;
+const H: usize = 432;
 
 const SAMPLE_RATE: f64 = 10_000.0;
 const FREAME_RATE: f64 = 30.0;
@@ -23,6 +34,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let app = app::App::default();
     let mut win = window::Window::default().with_size(W as i32, H as i32);
     let mut frame = frame::Frame::default().size_of(&win);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.end();
     win.show();
     let root =

@@ -1,7 +1,13 @@
 use fltk::{
-    app, button,
-    enums::{Color, FrameType},
-    frame, image,
+    app,
+    button,
+    enums::{
+        Color,
+        FrameType
+    },
+    frame,
+    image,
+    image::IcoImage,
     prelude::*,
     window,
 };
@@ -43,6 +49,9 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let _a = MyApp {};
     let app = app::App::default();
     let mut win = window::Window::default().with_size(600, 400);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     let mut frame = frame::Frame::default()
         .with_size(400, 300)
         .center_of_parent();

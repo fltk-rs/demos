@@ -1,5 +1,14 @@
-use cairo::{Context, Format, ImageSurface};
-use fltk::{enums::*, prelude::*, *};
+use cairo::{
+    Context,
+    Format,
+    ImageSurface
+};
+use fltk::{
+    enums::*,
+    prelude::*,
+    *,
+    image::IcoImage
+};
 use std::convert::TryFrom;
 
 fn convert_to_rgba(arr: &[u8]) -> Vec<u8> {
@@ -40,6 +49,9 @@ fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 600, 600, "Cairo");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
 
     let mut wid = CairoWidget::new(0, 0, 600, 600, "Label");
 

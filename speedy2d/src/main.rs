@@ -1,14 +1,28 @@
 use fltk::{
     app,
     enums::Event,
-    prelude::{WidgetBase, WidgetExt, GroupExt, WindowExt},
-    window::{GlWindow, Window},
+    image::IcoImage,
+    prelude::{
+        WidgetBase,
+        WidgetExt,
+        GroupExt,
+        WindowExt
+    },
+    window::{
+        GlWindow,
+        Window
+    },
     utils
 };
-use speedy2d::GLRenderer;
-use speedy2d::color::Color;
-use speedy2d::dimen::Vector2;
-use speedy2d::image::{ImageDataType, ImageSmoothingMode};
+use speedy2d::{
+    GLRenderer,
+    color::Color,
+    dimen::Vector2,
+    image::{
+        ImageDataType,
+        ImageSmoothingMode
+    }
+};
 
 fn main() {
     let mut fb: Vec<u8> = vec![0u8; 300 * 300 * 3];
@@ -20,7 +34,10 @@ fn main() {
     }
 
     let app = app::App::default();
-    let mut main_win = Window::default().with_size(800, 600);
+    let mut main_win = Window::default().with_size(730, 430);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    main_win.make_resizable(true);
+    main_win.set_icon(Some(icon));
     let mut win = GlWindow::default().with_size(300, 300).center_of(&main_win);
     win.end();
     main_win.end();

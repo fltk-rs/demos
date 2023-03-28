@@ -1,4 +1,8 @@
-use fltk::{prelude::*, *};
+use fltk::{
+    prelude::*,
+    *,
+    image::IcoImage
+};
 use tiny_skia::*;
 
 fn main() {
@@ -29,6 +33,9 @@ fn main() {
     let mut win = window::Window::default()
         .with_size(600, 400)
         .with_label("tiny-skia");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.set_color(fltk::enums::Color::White);
     let mut frame = frame::Frame::default().with_size(400, 400).center_of(&win);
     win.end();

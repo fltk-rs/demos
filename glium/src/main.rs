@@ -2,11 +2,17 @@
 extern crate glium;
 
 use glium::Surface;
-use fltk::{prelude::*, *}; 
+use fltk::{
+    prelude::*,
+    *,
+    image::IcoImage
+};
 
-use std::rc::Rc;
-use std::cell::RefCell;
-use std::os::raw::c_void;
+use std::{
+    rc::Rc,
+    cell::RefCell,
+    os::raw::c_void
+};
 
 #[derive(Copy, Clone)]
     struct Vertex {
@@ -15,16 +21,19 @@ use std::os::raw::c_void;
 
     implement_vertex!(Vertex, position);
 
-    
+
 
 fn main() {
     let app = app::App::default();
-    let mut win = window::GlWindow::default().with_size(500, 400);
+    let mut win = window::GlWindow::default().with_size(730, 430);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();
     let gl_window = Rc::new(RefCell::new(win.clone()));
-    
+
     struct Backend {
         gl_window: Rc<RefCell<window::GlWindow>>,
     }
@@ -39,7 +48,7 @@ fn main() {
         }
 
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-            (self.gl_window.borrow().width() as u32, self.gl_window.borrow().height() as u32) 
+            (self.gl_window.borrow().width() as u32, self.gl_window.borrow().height() as u32)
         }
 
         fn is_current(&self) -> bool {

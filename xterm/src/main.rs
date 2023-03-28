@@ -1,4 +1,9 @@
-use fltk::{enums::Color, prelude::*, *};
+use fltk::{
+    enums::Color,
+    prelude::*,
+    *,
+    image::IcoImage
+};
 
 fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
@@ -9,11 +14,14 @@ fn main() {
     xterm_win.end();
     xterm_win.set_color(Color::Black);
 
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.end();
     win.show();
     win.make_resizable(true);
 
-    let handle = xterm_win.raw_handle();
+    let mut handle = xterm_win.raw_handle();
     std::process::Command::new("xterm")
         .args(&["-into", &format!("{}", handle), "-bg", "black", "-fg", "white"])
         .spawn()
@@ -21,4 +29,3 @@ fn main() {
 
     app.run().unwrap();
 }
-

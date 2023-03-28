@@ -1,14 +1,23 @@
 use raqote::*;
 use fltk::{
-    app, enums, frame, draw,
-    prelude::{WidgetBase, GroupExt, WidgetExt},
+    app,
+    enums,
+    frame,
+    draw,
+    prelude::{
+        WidgetBase,
+        GroupExt,
+        WidgetExt
+    },
     window,
+    image::IcoImage,
 };
 use std::rc::Rc;
 use std::cell::RefCell;
+use fltk::prelude::WindowExt;
 
-const WIDTH: i32 = 500;
-const HEIGHT: i32 = 400;
+const WIDTH: i32 = 736;
+const HEIGHT: i32 = 431;
 
 fn main() {
     let dt = DrawTarget::new(WIDTH, HEIGHT);
@@ -20,6 +29,9 @@ fn main() {
     let mut frame = frame::Frame::new(5, 5, WIDTH, HEIGHT, "");
     frame.set_frame(enums::FrameType::DownBox);
     frame.set_color(enums::Color::White);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.end();
     win.show();
 

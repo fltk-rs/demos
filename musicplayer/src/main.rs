@@ -1,4 +1,11 @@
-use fltk::{app, enums::*, frame::*, prelude::*, window::*};
+use fltk::{
+    app,
+    enums::*,
+    frame::*,
+    prelude::*,
+    window::*,
+    image::IcoImage
+};
 use soloud::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -12,11 +19,14 @@ use fancy_slider::FancySlider;
 const TRACK: &str = "Alarm.mp3";
 
 fn main() {
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     let app = app::App::default();
     let mut wind = DoubleWindow::default()
         .with_size(400, 300)
         .center_screen()
         .with_label("Music Player");
+    wind.make_resizable(true);
+    wind.set_icon(Some(icon));
 
     let mut frm = Frame::new(160, 80, 80, 40, TRACK);
     frm.set_label_size(20);

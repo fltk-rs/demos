@@ -1,5 +1,10 @@
 extern crate ttf_parser;
-use fltk::{enums::*, prelude::*, *};
+use fltk::{
+    enums::*,
+    prelude::*,
+    *,
+    image::IcoImage
+};
 
 fn main() {
     let app = app::App::default();
@@ -9,6 +14,9 @@ fn main() {
         .with_size(250, 300)
         .with_label("Glyph Map");
     wind.set_xclass("glyphmap");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    wind.make_resizable(true);
+    wind.set_icon(Some(icon));
     let mut menu = menu::MenuBar::new(0, 0, 250, 30, None);
     menu.add_choice("File/Load font...|File/Quit|Help/About");
     menu.set_color(Color::Background.lighter());

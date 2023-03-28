@@ -1,4 +1,9 @@
-use fltk::{enums::Color, prelude::*, *};
+use fltk::{
+    enums::Color,
+    prelude::*,
+    *,
+    image::IcoImage
+};
 use vlc::*;
 
 #[derive(Copy, Clone)]
@@ -10,6 +15,9 @@ pub enum Message {
 fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
 
     // Create inner window to act as embedded media player
     let mut vlc_win = window::Window::new(10, 10, 780, 520, "");
@@ -27,7 +35,7 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     // Instantiate vlc instance and media player
-    let instance = Instance::with_args(Some(args)).unwrap();
+    let instance = Instance::new().unwrap();
     let md = Media::new_path(&instance, "video.mp4").unwrap();
     let mdp = MediaPlayer::new(&instance).unwrap();
     mdp.set_media(&md);

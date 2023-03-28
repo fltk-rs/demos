@@ -1,12 +1,19 @@
 mod calendar;
 
-use fltk::{prelude::*, *};
+use fltk::{
+    prelude::*,
+    *,
+    image::IcoImage
+};
 use chrono::prelude::*;
 
 fn main() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     app::background(0xd3, 0xd3, 0xd3);
     let mut win = window::Window::new(100, 100, 400, 300, "");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     let mut but = button::Button::new(160, 200, 80, 40, "Click");
     win.end();
     win.show();

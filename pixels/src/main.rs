@@ -2,8 +2,18 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use fltk::{app, enums::Event, prelude::*, window::Window};
-use pixels::{Error, Pixels, SurfaceTexture};
+use fltk::{
+    app,
+    enums::Event,
+    prelude::*,
+    window::Window,
+    image::IcoImage,
+};
+use pixels::{
+    Error,
+    Pixels,
+    SurfaceTexture
+};
 
 const WIDTH: u32 = 600;
 const HEIGHT: u32 = 400;
@@ -22,7 +32,9 @@ fn main() -> Result<(), Error> {
     let mut win = Window::default()
         .with_size(WIDTH as i32, HEIGHT as i32)
         .with_label("Hello Pixels");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.end();
     win.show();
 

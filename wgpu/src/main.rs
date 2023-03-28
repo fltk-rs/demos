@@ -1,4 +1,8 @@
-use fltk::{prelude::*, *};
+use fltk::{
+    prelude::*,
+    *,
+    image::IcoImage
+};
 use wgpu::include_wgsl;
 
 struct State {
@@ -80,6 +84,9 @@ impl State {
 fn main() {
     let app = app::App::default();
     let mut win = window::Window::default().with_size(400, 300);
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     win.end();
     win.show();
     let state = pollster::block_on(State::new(&win));

@@ -1,6 +1,16 @@
-use fltk::{enums::*, prelude::*, *};
-use serde::{Deserialize, Serialize};
-use std::ops::{Deref, DerefMut};
+use fltk::{
+    enums::*,
+    prelude::*,
+    *
+};
+use serde::{
+    Deserialize,
+    Serialize
+};
+use std::ops::{
+    Deref,
+    DerefMut
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Item {
@@ -55,11 +65,15 @@ impl DerefMut for FlatButton {
         &mut self.frm
     }
 }
+use fltk::image::IcoImage;
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::DoubleWindow::new(200, 200, 600, 400, "Todos");
+    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    win.make_resizable(true);
+    win.set_icon(Some(icon));
     let mut scroll = group::Scroll::default().with_size(600, 350);
     let mut pack = group::Pack::default()
         .with_size(580, 350)

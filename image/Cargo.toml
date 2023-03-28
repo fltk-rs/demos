@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 fltk = "1"
-image = "0.23"
+image = "0.24"
 rust-embed = "6.6.1"

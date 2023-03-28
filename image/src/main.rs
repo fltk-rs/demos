@@ -23,8 +23,8 @@ extern crate rust_embed;
 struct Asset;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let img = Asset::get("ex.jpg").ok_or_else(|| "")?;
-    let img = ImageReader::new(Cursor::new(img))
+    let img = Asset::get("ex.jpg")?;
+    let img = ImageReader::new(Cursor::new(img.data.as_ref()))
         .with_guessed_format()?
         .decode()?;
     let (w, h) = img.dimensions();

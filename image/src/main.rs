@@ -12,7 +12,6 @@ use fltk::{
 };
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
-use std::error::Error;
 use std::io::Cursor;
 
 #[macro_use]
@@ -22,11 +21,11 @@ extern crate rust_embed;
 #[folder = "../glow/"]
 struct Asset;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let img = Asset::get("ex.jpg")?;
+fn main() {
+    let img = Asset::get("ex.jpg").unwrap();
     let img = ImageReader::new(Cursor::new(img.data.as_ref()))
-        .with_guessed_format()?
-        .decode()?;
+        .with_guessed_format().unwrap()
+        .decode().unwrap();
     let (w, h) = img.dimensions();
 
     let app = app::App::default();
@@ -43,9 +42,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // // Or just convert to fltk::image::RgbImage
-    // let rgb = fl_image::RgbImage::new(&img.to_rgb8(), w, h, ColorDepth::Rgb8)?;
+    // let rgb = fl_image::RgbImage::new(&img.to_rgb8(), w, h, ColorDepth::Rgb8).unwrap();
     // frame.set_image(Some(rgb));
 
-    app.run()?;
-    Ok(())
+    app.run().unwrap();
 }

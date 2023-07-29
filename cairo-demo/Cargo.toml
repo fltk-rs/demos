@@ -1,5 +1,5 @@
 [package]
-name = "gst"
+name = "cairo_demo"
 version = "0.1.0"
 authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
 edition = "2021"

@@ -185,4 +185,8 @@ The current demos include:
 
 ![wgpu](wgpu/wgpu.gif)
 
+<h3 id="cairo">cairo</h3>
+
+![cairo](cairo-demo/ex.jpg)
+
 </div>

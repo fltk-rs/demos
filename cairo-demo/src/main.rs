@@ -1,4 +1,5 @@
-use cairo::{Context, Format, ImageSurface};
+#![allow(dead_code)]
+use cairo::Context;
 use fltk::{enums::*, prelude::*, draw::Rect, *};
 use std::{cell::RefCell, rc::Rc};
 
@@ -63,8 +64,9 @@ fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     app::cairo::set_autolink_context(true);
-    let mut win = window::Window::new(100, 100, 600, 600, "Cairo");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
+    let mut win = window::Window::new(100, 100, 400, 300, "Cairo");
+    win.set_color(Color::White);
+    let icon = image::IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
     win.set_icon(Some(icon));
 

@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 fltk = "1.4.9"
-cairo-rs = "0.14"
+cairo-rs = "0.18"

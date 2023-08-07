@@ -190,3 +190,9 @@ The current demos include:
 ![cairo](cairo-demo/ex.jpg)
 
 </div>
+
+<h3 id="cairo_shadow_button">cairo shadow button</h3>
+
+![cairo](cairo_shadow_button/ex1.jpg)
+
+</div>

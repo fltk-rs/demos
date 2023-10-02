@@ -23,7 +23,7 @@ fn main() {
 
     let mut handle = xterm_win.raw_handle();
     std::process::Command::new("xterm")
-        .args(&["-into", &format!("{}", handle), "-bg", "black", "-fg", "white"])
+        .args(&["-into", &format!("{}", handle), "-bg", "black", "-fg", "white", "-fa", "'Monospace'", "-fs", "10"])
         .spawn()
         .unwrap();
 

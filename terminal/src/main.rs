@@ -156,15 +156,11 @@ mod term {
 const WIDTH: i32 = 800;
 const HEIGHT: i32 = 600;
 
-use fltk::image::IcoImage;
-
 fn main() {
     use fltk::{prelude::*, *};
     let a = app::App::default();
     let mut w = window::Window::default().with_size(WIDTH, HEIGHT);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     w.make_resizable(true);
-    w.set_icon(Some(icon));
     crate::term::AnsiTerm::default()
         .with_size(WIDTH - 4, HEIGHT - 4)
         .center_of_parent();

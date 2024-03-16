@@ -1,7 +1,6 @@
 use fltk::{
     app,
     enums::Event,
-    image::IcoImage,
     prelude::{
         WidgetBase,
         WidgetExt,
@@ -35,9 +34,7 @@ fn main() {
 
     let app = app::App::default();
     let mut main_win = Window::default().with_size(730, 430);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     main_win.make_resizable(true);
-    main_win.set_icon(Some(icon));
     let mut win = GlWindow::default().with_size(300, 300).center_of(&main_win);
     win.end();
     main_win.end();

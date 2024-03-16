@@ -2,7 +2,6 @@ use fltk::{
     enums::Color,
     prelude::*,
     *,
-    image::IcoImage
 };
 use gstreamer_video::prelude::*;
 
@@ -16,10 +15,8 @@ fn main() {
     gstreamer::init().unwrap();
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
-
+    
     // Create inner window to act as embedded media player
     let mut gst_win = window::Window::new(10, 10, 780, 520, "");
     gst_win.end();

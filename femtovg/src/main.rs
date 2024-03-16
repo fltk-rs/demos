@@ -16,7 +16,6 @@ use fltk::{
         WindowExt
     },
     window::GlWindow,
-    image::IcoImage
 };
 
 fn main() {
@@ -25,9 +24,7 @@ fn main() {
         .with_size(640, 480)
         .with_label("femtovg example");
     win.set_mode(enums::Mode::Opengl3);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.end();
     win.show();
     win.make_current();

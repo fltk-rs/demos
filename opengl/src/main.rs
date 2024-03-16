@@ -2,7 +2,6 @@ use glu_sys::*;
 use fltk::{
     prelude::*,
     *,
-    image::IcoImage
 };
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -13,9 +12,7 @@ const H: i32 = 400;
 pub fn main() {
     let app = app::App::default();
     let mut wind = window::GlWindow::new(100, 100, W, H, "Rotate me!");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     wind.make_resizable(true);
-    wind.set_icon(Some(icon));
     wind.end();
     wind.show();
 

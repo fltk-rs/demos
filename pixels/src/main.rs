@@ -7,7 +7,6 @@ use fltk::{
     enums::Event,
     prelude::*,
     window::Window,
-    image::IcoImage,
 };
 use pixels::{
     Error,
@@ -32,9 +31,7 @@ fn main() -> Result<(), Error> {
     let mut win = Window::default()
         .with_size(WIDTH as i32, HEIGHT as i32)
         .with_label("Hello Pixels");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.end();
     win.show();
 

@@ -3,7 +3,6 @@ use fltk::{
     enums::FrameType,
     prelude::*,
     *,
-    image::IcoImage
 };
 
 #[cfg(target_os = "windows")]
@@ -18,9 +17,7 @@ fn main() {
     let mut frame = frame::Frame::new(10, 10, 380, 200, "");
     frame.set_frame(FrameType::EngravedBox);
     let mut but = button::Button::new(160, 220, 80, 40, "Click me!");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.end();
     win.show();
 

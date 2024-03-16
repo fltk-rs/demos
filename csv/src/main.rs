@@ -3,7 +3,6 @@ use fltk::{
     enums::*,
     prelude::*,
     *,
-    image::IcoImage
 };
 use serde::Deserialize;
 use std::sync::Mutex;
@@ -38,9 +37,7 @@ fn main() {
     app::background2(41, 41, 41);
     app::foreground(255, 255, 255);
     let mut wind = window::Window::default().with_size(800, 600);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     wind.make_resizable(true);
-    wind.set_icon(Some(icon));
     let mut browser = browser::Browser::new(5, 10, 100, 520, "");
     let mut frame = frame::Frame::default()
         .with_size(680, 520)

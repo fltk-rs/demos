@@ -1,5 +1,4 @@
 use fltk::{
-    image::IcoImage,
     enums::*,
     prelude::*,
     *
@@ -69,11 +68,9 @@ impl DerefMut for FlatButton {
 
 #[tokio::main]
 async fn main() {
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::DoubleWindow::new(200, 200, 600, 400, "Todos");
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     let mut scroll = group::Scroll::default().with_size(600, 350);
     let mut pack = group::Pack::default()
         .with_size(580, 350)

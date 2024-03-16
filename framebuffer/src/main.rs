@@ -4,7 +4,6 @@ use fltk::{
     draw,
     prelude::*,
     window::Window,
-    image::IcoImage
 };
 use std::{
     thread,
@@ -27,9 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut win = Window::default()
         .with_size(WIDTH as i32, HEIGHT as i32)
         .with_label("Framebuffer");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     let mut frame = frame::Frame::default().size_of(&win);
     win.end();
     win.make_resizable(true);

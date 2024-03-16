@@ -4,7 +4,6 @@ use egui_backend::{
         enums::*,
         prelude::*,
         *,
-        image::IcoImage
     },
     gl, DpiScaling,
 };
@@ -23,8 +22,6 @@ fn main() {
     app::get_system_colors();
     app::set_font_size(20);
     let mut main_win = window::Window::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
-    main_win.set_icon(Some(icon));
     let mut glut_win = window::GlWindow::new(5, 5, main_win.w() - 200, main_win.h() - 10, None);
     glut_win.set_mode(Mode::Opengl3);
     glut_win.end();

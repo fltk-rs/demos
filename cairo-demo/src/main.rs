@@ -66,10 +66,8 @@ fn main() {
     app::cairo::set_autolink_context(true);
     let mut win = window::Window::new(100, 100, 400, 300, "Cairo");
     win.set_color(Color::White);
-    let icon = image::IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
-
+    
     let mut box1 = CairoWidget::new(0, 0, 100, 100, "Box1");
     box1.set_color(Color::from_rgb(0, 0, 255));
     box1.set_alpha(100);

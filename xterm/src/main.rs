@@ -2,7 +2,6 @@ use fltk::{
     enums::Color,
     prelude::*,
     *,
-    image::IcoImage
 };
 
 fn main() {
@@ -14,9 +13,7 @@ fn main() {
     xterm_win.end();
     xterm_win.set_color(Color::Black);
 
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.end();
     win.show();
     win.make_resizable(true);

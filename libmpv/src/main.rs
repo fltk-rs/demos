@@ -2,7 +2,6 @@ use fltk::{
     enums::Mode,
     prelude::*,
     *,
-    image::IcoImage
 };
 use libmpv::{
     render::{
@@ -28,9 +27,7 @@ fn main() {
     let a = app::App::default().with_scheme(app::Scheme::Gleam);
     app::get_system_colors();
     let mut win = window::Window::default().with_size(800, 600);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     let mut mpv_win = window::GlWindow::new(5, 5, 790, 530, None);
     mpv_win.set_mode(Mode::Opengl3);
     let mut btn = button::Button::new(360, 545, 80, 40, "@||");

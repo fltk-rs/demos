@@ -1,7 +1,6 @@
 use fltk::{
     prelude::*,
     *,
-    image::IcoImage
 };
 use glow::*;
 
@@ -9,9 +8,7 @@ fn main() {
 
     let app = app::App::default();
     let mut win = window::GlWindow::default().with_size(800, 600);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();

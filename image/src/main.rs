@@ -8,7 +8,6 @@ use fltk::{
     image as fl_image,
     prelude::*,
     window,
-    image::IcoImage
 };
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
@@ -30,9 +29,7 @@ fn main() {
 
     let app = app::App::default();
     let mut wind = window::Window::default().with_size(w as i32, h as i32);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     wind.make_resizable(true);
-    wind.set_icon(Some(icon));
     let mut frame = frame::Frame::default().size_of(&wind);
     wind.end();
     wind.show();

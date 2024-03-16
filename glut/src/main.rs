@@ -1,7 +1,6 @@
 use fltk::{
     prelude::*,
     *,
-    image::IcoImage
 };
 
 use gl::types::*;
@@ -100,9 +99,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 fn main() {
     let app = app::App::default();
     let mut win = window::GlWindow::new(100, 100, 500, 400, "");
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.set_mode(enums::Mode::Opengl3);
     win.end();
     win.show();

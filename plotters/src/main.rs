@@ -1,7 +1,6 @@
 use fltk::{
     prelude::*,
     *,
-    image::IcoImage
 };
 use plotters::{
     prelude::*,
@@ -34,9 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let app = app::App::default();
     let mut win = window::Window::default().with_size(W as i32, H as i32);
     let mut frame = frame::Frame::default().size_of(&win);
-    let icon: IcoImage = IcoImage::load(&std::path::Path::new("src/fltk.ico")).unwrap();
     win.make_resizable(true);
-    win.set_icon(Some(icon));
     win.end();
     win.show();
     let root =

@@ -1,16 +1,6 @@
-use fltk::{
-    enums::*,
-    prelude::*,
-    *
-};
-use serde::{
-    Deserialize,
-    Serialize
-};
-use std::ops::{
-    Deref,
-    DerefMut
-};
+use fltk::{enums::*, prelude::*, *};
+use serde::{Deserialize, Serialize};
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Item {
@@ -79,6 +69,7 @@ async fn main() {
     scroll.end();
 
     let mut choice = menu::Choice::new(260, 355, 80, 40, "User");
+    choice.add_choice("1|2|3|4|5|6|7|8|9|10");
 
     win.end();
     win.show();
@@ -94,43 +85,35 @@ async fn main() {
     scrollbar.set_color(Color::from_u32(0x757575));
     scrollbar.set_selection_color(Color::Red);
 
-    for user in 1..=10 {
-        let pack = pack.clone();
-        let win = win.clone();
-        choice.add(
-            &user.to_string(),
-            Shortcut::None,
-            menu::MenuFlag::Normal,
-            move |_| {
-                let mut pack = pack.clone();
-                let mut win = win.clone();
-                tokio::spawn(async move {
-                    let resp = reqwest::get(&format!(
-                        "https://jsonplaceholder.typicode.com/todos?userId={}",
-                        user
-                    ))
-                    .await
-                    .unwrap()
-                    .json::<Vec<Item>>()
-                    .await
-                    .unwrap();
-                    pack.clear();
-                    for item in resp {
-                        if item.user_id == user {
-                            let mut frm = FlatButton::new(580, 100, &item.title);
-                            if item.completed {
-                                frm.set_color(Color::from_u32(GREEN));
-                            } else {
-                                frm.set_color(Color::from_u32(RED));
-                            }
-                            pack.add(&*frm);
-                        }
+    choice.set_callback(move |c| {
+        let user = c.value() + 1;
+        let mut pack = pack.clone();
+        pack.clear();
+        tokio::spawn(async move {
+            let resp = reqwest::get(&format!(
+                "https://jsonplaceholder.typicode.com/todos?userId={}",
+                user
+            ))
+            .await
+            .unwrap()
+            .json::<Vec<Item>>()
+            .await
+            .unwrap();
+            for item in resp {
+                if item.user_id == user {
+                    let mut frm = FlatButton::new(580, 100, &item.title);
+                    if item.completed {
+                        frm.set_color(Color::from_u32(GREEN));
+                    } else {
+                        frm.set_color(Color::from_u32(RED));
                     }
-                    win.redraw();
-                });
-            },
-        );
-    }
+                    pack.add(&*frm);
+                }
+            }
+            app::awake();
+            app::redraw();
+        });
+    });
 
     app.run().unwrap();
 }

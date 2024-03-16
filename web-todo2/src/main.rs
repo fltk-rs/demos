@@ -104,6 +104,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             move |_| {
                 let mut pack = pack.clone();
                 let mut win = win.clone();
+                pack.clear();
                 async_std::task::spawn(async move {
                     let resp: Vec<Item> = surf::get(&format!(
                         "https://jsonplaceholder.typicode.com/todos?userId={}",
@@ -112,7 +113,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .recv_json()
                     .await
                     .unwrap();
-                    pack.clear();
                     for item in resp {
                         if item.user_id == user {
                             let mut frm = FlatButton::new(580, 100, &item.title);
@@ -124,6 +124,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             pack.add(&*frm);
                         }
                     }
+                    app::awake();
                     win.redraw();
                 });
             },

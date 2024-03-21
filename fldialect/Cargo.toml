@@ -1,6 +1,6 @@
 [package]
 homepage = "https://github.com/fltk-rs"
-authors = Artem V. Ageev
+authors = "Artem V. Ageev"
 name = "fldialect"
 version = "0.0.1"
 edition = "2021"

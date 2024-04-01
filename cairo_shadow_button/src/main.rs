@@ -71,18 +71,17 @@ impl CairoButton {
 fltk::widget_extends!(CairoButton, button::Button, btn);
 
 fn main() {
+    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 600, 600, "Cairo");
     win.set_color(Color::White);
 
-    CairoButton::new(100, 100, 200, 200, "Label").set_callback(|_| println!("clicked!"));
+    let mut btn = CairoButton::new(100, 100, 200, 200, "Label");
+    btn.set_callback(|_| println!("clicked!"));
 
     win.end();
     win.show();
 
-    app::App::default()
-        .with_scheme(app::AppScheme::Gtk)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }
 
 fn draw_surface(surface: &mut ImageSurface, w: i32, h: i32) {

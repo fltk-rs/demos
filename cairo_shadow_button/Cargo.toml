@@ -1,10 +1,9 @@
 [package]
 name = "cairo_button"
 version = "0.1.0"
-authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
 edition = "2021"
 
 [dependencies]
-fltk = "^1.4"
-cairo-rs = "^0.19"
-cairo-blur = "^0.1.1"
+fltk = "1.4"
+cairo-rs = "0.18"
+cairo-blur = "0.1.0"

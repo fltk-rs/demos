@@ -1,7 +1,5 @@
-use cairo::{Format, ImageSurface};
+use cairo::{Context, Format, ImageSurface};
 use fltk::{enums::*, prelude::*, *};
-
-mod surface;
 
 #[derive(Clone)]
 struct CairoButton {
@@ -16,7 +14,7 @@ impl CairoButton {
             draw::draw_rect_fill(w.x(), w.y(), w.w(), w.h(), Color::White);
             let mut surface = ImageSurface::create(Format::ARgb32, w.w(), w.h())
                 .expect("Couldn’t create surface");
-            surface::draw_surface(&mut surface, w.w(), w.h());
+            draw_surface(&mut surface, w.w(), w.h());
             if !w.value() {
                 cairo_blur::blur_image_surface(&mut surface, 20);
             }
@@ -85,4 +83,36 @@ fn main() {
         .with_scheme(app::AppScheme::Gtk)
         .run()
         .unwrap();
+}
+
+fn draw_surface(surface: &mut ImageSurface, w: i32, h: i32) {
+    let ctx = Context::new(surface).unwrap();
+    ctx.save().unwrap();
+    let corner_radius = h as f64 / 10.0;
+    let radius = corner_radius / 1.0;
+    let degrees = std::f64::consts::PI / 180.0;
+
+    ctx.new_sub_path();
+    ctx.arc(w as f64 - radius, radius, radius, -90. * degrees, 0.0);
+    ctx.arc(
+        w as f64 - radius,
+        h as f64 - radius,
+        radius,
+        0.0,
+        90. * degrees,
+    );
+    ctx.arc(
+        radius,
+        h as f64 - radius,
+        radius,
+        90. * degrees,
+        180. * degrees,
+    );
+    ctx.arc(radius, radius, radius, 180. * degrees, 270. * degrees);
+    ctx.close_path();
+
+    ctx.set_source_rgba(150.0 / 255.0, 150.0 / 255.0, 150.0 / 255.0, 40.0 / 255.0);
+    ctx.set_line_width(4.);
+    ctx.fill().unwrap();
+    ctx.restore().unwrap();
 }

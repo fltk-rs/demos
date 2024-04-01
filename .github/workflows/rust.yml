@@ -22,23 +22,156 @@ jobs:
     steps:
     - name: Download deps
       run: |
-         if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev ninja-build libwebkit2gtk-4.0-dev libvlc-dev libpango1.0-dev libpng-dev libgl1-mesa-dev libglu1-mesa-dev libmpv-dev
-         fi
+        if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y lib{pango1.0,x11,xext,xft,xinerama,mpv}-dev\
+                lib{xcursor,xrender,xfixes,webkit2gtk-4.0,vlc,png,gl1-mesa}-dev\
+                ninja-build libglu1-mesa-dev
+        fi
       shell: bash
     - uses: actions/checkout@v2
     - uses: seanmiddleditch/gha-setup-ninja@master
     - name: build cfltk
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          git clone https://github.com/MoAlyousef/cfltk && cd cfltk && git submodule update --init --recursive && cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=ON -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DOPTION_USE_PANGO=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release && cmake --build bin --parallel --target install && export CFLTK_BUNDLE_DIR=$(pwd)/bin/lib
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          git clone https://github.com/MoAlyousef/cfltk && cd cfltk && git submodule update --init --recursive && cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release && cmake --build bin --parallel --target install && export CFLTK_BUNDLE_DIR=$(pwd)/bin/lib
-        else
-          git clone https://github.com/MoAlyousef/cfltk && cd cfltk && git submodule update --init --recursive && cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release && cmake --build bin --parallel --target install && set CFLTK_BUNDLE_DIR=$(pwd)/bin/lib
-        fi
+        git clone https://github.com/MoAlyousef/cfltk
+        pushd cfltk || return 1
+        git submodule update --init --recursive
+        case "${RUNNER_OS}" in
+            Linux ) cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=ON  -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release -DOPTION_USE_PANGO=ON;; 
+            macOS ) cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
+            * )     cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
+        esac
+        cmake --build bin --parallel --target install
+        export CFLTK_BUNDLE_DIR="${PWD}/bin/lib"
       shell: bash
+    - name: Build cairo-demo
+      working-directory: cairo-demo
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+            cargo build --verbose
+        fi
+    - name: Build cairo_shadow_button
+      working-directory: cairo_shadow_button
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+            cargo build --verbose
+        fi
     - name: Build calendar
       working-directory: calendar
       shell: bash
       run: cargo build --verbose
+    - name: Build csv
+      working-directory: csv
+      run: cargo build --verbose
+      shell: bash
+    - name: Build femtovg
+      working-directory: femtovg
+      run: cargo build --verbose
+      shell: bash
+    - name: Build ffmpeg
+      run: |
+        case "$RUNNER_OS" in
+            Linux | macOS) cargo build --verbose;;
+        esac
+      working-directory: ffmpeg
+      shell: bash
+    - name: Build framebuffer
+      run: cargo build --verbose
+      working-directory: framebuffer
+      shell: bash
+    - name: Build glium
+      run: cargo build --verbose
+      working-directory: glium
+      shell: bash
+    - name: Build glow
+      run: cargo build --verbose
+      working-directory: glow
+      shell: bash
+    - name: Build glut
+      run: cargo build --verbose
+      working-directory: glut
+      shell: bash
+    - name: Build image
+      run: cargo build --verbose
+      working-directory: image
+      shell: bash
+    - name: Build libvlc
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          cargo build --verbose
+        fi
+      working-directory: libvlc
+      shell: bash
+    - name: Build mpv
+      run: cargo build --verbose
+      working-directory: mpv
+      shell: bash
+    - name: Build musicplayer
+      run: cargo build --verbose
+      working-directory: musicplayer
+      shell: bash
+    - name: Build opengl
+      run: cargo build --verbose
+      working-directory: opengl
+      shell: bash
+    - name: Build pixels
+      run: cargo build --verbose
+      working-directory: pixels
+      shell: bash
+    - name: Build plotters
+      run: cargo build --verbose
+      working-directory: plotters
+      shell: bash
+    - name: Build raqote
+      run: cargo build --verbose
+      working-directory: raqote
+      shell: bash
+    - name: Build rounded-svg
+      run: cargo build --verbose
+      working-directory: rounded-svg
+      shell: bash
+    - name: Build speedy2d
+      run: cargo build --verbose
+      working-directory: speedy2d
+      shell: bash
+    - name: Build systray
+      run: cargo build --verbose
+      working-directory: systray
+      shell: bash
+    - name: Build tinyskia
+      run: cargo build --verbose
+      working-directory: tinyskia
+      shell: bash
+    - name: Build web-todo
+      run: cargo build --verbose
+      working-directory: web-todo
+      shell: bash
+    - name: Build web-todo2
+      run: cargo build --verbose
+      working-directory: web-todo2
+      shell: bash
+    - name: Build webview
+      run: cargo build --verbose
+      working-directory: webview
+      shell: bash
+    - name: Build wgpu
+      run: cargo build --verbose
+      working-directory: wgpu
+      shell: bash
+    - name: Build xterm
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          cargo build --verbose
+        fi
+      working-directory: xterm
+      shell: bash
+    - name: Build egui-demo
+      run: cargo build --verbose
+      working-directory: egui-demo
+      shell: bash
+    - name: Build terminal
+      run: cargo build --verbose
+      working-directory: terminal
+      shell: bash

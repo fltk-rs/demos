@@ -1,11 +1,11 @@
-use cairo::{Context, Format, ImageSurface};
+use cairo::{Context, ImageSurface};
 
 pub fn draw_surface(surface: &mut ImageSurface, w: i32, h: i32) {
-    let ctx = Context::new(&surface).unwrap();
+    let ctx = Context::new(surface).unwrap();
     ctx.save().unwrap();
     let corner_radius = h as f64 / 10.0;
     let radius = corner_radius / 1.0;
-    let degrees = 3.14 / 180.0;
+    let degrees = std::f64::consts::PI / 180.0;
 
     ctx.new_sub_path();
     ctx.arc(w as f64 - radius, radius, radius, -90. * degrees, 0.0);

@@ -22,7 +22,7 @@ jobs:
     steps:
     - name: Download deps
       run: |
-        set-euo pipefail
+        set -euo pipefail
         if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get update
             sudo apt-get install -y lib{pango1.0,x11,xext,xft,xinerama,mpv}-dev\
@@ -34,7 +34,7 @@ jobs:
     - uses: seanmiddleditch/gha-setup-ninja@master
     - name: build cfltk
       run: |
-        set-euo pipefail
+        set -euo pipefail
         git clone https://github.com/MoAlyousef/cfltk
         pushd cfltk || return 1
         git submodule update --init --recursive

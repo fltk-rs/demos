@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 fltk = { version = "^1.4", features = ["cairoext"] }
-cairo-rs = "0.18"
+cairo-rs = "^0.19"

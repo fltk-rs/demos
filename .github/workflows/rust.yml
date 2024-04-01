@@ -43,7 +43,8 @@ jobs:
             macOS ) cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
             * )     cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
         esac
-        cmake --build bin --parallel --target install && export CFLTK_BUNDLE_DIR="${PWD}/bin/lib"
+        cmake --build bin --parallel --target install
+        export CFLTK_BUNDLE_DIR="${PWD}/bin/lib"
       shell: bash
     - name: Build cairo-demo
       working-directory: cairo-demo
@@ -73,9 +74,9 @@ jobs:
       shell: bash
     - name: Build ffmpeg
       run: |
-        if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
-          cargo build --verbose
-        fi
+        case "$RUNNER_OS" in
+            Linux | macOS) cargo build --verbose;;
+        esac
       working-directory: ffmpeg
       shell: bash
     - name: Build framebuffer

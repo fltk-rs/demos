@@ -18,10 +18,6 @@ jobs:
           - windows-latest
           - macos-11
           - ubuntu-latest
-        demo:
-          - cairo-demo
-          - cairo_shadow_button
-          - calendar
     
     steps:
     - name: Download deps
@@ -42,17 +38,25 @@ jobs:
           git clone https://github.com/MoAlyousef/cfltk && cd cfltk && git submodule update --init --recursive && cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release && cmake --build bin --parallel --target install && set CFLTK_BUNDLE_DIR=$(pwd)/bin/lib
         fi
       shell: bash
-    - name: Build ${{ matrix.demo }}
-      working-directory: ${{ matrix.demo }}
+    - name: Build cairo-demo
+      working-directory: cairo-demo
+      shell: bash
+      run: cargo build --verbose
+    - name: Build cairo_shadow_button
+      working-directory: cairo_shadow_button
+      shell: bash
+      run: cargo build --verbose
+    - name: Build calendar
+      working-directory: calendar
       shell: bash
       run: cargo build --verbose
     - name: Build csv
-      run: cargo build --verbose
       working-directory: csv
+      run: cargo build --verbose
       shell: bash
     - name: Build femtovg
-      run: cargo build --verbose
       working-directory: femtovg
+      run: cargo build --verbose
       shell: bash
     - name: Build ffmpeg
       run: |

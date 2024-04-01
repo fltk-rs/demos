@@ -41,11 +41,17 @@ jobs:
     - name: Build cairo-demo
       working-directory: cairo-demo
       shell: bash
-      run: cargo build --verbose
+      run: |
+        case "$RUNNER_OS" in
+            Linux | macOS ) cargo build --verbose;;
+        esac
     - name: Build cairo_shadow_button
       working-directory: cairo_shadow_button
       shell: bash
-      run: cargo build --verbose
+      run: |
+        case "$RUNNER_OS" in
+            Linux | macOS ) cargo build --verbose;;
+        esac
     - name: Build calendar
       working-directory: calendar
       shell: bash

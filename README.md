@@ -187,7 +187,7 @@ The current demos include:
 
 <h3 id="cairo">cairo</h3>
 
-![cairo](cairo-demo/assets/ex.jpg)
+![cairo](cairo/assets/ex.jpg)
 
 </div>
 

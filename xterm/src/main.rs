@@ -5,7 +5,6 @@ use fltk::{
 };
 
 fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 800, 600, "Terminal");
 
     // Create inner window to act as embedded terminal
@@ -24,5 +23,5 @@ fn main() {
         .spawn()
         .unwrap();
 
-    app.run().unwrap();
+    app::App::default().with_scheme(app::AppScheme::Gtk).run().unwrap();
 }

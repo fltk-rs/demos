@@ -187,12 +187,12 @@ The current demos include:
 
 <h3 id="cairo">cairo</h3>
 
-![cairo](cairo-demo/ex.jpg)
+![cairo](cairo-demo/assets/ex.jpg)
 
 </div>
 
 <h3 id="cairo_shadow_button">cairo shadow button</h3>
 
-![cairo](cairo_shadow_button/ex1.jpg)
+![cairo](cairo_shadow_button/assets/ex1.jpg)
 
 </div>

@@ -2,4 +2,4 @@
 
 Use Cairo for custom drawing.
 
-![alt_test](ex.jpg)
+![alt_test](assets/ex.jpg)

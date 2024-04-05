@@ -77,21 +77,24 @@ impl CairoWidget {
 fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 
 fn main() {
-    let mut win = window::Window::new(100, 100, 400, 300, "Cairo");
+    let mut win = window::Window::default()
+        .with_label("Demo: Cairo")
+        .with_size(400, 300)
+        .center_screen();
+    {
+        let mut box1 = CairoWidget::new(0, 0, 100, 100, "Box1");
+        box1.set_color(Color::from_rgb(0, 0, 255));
+        box1.set_alpha(100);
+        let mut box2 = CairoWidget::new(75, 75, 100, 100, "Box2");
+        box2.set_color(Color::Red);
+        box2.set_alpha(100);
+        let mut box3 = CairoWidget::new(150, 150, 100, 100, "Box3");
+        box3.set_color(Color::Green);
+        box3.set_alpha(100);
+    }
+    win.end();
     win.set_color(Color::White);
     win.make_resizable(true);
-
-    let mut box1 = CairoWidget::new(0, 0, 100, 100, "Box1");
-    box1.set_color(Color::from_rgb(0, 0, 255));
-    box1.set_alpha(100);
-    let mut box2 = CairoWidget::new(75, 75, 100, 100, "Box2");
-    box2.set_color(Color::Red);
-    box2.set_alpha(100);
-    let mut box3 = CairoWidget::new(150, 150, 100, 100, "Box3");
-    box3.set_color(Color::Green);
-    box3.set_alpha(100);
-
-    win.end();
     win.show();
 
     app::cairo::set_autolink_context(true);

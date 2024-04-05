@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 use cairo::{Context, Format, ImageSurface};
 use fltk::{enums::*, prelude::*, *};
 
@@ -71,17 +72,22 @@ impl CairoButton {
 fltk::widget_extends!(CairoButton, button::Button, btn);
 
 fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
-    let mut win = window::Window::new(100, 100, 600, 600, "Cairo");
-    win.set_color(Color::White);
+    let mut win = window::Window::default()
+        .with_label("Demo: Cairo")
+        .with_size(600, 600)
+        .center_screen();
 
-    let mut btn = CairoButton::new(100, 100, 200, 200, "Label");
-    btn.set_callback(|_| println!("clicked!"));
+    CairoButton::new(100, 100, 200, 200, "Label").set_callback(|_| println!("clicked!"));
 
     win.end();
+    win.set_color(Color::White);
+    win.make_resizable(true);
     win.show();
 
-    app.run().unwrap();
+    app::App::default()
+        .with_scheme(app::AppScheme::Gtk)
+        .run()
+        .unwrap();
 }
 
 fn draw_surface(surface: &mut ImageSurface, w: i32, h: i32) {

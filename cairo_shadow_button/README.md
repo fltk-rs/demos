@@ -2,4 +2,4 @@
 
 This shows how to create a rounded button with a blur effect using cairo.
 
-![img](ex1.jpg)
+![img](assets/ex1.jpg)

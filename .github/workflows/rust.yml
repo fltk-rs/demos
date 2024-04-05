@@ -7,12 +7,13 @@ on:
   schedule:
     - cron:  '30 13 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    concurrency:
-      group: "build"
-      cancel-in-progress: true
     strategy:
       matrix:
         os:

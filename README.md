@@ -1,5 +1,5 @@
 <div align="center">
-  <img height="160" src="/image/fltk.png" />
+  <img height="160" src="/image/assets/fltk.png" />
   <h1 id="title">fltk-rs demos</h1>
 
   [![Documentation](https://docs.rs/fltk/badge.svg)](https://docs.rs/fltk)

@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use {
     fltk::{
         app,
@@ -16,7 +18,7 @@ use {
 };
 
 fn main() {
-    let file = env::var("HOME").unwrap() + CFG;
+    let file = env::var("HOME").unwrap() + "/.config/flcalculator";
     let mut theme: u8 = match Path::new(&file).exists() {
         true => fs::read(&file).unwrap()[0],
         false => 0,
@@ -61,7 +63,7 @@ fn main() {
     }
     menu.set_frame(FrameType::FlatBox);
     let mut window = Window::default()
-        .with_label("FlCalculator")
+        .with_label("flCalculator")
         .with_size(360, 640)
         .center_screen();
     let mut vbox = Flex::default_fill().column();
@@ -144,7 +146,7 @@ fn main() {
     window.emit(sender, Message::Quit(false));
     sender.send(Message::Themes(theme));
     app::set_font(Font::Courier);
-    while app::App::default().load_system_fonts().wait() {
+    while app::App::default().with_scheme(app::Scheme::Base).wait() {
         match receiver.recv() {
             Some(Message::Quit(force)) => {
                 if force || app::event() == Event::Close {
@@ -152,15 +154,7 @@ fn main() {
                     app::quit();
                 }
             }
-            Some(Message::Info) => {
-                let mut dialog = HelpDialog::default();
-                dialog.set_value(INFO);
-                dialog.set_text_size(16);
-                dialog.show();
-                while dialog.shown() {
-                    app::wait();
-                }
-            }
+            Some(Message::Info) => info(),
             Some(Message::Themes(ord)) => {
                 theme = ord;
                 window.set_color(COLORS[theme as usize][0]);
@@ -302,6 +296,22 @@ fn button(title: &'static str) -> Button {
     element
 }
 
+fn info() {
+    const INFO: &str = "<p>
+<a href=\"https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/flcalculator\">FlCalculator</a>
+ is similar to
+ <a href=\"https://apps.gnome.org/Calculator\">Calculator</a>
+ written using
+ <a href=\"https://fltk-rs.github.io/fltk-rs\">FLTK-RS</a>
+</p>";
+    let mut dialog = HelpDialog::default();
+    dialog.set_value(INFO);
+    dialog.set_text_size(16);
+    dialog.show();
+    while dialog.shown() {
+        app::wait();
+    }
+}
 const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
   <metadata id="metadata4">
@@ -327,14 +337,6 @@ const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
   <path d="m 72,11.5 -60.5,0 0,78.5 m 0,-43 44.5,0 m 27.5,-44 0,78.5 51.5,0 m -25,-70 70,0 m -33.5,0 0,78.5 m 45,-87 0,87 m 71,-101 -57.75,57.75 57.75,57.75" id="path28" style="fill:none;stroke:#ffffff;stroke-width:17"/>
 </svg>"#;
 
-const INFO: &str = "<p>
-<a href=\"https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/flcalculator\">FlCalculator</a>
- is similar to
- <a href=\"https://apps.gnome.org/Calculator\">Calculator</a>
- written using
- <a href=\"https://fltk-rs.github.io/fltk-rs\">FLTK-RS</a>
-</p>";
-
 #[derive(Copy, Clone)]
 enum Message {
     Info,
@@ -350,7 +352,6 @@ enum Message {
     C,
 }
 
-const CFG: &str = "/.config/flcalculator";
 const SIZE: i32 = 25;
 const OUTPUT: i32 = 36;
 const THEMES: [&str; 2] = ["Light", "Dark"];

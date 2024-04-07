@@ -1,26 +1,15 @@
 use fltk::{
     app,
     enums::Event,
-    prelude::{
-        WidgetBase,
-        WidgetExt,
-        GroupExt,
-        WindowExt
-    },
-    window::{
-        GlWindow,
-        Window
-    },
-    utils
+    prelude::{GroupExt, WidgetBase, WidgetExt, WindowExt},
+    utils,
+    window::{GlWindow, Window},
 };
 use speedy2d::{
-    GLRenderer,
     color::Color,
     dimen::Vector2,
-    image::{
-        ImageDataType,
-        ImageSmoothingMode
-    }
+    image::{ImageDataType, ImageSmoothingMode},
+    GLRenderer,
 };
 
 fn main() {
@@ -45,7 +34,7 @@ fn main() {
         Event::Push => {
             println!("Pushed");
             true
-        },
+        }
         _ => false,
     });
 
@@ -56,13 +45,13 @@ fn main() {
     renderer.draw_frame(|graphics| {
         graphics.clear_screen(Color::WHITE);
         let handle = graphics
-        .create_image_from_raw_pixels(
-            ImageDataType::RGB,
-            ImageSmoothingMode::Linear,
-            Vector2::new(300, 300),
-            &fb,
-        )
-        .unwrap();
+            .create_image_from_raw_pixels(
+                ImageDataType::RGB,
+                ImageSmoothingMode::Linear,
+                Vector2::new(300, 300),
+                &fb,
+            )
+            .unwrap();
         graphics.draw_image(Vector2::new(0., 0.), &handle);
     });
 

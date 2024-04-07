@@ -1,5 +1,5 @@
 [package]
-name = "speedy"
+name = "speedy_demo"
 version = "0.1.0"
 authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
 edition = "2021"
@@ -7,6 +7,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "1", features = ["enable-glwindow"] }
+fltk = { version = "^1.4", features = ["use-ninja", "enable-glwindow"] }
 speedy2d = { version = "1.0.2", default-features = false }
 gl = "0.14"

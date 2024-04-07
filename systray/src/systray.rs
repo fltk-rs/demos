@@ -19,7 +19,7 @@ impl SystemTray {
 
     fn show_main_win(&self) {
         extern "C" {
-            pub fn ShowWindow(hwnd: crate::HWND, nCmdShow: i32) -> bool;
+            pub fn ShowWindow(hwnd: crate::Hwnd, nCmdShow: i32) -> bool;
         }
         unsafe {
             ShowWindow(crate::WINDOW, 9);

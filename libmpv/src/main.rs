@@ -1,15 +1,6 @@
-use fltk::{
-    enums::Mode,
-    prelude::*,
-    *,
-};
+use fltk::{enums::Mode, prelude::*, *};
 use libmpv::{
-    render::{
-        OpenGLInitParams,
-        RenderContext,
-        RenderParam,
-        RenderParamApiType
-    },
+    render::{OpenGLInitParams, RenderContext, RenderParam, RenderParamApiType},
     FileState, Mpv,
 };
 use std::os::raw::c_void;
@@ -69,7 +60,7 @@ fn main() {
         w.swap_buffers();
     });
 
-    app::add_idle(move || {
+    app::add_idle3(move |_| {
         mpv_win.redraw();
     });
 

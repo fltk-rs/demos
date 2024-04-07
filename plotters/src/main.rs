@@ -1,20 +1,8 @@
-use fltk::{
-    prelude::*,
-    *,
-};
-use plotters::{
-    prelude::*,
-    style::Color,
-};
-use plotters_bitmap::{
-    BitMapBackend,
-    bitmap_pixel::RGBPixel
-};
-use std::{
-    error::Error,
-    collections::VecDeque,
-    time::SystemTime
-};
+#![forbid(unsafe_code)]
+use fltk::{prelude::*, *};
+use plotters::{prelude::*, style::Color};
+use plotters_bitmap::{bitmap_pixel::RGBPixel, BitMapBackend};
+use std::{collections::VecDeque, error::Error, time::SystemTime};
 
 const W: usize = 737;
 const H: usize = 432;
@@ -36,9 +24,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     win.make_resizable(true);
     win.end();
     win.show();
-    let root =
-        BitMapBackend::<RGBPixel>::with_buffer_and_format(&mut buf, (W as u32, H as u32))?
-            .into_drawing_area();
+    let root = BitMapBackend::<RGBPixel>::with_buffer_and_format(&mut buf, (W as u32, H as u32))?
+        .into_drawing_area();
     root.fill(&BLACK)?;
 
     let mut chart = ChartBuilder::on(&root)
@@ -49,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     chart
         .configure_mesh()
         .label_style(("sans-serif", 15).into_font().color(&GREEN))
-        .axis_style(&GREEN)
+        .axis_style(GREEN)
         .draw()?;
 
     let cs = chart.into_chart_state();
@@ -84,25 +71,23 @@ fn main() -> Result<(), Box<dyn Error>> {
         data.push_back((epoch, phase_x.sin(), phase_y.sin()));
 
         if epoch - last_flushed > 1.0 / FREAME_RATE {
-            let root = BitMapBackend::<RGBPixel>::with_buffer_and_format(
-                &mut buf,
-                (W as u32, H as u32),
-            )?
-            .into_drawing_area();
+            let root =
+                BitMapBackend::<RGBPixel>::with_buffer_and_format(&mut buf, (W as u32, H as u32))?
+                    .into_drawing_area();
             let mut chart = cs.clone().restore(&root);
             chart.plotting_area().fill(&BLACK)?;
 
             chart
                 .configure_mesh()
-                .bold_line_style(&GREEN.mix(0.2))
-                .light_line_style(&TRANSPARENT)
+                .bold_line_style(GREEN.mix(0.2))
+                .light_line_style(TRANSPARENT)
                 .draw()?;
 
             chart.draw_series(data.iter().zip(data.iter().skip(1)).map(
                 |(&(e, x0, y0), &(_, x1, y1))| {
                     PathElement::new(
                         vec![(x0, y0), (x1, y1)],
-                        &GREEN.mix(((e - epoch) * 20.0).exp()),
+                        GREEN.mix(((e - epoch) * 20.0).exp()),
                     )
                 },
             ))?;

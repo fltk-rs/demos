@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#[cfg(target_os = "linux")]
 use cairo::Context;
 use fltk::{draw::Rect, enums::*, prelude::*, *};
 use std::{cell::RefCell, rc::Rc};
@@ -77,7 +78,7 @@ impl CairoWidget {
 fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 
 fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
+    let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut win = window::Window::default()
         .with_label("Demo: Cairo")
         .with_size(400, 300)

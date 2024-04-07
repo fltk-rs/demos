@@ -3,4 +3,4 @@ Demo application showing usage with the glow crate (another Opengl bindings crat
 
 Notice the "enable-glwindow" in the Cargo.toml.
 
-![alt_test](ex.jpg)
+![alt_test](assets/glow.gif)

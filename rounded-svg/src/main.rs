@@ -1,20 +1,11 @@
-use fltk::{
-    enums::*,
-    prelude::*,
-    *,
-};
+#![forbid(unsafe_code)]
+use fltk::{enums::*, prelude::*, *};
 use std::{
     cell::RefCell,
-    ops::{
-        Deref,
-        DerefMut
-    },
+    ops::{Deref, DerefMut},
     rc::Rc,
 };
-use svg::{
-    node::element::Rectangle,
-    Document
-};
+use svg::{node::element::Rectangle, Document};
 
 struct RoundedImageDisplay {
     frame_: frame::Frame,

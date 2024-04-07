@@ -1,19 +1,11 @@
-use raqote::*;
 use fltk::{
-    app,
-    enums,
-    frame,
-    draw,
-    prelude::{
-        WidgetBase,
-        GroupExt,
-        WidgetExt
-    },
+    app, draw, enums, frame,
+    prelude::{GroupExt, WidgetBase, WidgetExt},
     window,
 };
-use std::rc::Rc;
+use raqote::*;
 use std::cell::RefCell;
-use fltk::prelude::WindowExt;
+use std::rc::Rc;
 
 const WIDTH: i32 = 736;
 const HEIGHT: i32 = 431;
@@ -60,7 +52,7 @@ fn main() {
             y = coords.1;
             f.redraw();
             true
-        },
+        }
         enums::Event::Drag => {
             let coords = app::event_coords();
             let path = draw_line(x, y, coords.0, coords.1);
@@ -86,17 +78,18 @@ fn main() {
             y = coords.1;
             f.redraw();
             true
-        },
+        }
         _ => false,
     });
-    unsafe { draw::draw_rgba_nocopy(&mut frame, dt_c.borrow().get_data_u8()); }
+    unsafe {
+        draw::draw_rgba_nocopy(&mut frame, dt_c.borrow().get_data_u8());
+    }
     app.run().unwrap();
 }
 
 pub fn draw_line(x: i32, y: i32, x2: i32, y2: i32) -> Path {
     let mut pb = PathBuilder::new();
     pb.move_to(x as f32, y as f32);
-    pb.line_to(x2  as f32, y2 as f32);
-    let path = pb.finish();
-    path
+    pb.line_to(x2 as f32, y2 as f32);
+    pb.finish()
 }

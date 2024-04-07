@@ -1,6 +1,9 @@
 #![forbid(unsafe_code)]
-use cairo::{Context, Format, ImageSurface};
-use fltk::{enums::*, prelude::*, *};
+#[cfg(target_os = "linux")]
+use {
+    cairo::{Context, Format, ImageSurface},
+    fltk::{enums::*, prelude::*, *},
+};
 
 #[derive(Clone)]
 struct CairoButton {
@@ -72,7 +75,7 @@ impl CairoButton {
 fltk::widget_extends!(CairoButton, button::Button, btn);
 
 fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
+    let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut win = window::Window::default()
         .with_label("Demo: Cairo")
         .with_size(600, 600)

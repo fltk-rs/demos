@@ -1,18 +1,13 @@
-use fltk::{
-    app,
-    enums::FrameType,
-    prelude::*,
-    *,
-};
-
 #[cfg(target_os = "windows")]
+use fltk::{app, enums::FrameType, prelude::*, *};
+
 mod systray;
 
-type HWND = *mut std::os::raw::c_void;
-pub static mut WINDOW: HWND = std::ptr::null_mut();
+type Hwnd = *mut std::os::raw::c_void;
+pub static mut WINDOW: Hwnd = std::ptr::null_mut();
 
 fn main() {
-    let app = app::App::default();
+    let app = app::App::default().with_scheme(app::Scheme::Plastic);
     let mut win = window::Window::default().with_size(400, 300);
     let mut frame = frame::Frame::new(10, 10, 380, 200, "");
     frame.set_frame(FrameType::EngravedBox);
@@ -23,7 +18,6 @@ fn main() {
 
     but.set_callback(move |_| frame.set_label("Hello world!"));
 
-    #[cfg(target_os = "windows")]
     {
         unsafe {
             WINDOW = win.raw_handle();
@@ -45,7 +39,5 @@ fn main() {
             }
         });
     }
-
-    #[cfg(not(target_os = "windows"))]
     app.run().unwrap();
 }

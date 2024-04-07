@@ -1,16 +1,7 @@
-use fltk::{
-    enums::*,
-    prelude::*,
-    *
-};
-use serde::{
-    Deserialize,
-    Serialize
-};
-use std::ops::{
-    Deref,
-    DerefMut
-};
+#![forbid(unsafe_code)]
+use fltk::{enums::*, prelude::*, *};
+use serde::{Deserialize, Serialize};
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Item {

@@ -1,21 +1,21 @@
-use fltk::{
-    prelude::*,
-    *,
-};
+#![forbid(unsafe_code)]
+use fltk::{prelude::*, *};
 use tiny_skia::*;
 
 fn main() {
     let triangle = create_triangle();
 
-    let mut paint = Paint::default();
-    paint.anti_alias = true;
-    paint.shader = Pattern::new(
-        triangle.as_ref(),
-        SpreadMode::Repeat,
-        FilterQuality::Bicubic,
-        1.0,
-        Transform::from_row(1.5, -0.4, 0.0, -0.8, 5.0, 1.0),
-    );
+    let paint = Paint {
+        anti_alias: true,
+        shader: Pattern::new(
+            triangle.as_ref(),
+            SpreadMode::Repeat,
+            FilterQuality::Bicubic,
+            1.0,
+            Transform::from_row(1.5, -0.4, 0.0, -0.8, 5.0, 1.0),
+        ),
+        ..Paint::default()
+    };
 
     let path = PathBuilder::from_circle(200.0, 200.0, 180.0).unwrap();
 

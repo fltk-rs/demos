@@ -1,0 +1,9 @@
+pub const GREEN: u32 = 0x859900;
+pub const RED: u32 = 0xdc322f;
+pub const YELLOW: u32 = 0xb58900;
+pub const DARKYELLOW: u32 = 0xc69a66;
+pub const WHITE: u32 = 0xabb2bf;
+pub const BLUE: u32 = 0x268bd2;
+pub const PURPLE: u32 = 0xc678dd;
+pub const GREY: u32 = 0x808080;
+pub const LIGHTGREY: u32 = 0xd8d8d8;

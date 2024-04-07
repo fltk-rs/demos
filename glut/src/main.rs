@@ -1,26 +1,19 @@
-use fltk::{
-    prelude::*,
-    *,
-};
-
+use fltk::{prelude::*, *};
 use gl::types::*;
-use std::ffi::CString;
-use std::mem;
-use std::ptr;
-use std::str;
+use std::{ffi::CString, mem, ptr, str};
 
 // Vertex data
 static VERTEX_DATA: [GLfloat; 6] = [0.0, 0.5, 0.5, -0.5, -0.5, -0.5];
 
 // Shader sources
-static VS_SRC: &'static str = "
+static VS_SRC: &str = "
 #version 150
 in vec2 position;
 void main() {
     gl_Position = vec4(position, 0.0, 1.0);
 }";
 
-static FS_SRC: &'static str = "
+static FS_SRC: &str = "
 #version 150
 out vec4 out_color;
 void main() {
@@ -44,8 +37,7 @@ fn compile_shader(src: &str, ty: GLenum) -> GLuint {
         if status != (gl::TRUE as GLint) {
             let mut len = 0;
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buf = Vec::with_capacity(len as usize);
-            buf.set_len((len as usize) - 1); // subtract 1 to skip the trailing null character
+            let mut buf: Vec<u8> = vec![0; (len as usize) - 1];
             gl::GetShaderInfoLog(
                 shader,
                 len,
@@ -54,9 +46,7 @@ fn compile_shader(src: &str, ty: GLenum) -> GLuint {
             );
             panic!(
                 "{}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ShaderInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
             );
         }
     }
@@ -77,8 +67,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
         if status != (gl::TRUE as GLint) {
             let mut len: GLint = 0;
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buf = Vec::with_capacity(len as usize);
-            buf.set_len((len as usize) - 1); // subtract 1 to skip the trailing null character
+            let mut buf: Vec<u8> = vec![0; (len as usize) - 1];
             gl::GetProgramInfoLog(
                 program,
                 len,
@@ -87,9 +76,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             );
             panic!(
                 "{}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ProgramInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
             );
         }
         program
@@ -125,7 +112,7 @@ fn main() {
         gl::BufferData(
             gl::ARRAY_BUFFER,
             (VERTEX_DATA.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-            mem::transmute(&VERTEX_DATA[0]),
+            &VERTEX_DATA[0] as *const f32 as *const std::ffi::c_void,
             gl::STATIC_DRAW,
         );
 

@@ -1,5 +1,5 @@
 <div align="center">
-  <img height="160" src="/image/fltk.png" />
+  <img height="160" src="/image/assets/fltk.png" />
   <h1 id="title">fltk-rs demos</h1>
 
   [![Documentation](https://docs.rs/fltk/badge.svg)](https://docs.rs/fltk)
@@ -64,135 +64,34 @@ This repository is licensed under the MIT license. You can get more information 
 ---
 
 The current demos include:
-* [🏜️ cairo:](#cairo) Use cairo for custom drawing inside fltk widgets
-* [🗓️  calendar:](#calendar) Uses the chrono crate to create an fltk calendar dialog.
-- <a href="#web-todo">🌐 web-todo: </a>Creating an async web todo app using fltk, reqwest, serde and tokio.
-- <a href="#web-todo2">🌐 web-todo2: </a>Creating an async web todo app using fltk, surf, serde and async-std.
-- <a href="#libvlc">📺 libvlc: </a>Creating a media player using fltk and the vlc crate.
-- <a href="#musicplayer">🎶 musicplayer: </a>Creating a music player using custom widgets and the soloud crate.
-- <a href="#opengl">🎨 opengl: </a>Raw OpenGL drawing in an fltk GlWindow.
-- <a href="#glut">🖌️ glut: </a>Use the gl crate (An OpenGL function pointer loader) to do OpenGL drawing.
-- <a href="#wgpu">🖊️ wgpu: </a>Use wgpu-rs for gpu accelerated drawing.
-- <a href="#pixels">🎞️ pixels: </a>Use the pixels crate to draw a wgpu accelerated framebuffer.
-- <a href="#framebuffer">✒️ framebuffer: </a>Using fltk for framebuffer drawing.
-- <a href="#plotters">🌌 plotters: </a>Use plotters for live plotting (drawing animations) with fltk.
-- <a href="#raqote">🌈 raqote: </a>Use raqote for custom drawing (paint example).
-- <a href="#tinyskia">🖼️ tinyskia: </a>Use tiny-skia for custom drawing.
-- <a href="#systray">🖥️ systray: </a>Use nwg to create an fltk app with systray functionalities on Windows
-- <a href="#glow">✨ glow: </a>Use the glow crate to do OpengGL drawing.
-- <a href="#glium">🎇 glium: </a>Use the glium crate for OpenGL drawing.
-- <a href="#image">🏞️ image: </a>Uses rust-embed and the image crates to load images into fltk.
-- <a href="#speedy2d">🌚 speedy2d: </a>Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlWindow.
-- <a href="#femtovg">🪐 femtovg: </a>Uses femtovg for 2D drawing in a GlWindow.
-- <a href="#ffmpeg">📽️ ffmpeg: </a>Uses ffmpeg for software video rendering.
-- <a href="#webview">💻 webview: </a>Embeds a webview inside an fltk app.
-- <a href="#csv">🖍️ csv: </a>Uses serde and csv to perform custom drawing of data.
-- <a href="#rounded-svg">🔘 rounded-svg: </a>Use the svg crate along with fltk to create images with rounded borders.
-- <a href="#libmpv">🔦 libmpv: </a>use libmpv to play a video inside an fltk GlWindow.
-- <a href="#mpv"> 🧥 mpv: </a>mpv: Use mpv (the command line app) to play a video inside an fltk window.
-- <a href="#xterm">📲 xterm: </a>embed an xterm window inside an fltk window.
-- <a href="#egui-demo">🎛️ egui-demo: </a>Use fltk as a backend for egui
-- <a href="#gst">🎞️ gst: </a>Use libgstreamer to play a video inside an fltk window
-- <a href="#glyphmap">📍 glyphmap: </a>Maps glyphs (specifically font icons) to their unicode codepoint.
-- <a href="#terminal">📟 terminal: </a>A minimal terminal emulator.
-</div>
+* [🏜️ cairo:](/cairo) Use cairo for custom drawing inside fltk widgets
+* [🗓️  calendar:](/calendar) Uses the chrono crate to create an fltk calendar dialog.
+* [🖍️  csv:](/csv) Uses serde and csv to perform custom drawing of data.
+* [🎛️ egui:](/egui) Use fltk as a backend for egui
+* [🪐 femtovg:](/femtovg) Uses femtovg for 2D drawing in a GlWindow.
+* [📽️ ffmpeg:](/ffmpeg) Uses ffmpeg for software video rendering.
+* [✒️ framebuffer:](/framebuffer) Using fltk for framebuffer drawing.
+* [🎇 glium:](/glium) Use the glium crate for OpenGL drawing.
+* [✨  glow:](/glow) Use the glow crate to do OpengGL drawing.
+* [🖌️  glut:](/glut) Use the gl crate (An OpenGL function pointer loader) to do OpenGL drawing.
+* [📍  glyphmap:](/glyphmap) Maps glyphs (specifically font icons) to their unicode codepoint.
+* [🎞️ gst:](/gst) Use libgstreamer to play a video inside an fltk window
+* [🏞️ image:](/image) Uses rust-embed and the image crates to load images into fltk.
+* [🔦  libmpv:](/libmpv) use libmpv to play a video inside an fltk GlWindow.
+* [📺  libvlc:](/libvlc) Creating a media player using fltk and the vlc crate.
+* [🎶 musicplayer:](/musicplayer) Creating a music player using custom widgets and the soloud crate.
+* [🎨  opengl:](/opengl) Raw OpenGL drawing in an fltk GlWindow.
+* [🎞️ pixels:](/pixels) Use the pixels crate to draw a wgpu accelerated framebuffer.
+* [🌌 plotters:](/plotters) Use plotters for live plotting (drawing animations) with fltk.
+* [🌈  raqote:](/raqote) Use raqote for custom drawing (paint example).
+* [🖼️  tinyskia:](/tinyskia) Use tiny-skia for custom drawing.
+* [🌚 speedy2d:](/speedy2d) Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlWindow.
+* [🖥️ systray:](/systray) Use nwg to create an fltk app with systray functionalities on Windows
+* [💻 webview:](/webview) Embeds a webview inside an fltk app.
+* [🔘 rounded-svg:](/rounded-svg) Use the svg crate along with fltk to create images with rounded borders.
+* [📟 terminal:](/terminal) A minimal terminal emulator.
+* [🌐  web-todo:](/web-todo) Creating an async web todo app using fltk, reqwest, serde and tokio.
+* [🌐  web-todo2:](/web-todo2) Creating an async web todo app using fltk, surf, serde and async-std.
+* [🖊️ wgpu:](/wgpu) Use wgpu-rs for gpu accelerated drawing.
 
 ---
-
-<div align="center">
-
-<h3 id="musicplayer">musicplayer</h3>
-
-![musicplayer](musicplayer/musicplayer.gif)
-
-<h3 id="web-todo">web-todo</h3>
-
-![web-todo](web-todo/web-todo.gif)
-
-<h3 id="opengl">opengl</h3>
-
-![opengl](opengl/opengl.gif)
-
-<h3 id="glut">glut</h3>
-
-![glut](glut/glut.gif)
-
-<h3 id="pixels">pixels</h3>
-
-![pixels](pixels/pixels.gif)
-
-<h3 id="plotters">plotters</h3>
-
-![plotters](plotters/plotters.gif)
-
-<h3 id="raqote">raqote</h3>
-
-![raqote](raqote/raqote.gif)
-
-<h3 id="tinyskia">tinyskia</h3>
-
-![tinyskia](tinyskia/tinyskia.gif)
-
-<h3 id="glow">glow</h3>
-
-![glow](glow/glow.gif)
-
-<h3 id="glium">glium</h3>
-
-![glium](glium/glium.gif)
-
-<h3 id="calendar">calendar</h3>
-
-![calendar](calendar/assets/calendar.gif)
-
-<h3 id="speedy2d">speedy2d</h3>
-
-![speedy2d](speedy2d/speedy2d.gif)
-
-<h3 id="femtovg">femtovg</h3>
-
-![femtovg](femtovg/femtovg.gif)
-
-<h3 id="webview">webview</h3>
-
-![webview](webview/webview.gif)
-
-<h3 id="csv">csv</h3>
-
-![csv](csv/csv.gif)
-
-<h3 id="egui-demo">egui-demo</h3>
-
-![egui-demo](egui-demo/egui-demo.gif)
-
-<h3 id="glyphmap">glyphmap</h3>
-
-![glyphmap](glyphmap/glyphmap.gif)
-
-<h3 id="terminal">terminal</h3>
-
-![terminal](terminal/terminal.gif)
-
-<h3 id="rounded-svg">rounded-svg</h3>
-
-![rounded-svg](rounded-svg/rounded-svg.gif)
-
-<h3 id="systray">systray</h3>
-
-![systray](systray/systray.gif)
-
-<h3 id="wgpu">wgpu</h3>
-
-![wgpu](wgpu/wgpu.gif)
-
-<h3 id="cairo">cairo</h3>
-
-![cairo](cairo/assets/ex.jpg)
-
-</div>
-
-<h3 id="cairo_shadow_button">cairo shadow button</h3>
-
-![cairo](cairo_shadow_button/assets/ex1.jpg)
-
-</div>

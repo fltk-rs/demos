@@ -30,7 +30,11 @@ pub struct Footer {
 
 impl Footer {
     pub fn build(flex: &mut Flex, font: i32, size: i32) -> Self {
-        let fonts = Vec::from(["Courier".to_string(), "Helvetica".to_string(), "Times".to_string()]);
+        let fonts = Vec::from([
+            "Courier".to_string(),
+            "Helvetica".to_string(),
+            "Times".to_string(),
+        ]);
         let mut layout = Flex::default_fill();
         let mut component = Self {
             layout: layout.clone(),

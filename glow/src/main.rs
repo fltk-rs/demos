@@ -1,11 +1,7 @@
-use fltk::{
-    prelude::*,
-    *,
-};
+use fltk::{prelude::*, *};
 use glow::*;
 
 fn main() {
-
     let app = app::App::default();
     let mut win = window::GlWindow::default().with_size(800, 600);
     win.make_resizable(true);
@@ -14,9 +10,7 @@ fn main() {
     win.show();
 
     unsafe {
-        let gl = glow::Context::from_loader_function(|s| {
-            win.get_proc_address(s) as *const _
-        });
+        let gl = glow::Context::from_loader_function(|s| win.get_proc_address(s) as *const _);
 
         let vertex_array = gl
             .create_vertex_array()

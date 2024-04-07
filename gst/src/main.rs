@@ -1,8 +1,4 @@
-use fltk::{
-    enums::Color,
-    prelude::*,
-    *,
-};
+use fltk::{enums::Color, prelude::*, *};
 use gstreamer_video::prelude::*;
 
 #[derive(Copy, Clone)]
@@ -12,11 +8,11 @@ pub enum Message {
 }
 
 fn main() {
+    let app = app::App::default();
     gstreamer::init().unwrap();
-    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
     win.make_resizable(true);
-    
+
     // Create inner window to act as embedded media player
     let mut gst_win = window::Window::new(10, 10, 780, 520, "");
     gst_win.end();
@@ -36,7 +32,7 @@ fn main() {
     let mut path = String::from("file:///");
     let current_dir = std::env::current_dir().unwrap();
     let video_file = current_dir.join(uri);
-    path += &video_file.to_str().unwrap();
+    path += video_file.to_str().unwrap();
 
     let playbin = gstreamer::ElementFactory::make("playbin", None).unwrap();
     playbin.set_property("uri", &path).unwrap();
@@ -55,16 +51,15 @@ fn main() {
     but_stop.emit(s, Message::Stop);
 
     while app.wait() {
-        match r.recv() {
-            Some(val) => match val {
+        if let Some(val) = r.recv() {
+            match val {
                 Message::Play => {
                     playbin.set_state(gstreamer::State::Playing).ok();
                 }
                 Message::Stop => {
                     playbin.set_state(gstreamer::State::Paused).ok();
                 }
-            },
-            None => (),
+            }
         }
     }
 }

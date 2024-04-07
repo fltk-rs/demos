@@ -1,26 +1,16 @@
 use egui_backend::{
     egui,
-    fltk::{
-        enums::*,
-        prelude::*,
-        *,
-    },
+    fltk::{enums::*, prelude::*, *},
     gl, DpiScaling,
 };
 use fltk_egui as egui_backend;
-use std::rc::Rc;
-use std::{
-    cell::RefCell,
-    time::Instant
-};
+use std::{cell::RefCell, rc::Rc, time::Instant};
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 
 fn main() {
-    let a = app::App::default().with_scheme(app::Scheme::Gtk);
-    app::get_system_colors();
-    app::set_font_size(20);
+    let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut main_win = window::Window::new(100, 100, SCREEN_WIDTH as _, SCREEN_HEIGHT as _, None);
     let mut glut_win = window::GlWindow::new(5, 5, main_win.w() - 200, main_win.h() - 10, None);
     glut_win.set_mode(Mode::Opengl3);
@@ -29,7 +19,6 @@ fn main() {
         .column()
         .with_size(185, 590)
         .right_of(&glut_win, 5);
-    col.set_frame(FrameType::DownBox);
     let mut frm = frame::Frame::default();
     frm.set_color(Color::Red.inactive());
     frm.set_frame(FrameType::FlatBox);
@@ -38,8 +27,9 @@ fn main() {
     slider.set_slider_size(0.20);
     slider.set_color(Color::Blue.inactive());
     slider.set_selection_color(Color::Red);
-    col.set_size(&mut slider, 20);
     col.end();
+    col.fixed(&slider, 20);
+    col.set_frame(FrameType::DownBox);
     main_win.end();
     main_win.make_resizable(true);
     main_win.show();
@@ -77,7 +67,9 @@ fn main() {
     let mut age = 0;
     let mut quit = false;
 
-    while a.wait() {
+    app::get_system_colors();
+    app::set_font_size(20);
+    while app.wait() {
         let mut state = state_rc.borrow_mut();
         let mut painter = painter_rc.borrow_mut();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
@@ -118,7 +110,7 @@ fn main() {
         let paint_jobs = egui_ctx.tessellate(paint_cmds);
 
         //Draw egui texture
-        painter.paint_jobs(None, paint_jobs, &egui_ctx.texture());
+        painter.paint_jobs(None, paint_jobs, &egui_ctx.font_image());
 
         glut_win.swap_buffers();
         glut_win.flush();

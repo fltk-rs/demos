@@ -1,10 +1,6 @@
+use fltk::{prelude::*, *};
 use glu_sys::*;
-use fltk::{
-    prelude::*,
-    *,
-};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 const W: i32 = 600;
 const H: i32 = 400;
@@ -32,13 +28,10 @@ pub fn main() {
     });
 
     while app.wait() {
-        match r.recv() {
-            Some(coords) => {
-                let rand: f32 = ((coords.0 - W / 2) * (coords.1 - H / 2) / 360) as f32;
-                *rotangle.borrow_mut() += rand;
-                wind.redraw();
-            }
-            None => (),
+        if let Some(coords) = r.recv() {
+            let rand: f32 = ((coords.0 - W / 2) * (coords.1 - H / 2) / 360) as f32;
+            *rotangle.borrow_mut() += rand;
+            wind.redraw();
         }
     }
 }

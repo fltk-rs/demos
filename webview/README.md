@@ -2,4 +2,4 @@
 
 Works on Windows (MSVC toolchain).
 
-![alt_test](ex.jpg)
+![alt_test](assets/webview.gif)

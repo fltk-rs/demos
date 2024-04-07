@@ -2,4 +2,4 @@
 
 A demo showing a gradient created with femtovg.
 
-![alt_test](ex.png)
+![alt_test](assets/femtovg.gif)

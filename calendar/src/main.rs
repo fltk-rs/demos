@@ -4,6 +4,7 @@ use chrono::prelude::*;
 use fltk::{prelude::*, *};
 
 fn main() {
+    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::default()
         .with_label("Demo: Calendar")
         .with_size(400, 300)
@@ -22,8 +23,5 @@ fn main() {
     win.make_resizable(true);
     win.show();
     app::background(0xd3, 0xd3, 0xd3);
-    app::App::default()
-        .with_scheme(app::Scheme::Gtk)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }

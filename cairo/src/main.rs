@@ -77,6 +77,7 @@ impl CairoWidget {
 fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 
 fn main() {
+    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut win = window::Window::default()
         .with_label("Demo: Cairo")
         .with_size(400, 300)
@@ -98,8 +99,5 @@ fn main() {
     win.show();
 
     app::cairo::set_autolink_context(true);
-    app::App::default()
-        .with_scheme(app::AppScheme::Gtk)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }

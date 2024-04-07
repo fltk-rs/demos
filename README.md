@@ -64,7 +64,7 @@ This repository is licensed under the MIT license. You can get more information 
 ---
 
 The current demos include:
-* [🏜️ cairo:](#cairo) Use cairo for custom drawing inside fltk widgets
+* [🏜️ cairo:](/cairo) Use cairo for custom drawing inside fltk widgets
 * [🗓️  calendar:](#calendar) Uses the chrono crate to create an fltk calendar dialog.
 * [🖍️  csv:](#csv) Uses serde and csv to perform custom drawing of data.
 * [🎛️ egui:](#egui) Use fltk as a backend for egui
@@ -98,13 +98,21 @@ The current demos include:
 
 <div align="center">
 
-###cairo
+<h3 id="cairo">cairo</h3>
 
 ![cairo](cairo/assets/ex.jpg)
 
-###calendar
+<h3 id="calendar">calendar</h3>
 
 ![calendar](calendar/assets/calendar.gif)
+
+<h3 id="csv">csv</h3>
+
+![csv](csv/assets/csv.gif)
+
+<h3 id="egui-demo">egui-demo</h3>
+
+![egui](egui/assets/egui-demo.gif)
 
 <h3 id="musicplayer">musicplayer</h3>
 
@@ -157,14 +165,6 @@ The current demos include:
 <h3 id="webview">webview</h3>
 
 ![webview](webview/assets/webview.gif)
-
-<h3 id="csv">csv</h3>
-
-![csv](csv/assets/csv.gif)
-
-<h3 id="egui-demo">egui-demo</h3>
-
-![egui](egui/assets/egui-demo.gif)
 
 <h3 id="glyphmap">glyphmap</h3>
 

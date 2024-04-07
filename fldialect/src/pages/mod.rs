@@ -20,18 +20,18 @@ pub fn main() {
     let file = env::var("HOME").unwrap() + CFG;
     let params: Vec<u8> = match Path::new(&file).exists() {
         true => {
-            if let Ok(value) = fs::read(file) {
-                if value.len() == constants::PARAMS.len() {
+            if let Ok(value) = fs::read(&file) {
+                if value.len() == PARAMS.len() {
                     value
                 } else {
-                    fs::remove_file(file).unwrap();
-                    Vec::from(constants::PARAMS)
+                    fs::remove_file(&file).unwrap();
+                    Vec::from(PARAMS)
                 }
             } else {
-                Vec::from(constants::PARAMS)
+                Vec::from(PARAMS)
             }
         }
-        false => Vec::from(constants::PARAMS),
+        false => Vec::from(PARAMS),
     };
     let mut window = Window::default()
         .with_size(
@@ -51,24 +51,6 @@ pub fn main() {
     window.make_resizable(true);
     window.show();
     window.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
-    run(
-        &mut window,
-        &mut flex,
-        &mut header,
-        &mut hero,
-        &mut footer,
-        &file,
-    );
-}
-
-fn run(
-    window: &mut Window,
-    flex: &mut Flex,
-    header: &mut Header,
-    hero: &mut Hero,
-    footer: &mut Footer,
-    file: &str,
-) {
     let (sender, receiver) = app::channel::<Message>();
     for (ord, item) in THEMES.iter().enumerate() {
         let idx = header.menu.add_emit(
@@ -191,7 +173,7 @@ fn run(
                     let width = window.width();
                     let height = window.height();
                     fs::write(
-                        file,
+                        &file,
                         [
                             hero.theme,
                             (width / U8) as u8,

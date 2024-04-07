@@ -98,6 +98,14 @@ The current demos include:
 
 <div align="center">
 
+###cairo
+
+![cairo](cairo/assets/ex.jpg)
+
+###calendar
+
+![calendar](calendar/assets/calendar.gif)
+
 <h3 id="musicplayer">musicplayer</h3>
 
 ![musicplayer](musicplayer/musicplayer.gif)
@@ -137,10 +145,6 @@ The current demos include:
 <h3 id="glium">glium</h3>
 
 ![glium](glium/glium.gif)
-
-<h3 id="calendar">calendar</h3>
-
-![calendar](calendar/assets/calendar.gif)
 
 <h3 id="speedy2d">speedy2d</h3>
 
@@ -182,9 +186,6 @@ The current demos include:
 
 ![wgpu](wgpu/wgpu.gif)
 
-<h3 id="cairo">cairo</h3>
-
-![cairo](cairo/assets/ex.jpg)
 
 </div>
 

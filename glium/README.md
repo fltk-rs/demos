@@ -3,4 +3,4 @@ Demo application showing usage with the glium crate (an Elegant and safe OpenGL 
 
 Notice the "enable-glwindow" in the Cargo.toml.
 
-![alt_test](ex.jpg)
+![alt_test](assets/glium.gif)

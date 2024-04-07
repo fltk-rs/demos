@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use cairo::Context;
-use fltk::{enums::*, prelude::*, draw::Rect, *};
+use fltk::{draw::Rect, enums::*, prelude::*, *};
 use std::{cell::RefCell, rc::Rc};
 
 fn draw_box_with_alpha(ctx: Context, rect: &Rect, color: Color, alpha: u8) {
@@ -11,7 +11,12 @@ fn draw_box_with_alpha(ctx: Context, rect: &Rect, color: Color, alpha: u8) {
     ctx.line_to((rect.x + rect.w) as f64, (rect.y + rect.h) as f64);
     ctx.line_to(rect.x as f64, (rect.y + rect.h) as f64);
     ctx.close_path();
-    ctx.set_source_rgba(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0, alpha as f64 / 255.0);
+    ctx.set_source_rgba(
+        r as f64 / 255.0,
+        g as f64 / 255.0,
+        b as f64 / 255.0,
+        alpha as f64 / 255.0,
+    );
     ctx.fill().unwrap();
     ctx.restore().unwrap();
 }
@@ -32,7 +37,17 @@ impl CairoWidget {
             move |w| {
                 let cc = app::cairo::cc();
                 let ctx = unsafe { Context::from_raw_none(cc as _) };
-                draw_box_with_alpha(ctx, &Rect {x : w.x(), y : w.y(), w : w.w(), h : w.h()}, w.color(), *alpha.borrow());
+                draw_box_with_alpha(
+                    ctx,
+                    &Rect {
+                        x: w.x(),
+                        y: w.y(),
+                        w: w.w(),
+                        h: w.h(),
+                    },
+                    w.color(),
+                    *alpha.borrow(),
+                );
                 unsafe {
                     app::cairo::flush(cc); // required for windows
                 }
@@ -63,23 +78,26 @@ fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 
 fn main() {
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
-    app::cairo::set_autolink_context(true);
-    let mut win = window::Window::new(100, 100, 400, 300, "Cairo");
+    let mut win = window::Window::default()
+        .with_label("Demo: Cairo")
+        .with_size(400, 300)
+        .center_screen();
+    {
+        let mut box1 = CairoWidget::new(0, 0, 100, 100, "Box1");
+        box1.set_color(Color::from_rgb(0, 0, 255));
+        box1.set_alpha(100);
+        let mut box2 = CairoWidget::new(75, 75, 100, 100, "Box2");
+        box2.set_color(Color::Red);
+        box2.set_alpha(100);
+        let mut box3 = CairoWidget::new(150, 150, 100, 100, "Box3");
+        box3.set_color(Color::Green);
+        box3.set_alpha(100);
+    }
+    win.end();
     win.set_color(Color::White);
     win.make_resizable(true);
-    
-    let mut box1 = CairoWidget::new(0, 0, 100, 100, "Box1");
-    box1.set_color(Color::from_rgb(0, 0, 255));
-    box1.set_alpha(100);
-    let mut box2 = CairoWidget::new(75, 75, 100, 100, "Box2");
-    box2.set_color(Color::Red);
-    box2.set_alpha(100);
-    let mut box3 = CairoWidget::new(150, 150, 100, 100, "Box3");
-    box3.set_color(Color::Green);
-    box3.set_alpha(100);
-
-    win.end();
     win.show();
 
+    app::cairo::set_autolink_context(true);
     app.run().unwrap();
 }

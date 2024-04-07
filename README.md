@@ -64,6 +64,8 @@ This repository is licensed under the MIT license. You can get more information 
 ---
 
 The current demos include:
+* [🏜️ cairo:](#cairo) Use cairo for custom drawing inside fltk widgets
+* [🗓️  calendar:](#calendar) Uses the chrono crate to create an fltk calendar dialog.
 - <a href="#web-todo">🌐 web-todo: </a>Creating an async web todo app using fltk, reqwest, serde and tokio.
 - <a href="#web-todo2">🌐 web-todo2: </a>Creating an async web todo app using fltk, surf, serde and async-std.
 - <a href="#libvlc">📺 libvlc: </a>Creating a media player using fltk and the vlc crate.
@@ -79,7 +81,6 @@ The current demos include:
 - <a href="#systray">🖥️ systray: </a>Use nwg to create an fltk app with systray functionalities on Windows
 - <a href="#glow">✨ glow: </a>Use the glow crate to do OpengGL drawing.
 - <a href="#glium">🎇 glium: </a>Use the glium crate for OpenGL drawing.
-- <a href="#calendar">🗓️ calendar: </a>Uses the chrono crate to create an fltk calendar dialog.
 - <a href="#image">🏞️ image: </a>Uses rust-embed and the image crates to load images into fltk.
 - <a href="#speedy2d">🌚 speedy2d: </a>Uses speedy2D crate to do 2D drawings of a circle and an RGB image in a GlWindow.
 - <a href="#femtovg">🪐 femtovg: </a>Uses femtovg for 2D drawing in a GlWindow.
@@ -92,7 +93,6 @@ The current demos include:
 - <a href="#xterm">📲 xterm: </a>embed an xterm window inside an fltk window.
 - <a href="#egui-demo">🎛️ egui-demo: </a>Use fltk as a backend for egui
 - <a href="#gst">🎞️ gst: </a>Use libgstreamer to play a video inside an fltk window
-- <a href="#cairo-demo">🏜️ cairo-demo: </a>Use cairo for custom drawing inside fltk widgets
 - <a href="#glyphmap">📍 glyphmap: </a>Maps glyphs (specifically font icons) to their unicode codepoint.
 - <a href="#terminal">📟 terminal: </a>A minimal terminal emulator.
 </div>
@@ -143,7 +143,7 @@ The current demos include:
 
 <h3 id="calendar">calendar</h3>
 
-![calendar](calendar/calendar.gif)
+![calendar](calendar/assets/calendar.gif)
 
 <h3 id="speedy2d">speedy2d</h3>
 
@@ -187,12 +187,12 @@ The current demos include:
 
 <h3 id="cairo">cairo</h3>
 
-![cairo](cairo-demo/ex.jpg)
+![cairo](cairo/assets/ex.jpg)
 
 </div>
 
 <h3 id="cairo_shadow_button">cairo shadow button</h3>
 
-![cairo](cairo_shadow_button/ex1.jpg)
+![cairo](cairo_shadow_button/assets/ex1.jpg)
 
 </div>

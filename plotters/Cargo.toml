@@ -7,6 +7,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = "^1.4"
+fltk = { version = "^1.4", features = ["use-ninja"] }
 plotters = "0.3.0"
 plotters-bitmap = "0.3.0"

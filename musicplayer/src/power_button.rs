@@ -1,9 +1,9 @@
-use fltk::frame::*;
-use fltk::image::*;
-use fltk::{enums::*, prelude::*};
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
+use fltk::{enums::*, frame::*, image::*, prelude::*};
+use std::{
+    cell::RefCell,
+    ops::{Deref, DerefMut},
+    rc::Rc,
+};
 
 const POWER: &str = r#"<?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 19.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -50,11 +50,10 @@ const POWER: &str = r#"<?xml version="1.0" encoding="iso-8859-1"?>
 </g>
 </svg>"#;
 
-
 #[derive(Clone)]
 pub struct PowerButton {
     frm: Frame,
-    on: Rc<RefCell<bool>>
+    on: Rc<RefCell<bool>>,
 }
 
 impl PowerButton {

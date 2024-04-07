@@ -1,0 +1,18 @@
+[package]
+name = "flresters"
+version = "0.1.1"
+edition = "2021"
+description = "A lightweight cross-platform Rest API tester gui built using fltk-rs"
+repository = "https://github.com/MoAlyousef/resters"
+license = "MIT"
+categories = ["visualization"]
+documentation = "https://docs.rs/resters"
+readme = "README.md"
+keywords = ["cross-platform", "rest", "api", "gui", "http"]
+
+[dependencies]
+fltk = { version = "^1.4" }
+fltk-theme = { version="^0.7" }
+ureq = { version = "2.5.0", features = ["json"] }
+serde_json = "1"
+json-tools = "1.1"

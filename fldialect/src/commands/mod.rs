@@ -26,9 +26,8 @@ pub fn run(tts: bool, from: String, to: String, word: String) -> String {
 
 pub fn list() -> String {
     if cfg!(target_family = "unix") {
-        let run = Command::new("bash")
-            .arg("-xc")
-            .arg("trans -list-languages-english")
+        let run = Command::new("trans")
+            .arg("-list-languages-english")
             .output()
             .expect("failed to execute bash");
         match run.status.success() {

@@ -7,5 +7,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = "1"
-fltk-webview = "0.2"
+fltk = "^1.4"
+fltk-webview = "^0.3"

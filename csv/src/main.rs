@@ -1,9 +1,6 @@
+#![forbid(unsafe_code)]
 use ::image::{ImageBuffer, RgbImage};
-use fltk::{
-    enums::*,
-    prelude::*,
-    *,
-};
+use fltk::{enums::*, prelude::*, *};
 use serde::Deserialize;
 use std::sync::Mutex;
 
@@ -13,7 +10,7 @@ extern crate lazy_static;
 #[derive(Debug, Deserialize)]
 pub struct Price {
     #[serde(rename = "Date")]
-    date: String,
+    _date: String,
     #[serde(rename = "Open")]
     open: f64,
     #[serde(rename = "High")]
@@ -23,7 +20,7 @@ pub struct Price {
     #[serde(rename = "Close")]
     close: f64,
     #[serde(rename = "Volume")]
-    volume: usize,
+    _volume: usize,
 }
 
 lazy_static! {
@@ -31,36 +28,46 @@ lazy_static! {
 }
 
 fn main() {
-    let files = std::fs::read_dir("historical_data").unwrap();
-    let app = app::App::default().with_scheme(app::Scheme::Gtk);
-    app::background(79, 79, 79);
-    app::background2(41, 41, 41);
-    app::foreground(255, 255, 255);
+    let app = app::App::default().with_scheme(app::AppScheme::Gtk);
     let mut wind = window::Window::default().with_size(800, 600);
-    wind.make_resizable(true);
     let mut browser = browser::Browser::new(5, 10, 100, 520, "");
     let mut frame = frame::Frame::default()
         .with_size(680, 520)
         .right_of(&browser, 10);
-    let mut btn = button::Button::default()
+    button::Button::default()
         .with_label("Save image")
         .with_size(100, 30)
         .below_of(&frame, 15)
-        .center_x(&wind);
+        .center_x(&wind)
+        .set_callback({
+            let frame = frame.clone();
+            move |_| {
+                let sur = surface::ImageSurface::new(frame.w(), frame.h(), false);
+                surface::ImageSurface::push_current(&sur);
+                draw::set_draw_color(enums::Color::White);
+                draw::draw_rectf(0, 0, frame.w(), frame.h());
+                sur.draw(&frame, 0, 0);
+                let img = sur.image().unwrap();
+                surface::ImageSurface::pop_current();
+                let mut imgbuf: RgbImage = ImageBuffer::new(frame.w() as _, frame.h() as _); // this is from the image crate
+                imgbuf.copy_from_slice(&img.to_rgb_data());
+                imgbuf.save("image.jpg").unwrap();
+            }
+        });
+    wind.end();
     wind.make_resizable(true);
     wind.show();
 
     browser.set_type(browser::BrowserType::Hold);
-    for file in files {
+    for file in std::fs::read_dir("assets/historical_data").unwrap() {
         let entry = file.unwrap().file_name().into_string().unwrap();
         if entry.ends_with(".csv") {
-            browser.add(&entry.strip_suffix(".csv").unwrap());
+            browser.add(entry.strip_suffix(".csv").unwrap());
         }
     }
 
     frame.set_frame(FrameType::DownBox);
     frame.set_color(Color::Black);
-
     frame.draw(|f| {
         let data = PRICES.lock().unwrap();
         let mut highest = data
@@ -69,7 +76,7 @@ fn main() {
             .collect::<Vec<f64>>()
             .iter()
             .cloned()
-            .fold(0. / 0., f64::max);
+            .fold(f64::NAN, f64::max);
         highest += (highest.to_string().len() * 10) as f64 / 3.;
         let factor = f.h() as f64 / highest;
         if data.len() != 0 {
@@ -95,25 +102,9 @@ fn main() {
         }
     });
 
-    btn.set_callback({
-        let frame = frame.clone();
-        move |_| {
-            let sur = surface::ImageSurface::new(frame.w(), frame.h(), false);
-            surface::ImageSurface::push_current(&sur);
-            draw::set_draw_color(enums::Color::White);
-            draw::draw_rectf(0, 0, frame.w(), frame.h());
-            sur.draw(&frame, 0, 0);
-            let img = sur.image().unwrap();
-            surface::ImageSurface::pop_current();
-            let mut imgbuf: RgbImage = ImageBuffer::new(frame.w() as _, frame.h() as _); // this is from the image crate
-            imgbuf.copy_from_slice(&img.to_rgb_data());
-            imgbuf.save("image.jpg").unwrap();
-        }
-    });
-
     browser.set_callback(move |t| {
         if let Some(file) = t.selected_text() {
-            let file = format!("historical_data/{}.csv", file);
+            let file = format!("assets/historical_data/{}.csv", file);
             let mut rdr = csv::Reader::from_reader(std::fs::File::open(file).unwrap());
             let mut data = PRICES.lock().unwrap();
             data.clear();
@@ -125,5 +116,8 @@ fn main() {
         }
     });
 
+    app::background(79, 79, 79);
+    app::background2(41, 41, 41);
+    app::foreground(255, 255, 255);
     app.run().unwrap();
 }

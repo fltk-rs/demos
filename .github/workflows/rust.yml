@@ -3,9 +3,11 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
   schedule:
     - cron:  '30 13 * * *'
 
@@ -16,6 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     strategy:
       matrix:
         os:
@@ -25,14 +28,14 @@ jobs:
 
     steps:
     - name: Download deps
+      shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
             sudo apt-get update
             sudo apt-get install -y lib{pango1.0,x11,xext,xft,xinerama,mpv}-dev\
-                lib{xcursor,xrender,xfixes,webkit2gtk-4.0,vlc,png,gl1-mesa}-dev\
+                lib{xcursor,xrender,xfixes,webkit2gtk-4.1,vlc,png,gl1-mesa}-dev\
                 ninja-build libglu1-mesa-dev
         fi
-      shell: bash
     - uses: actions/checkout@v2
     - uses: seanmiddleditch/gha-setup-ninja@master
     - name: build cfltk
@@ -40,7 +43,7 @@ jobs:
         git clone https://github.com/MoAlyousef/cfltk
         pushd cfltk || return 1
         git submodule update --init --recursive
-        case "${RUNNER_OS}" in
+        case ${RUNNER_OS} in
             Linux ) cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=ON  -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release -DOPTION_USE_PANGO=ON;;
             macOS ) cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
             * )     cmake -Bbin -GNinja -DOPTION_USE_SYSTEM_LIBPNG=OFF -DOPTION_USE_SYSTEM_LIBJPEG=OFF -DOPTION_USE_SYSTEM_ZLIB=OFF -DCFLTK_LINK_IMAGES=ON -DOpenGL_GL_PREFERENCE=GLVND -DOPTION_USE_GL=ON -DCFLTK_USE_OPENGL=ON -DCFLTK_SINGLE_THREADED=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCFLTK_CARGO_BUILD=ON -DFLTK_BUILD_EXAMPLES=OFF -DFLTK_BUILD_TEST=OFF -DOPTION_LARGE_FILE=ON -DOPTION_USE_THREADS=ON -DOPTION_BUILD_HTML_DOCUMENTATION=OFF -DOPTION_BUILD_PDF_DOCUMENTATION=OFF -DCMAKE_INSTALL_PREFIX=bin -DCMAKE_BUILD_TYPE=Release;;
@@ -52,130 +55,202 @@ jobs:
       working-directory: cairo
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo build --verbose
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+            cargo build --quiet || cargo build --verbose
         fi
+    - name: Build 7gui
+      working-directory: 7gui
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build cairo_shadow_button
       working-directory: cairo_shadow_button
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo build --verbose
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+            cargo build --quiet || cargo build --verbose
         fi
     - name: Build calendar
       working-directory: calendar
       shell: bash
-      run: cargo build --verbose
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build csv
       working-directory: csv
-      run: cargo build --verbose
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build egui
+      working-directory: egui
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build femtovg
       working-directory: femtovg
-      run: cargo build --verbose
       shell: bash
-    - name: Build ffmpeg
       run: |
-        case "$RUNNER_OS" in
-            Linux | macOS) cargo build --verbose;;
-        esac
+        cargo build --quiet || cargo build --verbose
+    - name: Build ffmpeg
       working-directory: ffmpeg
       shell: bash
+      run: |
+        case ${RUNNER_OS} in
+            Linux | macOS) cargo build --quiet || cargo build --verbose;;
+        esac
+    - name: Build flcalculator
+      working-directory: flcalculator
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build fldialect
+      working-directory: fldialect
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build flmusic
+      working-directory: flmusic
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build flpicture
+      working-directory: flpicture
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build flresters
+      working-directory: flresters
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build fltext
+      working-directory: fltext
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build framebuffer
-      run: cargo build --verbose
       working-directory: framebuffer
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build glium
-      run: cargo build --verbose
       working-directory: glium
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build glow
-      run: cargo build --verbose
       working-directory: glow
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build glut
-      run: cargo build --verbose
       working-directory: glut
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build image
-      run: cargo build --verbose
       working-directory: image
       shell: bash
-    - name: Build libvlc
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          cargo build --verbose
+        cargo build --quiet || cargo build --verbose
+    - name: Build inner
+      working-directory: inner
+      shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+          cargo build --quiet || cargo build --verbose
         fi
+    - name: Build libvlc
       working-directory: libvlc
       shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+          cargo build --quiet || cargo build --verbose
+        fi
     - name: Build mpv
-      run: cargo build --verbose
       working-directory: mpv
       shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+            cargo build --quiet || cargo build --verbose
+        fi
     - name: Build musicplayer
-      run: cargo build --verbose
       working-directory: musicplayer
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build opengl
-      run: cargo build --verbose
       working-directory: opengl
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build pixels
-      run: cargo build --verbose
       working-directory: pixels
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build plotters
-      run: cargo build --verbose
       working-directory: plotters
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build raqote
-      run: cargo build --verbose
       working-directory: raqote
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build rounded-svg
-      run: cargo build --verbose
       working-directory: rounded-svg
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build speedy2d
-      run: cargo build --verbose
       working-directory: speedy2d
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build systray
-      run: cargo build --verbose
       working-directory: systray
       shell: bash
-    - name: Build tinyskia
-      run: cargo build --verbose
-      working-directory: tinyskia
-      shell: bash
-    - name: Build web-todo
-      run: cargo build --verbose
-      working-directory: web-todo
-      shell: bash
-    - name: Build web-todo2
-      run: cargo build --verbose
-      working-directory: web-todo2
-      shell: bash
-    - name: Build webview
-      run: cargo build --verbose
-      working-directory: webview
-      shell: bash
-    - name: Build wgpu
-      run: cargo build --verbose
-      working-directory: wgpu
-      shell: bash
-    - name: Build xterm
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          cargo build --verbose
+        if [[ ${RUNNER_OS} == "Windows" ]]; then
+            cargo build --quiet || cargo build --verbose
         fi
-      working-directory: xterm
-      shell: bash
-    - name: Build egui-demo
-      run: cargo build --verbose
-      working-directory: egui-demo
-      shell: bash
     - name: Build terminal
-      run: cargo build --verbose
       working-directory: terminal
       shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build tinyskia
+      working-directory: tinyskia
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build web-todo
+      working-directory: web-todo
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build web-todo2
+      working-directory: web-todo2
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build webview
+      working-directory: webview
+      shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+            cargo build --quiet || cargo build --verbose
+        fi
+    - name: Build wgpu
+      working-directory: wgpu
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build xterm
+      working-directory: xterm
+      shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == "Linux" ]]; then
+            cargo build --quiet || cargo build --verbose
+        fi

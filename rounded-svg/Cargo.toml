@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = "1"
-svg = "0.10"
+fltk = "^1.4"
+svg = "^0.16"

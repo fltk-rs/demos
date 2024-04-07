@@ -1,7 +1,4 @@
-use chrono::DateTime;
-use chrono::Datelike;
-use chrono::Local;
-use chrono::NaiveDate;
+use chrono::{DateTime, Datelike, Local, NaiveDate};
 use fltk::{app, draw, enums::*, menu, prelude::*, table, window};
 use std::{cell::RefCell, rc::Rc};
 
@@ -39,8 +36,8 @@ impl Calendar {
         table.set_col_width_all(table.width() / 7);
         table.set_row_height_all(table.height() / 4 - table.col_header_height());
         table.end();
-        wind.make_modal(true);
         wind.end();
+        wind.make_modal(true);
         wind.show();
 
         let curr = Rc::from(RefCell::from(curr + 1));
@@ -93,14 +90,14 @@ impl Calendar {
             _ => (),
         });
 
-        let curr_rc = curr.clone();
+        let curr_rc = curr;
         // redraw table when the month changes
         month_choice.set_callback(move |c| {
             *curr_rc.borrow_mut() = c.value() + 1;
             c.parent().unwrap().redraw();
         });
 
-        let curr_year_rc = curr_year.clone();
+        let curr_year_rc = curr_year;
         // redraw table when the year changes
         year_choice.set_callback(move |c| {
             *curr_year_rc.borrow_mut() = c.value() + 1900;

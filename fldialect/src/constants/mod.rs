@@ -23,15 +23,14 @@ pub const PARAMS: [u8; 9] = [
 ];
 pub const CFG: &str = "/.config/fldialect";
 pub const APPNAME: &str = "FlDialect";
-pub const INFO: &str = "<p>
-<a href=\"https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/fltk-dialect\">FlDialect</a>
+pub const INFO: &str = r#"<p>
+<a href="https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/fltk-dialect">FlDialect</a>
  is similar to
- <a href=\"https://apps.gnome.org/Dialect\">Dialect</a>
+ <a href="https://apps.gnome.org/Dialect">Dialect</a>
  written using
- <a href=\"https://fltk-rs.github.io/fltk-rs\">FLTK-RS</a>
- and <a href=\"https://github.com/soimort/translate-shell\">translate-shell</a>.
-</p>";
-
+ <a href="https://fltk-rs.github.io/fltk-rs">FLTK-RS</a>
+ and <a href="https://github.com/soimort/translate-shell">translate-shell</a>.
+</p>"#;
 pub const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
   <metadata id="metadata4">

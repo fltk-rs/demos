@@ -1,13 +1,8 @@
+#![forbid(unsafe_code)]
 extern crate ttf_parser;
-use fltk::{
-    enums::*,
-    prelude::*,
-    *,
-};
+use fltk::{enums::*, prelude::*, *};
 
 fn main() {
-    let app = app::App::default();
-    app::set_background_color(170, 189, 206);
     dialog::message_title_default("Glyph Map");
     let mut wind = window::Window::default()
         .with_size(250, 300)
@@ -60,8 +55,7 @@ fn main() {
                                 let c = char::from_u32(codepoint).unwrap();
                                 let txt = String::from(c);
                                 let (w, h) = draw::measure(&txt, true);
-                                if w != 0 && h != 0 {
-                                    if face.glyph_index(c).is_some() {
+                                if w != 0 && h != 0 && face.glyph_index(c).is_some() {
                                         let hpack = group::Pack::default()
                                             .with_type(group::PackType::Horizontal)
                                             .with_size(0, 50);
@@ -80,7 +74,6 @@ fn main() {
                                         out.set_value(&txt);
                                         hpack.end();
                                     }
-                                }
                             });
                         }
                         pack.end();
@@ -94,5 +87,6 @@ fn main() {
         }
     });
 
-    app.run().unwrap();
+    app::set_background_color(170, 189, 206);
+    app::App::default().with_scheme(app::Scheme::Base).run().unwrap();
 }

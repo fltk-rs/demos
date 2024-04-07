@@ -1,35 +1,26 @@
-use femtovg::{
-    renderer::
-    OpenGl,
-    Canvas,
-    Color,
-    Paint,
-    Path
-};
-use fltk::{
-    app,
-    enums,
-    prelude::{
-        GroupExt,
-        WidgetBase,
-        WidgetExt,
-        WindowExt
+use {
+    femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path},
+    fltk::{
+        app, enums,
+        prelude::{GroupExt, WidgetBase, WidgetExt, WindowExt},
+        window::GlWindow,
     },
-    window::GlWindow,
 };
 
 fn main() {
-    let app = app::App::default();
+    let app = app::App::default().with_scheme(app::Scheme::Base);
     let mut win = GlWindow::default()
-        .with_size(640, 480)
-        .with_label("femtovg example");
+        .with_label("femtovg example")
+        .with_size(640, 480);
+    win.end();
     win.set_mode(enums::Mode::Opengl3);
     win.make_resizable(true);
-    win.end();
     win.show();
     win.make_current();
-    let renderer =
-        OpenGl::new(|s| win.get_proc_address(s) as *const _).expect("Cannot create renderer");
+    let renderer = unsafe {
+        OpenGl::new_from_function(|s| win.get_proc_address(s) as *const _)
+            .expect("Cannot create renderer")
+    };
     let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
 
     win.draw(move |w| {
@@ -44,8 +35,8 @@ fn main() {
         let mut p = Path::new();
         p.rect(0.0, 0.0, w.width() as _, w.height() as _);
         canvas.fill_path(
-            &mut p,
-            Paint::linear_gradient(
+            &p,
+            &Paint::linear_gradient(
                 0.0,
                 0.0,
                 w.width() as _,

@@ -1,13 +1,7 @@
-use fltk::{
-    app,
-    enums::*,
-    frame::*,
-    prelude::*,
-    window::*,
-};
+#![forbid(unsafe_code)]
+use fltk::{app, enums::*, frame::*, prelude::*, window::*};
 use soloud::*;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 mod power_button;
 use power_button::PowerButton;
@@ -24,7 +18,7 @@ fn main() {
         .center_screen()
         .with_label("Music Player");
     wind.make_resizable(true);
-    
+
     let mut frm = Frame::new(160, 80, 80, 40, TRACK);
     frm.set_label_size(20);
     frm.set_label_color(Color::White);
@@ -48,7 +42,7 @@ fn main() {
                 return;
             }
             let mut wav = audio::Wav::default();
-            wav.load(&std::path::Path::new(TRACK)).unwrap();
+            wav.load(std::path::Path::new(TRACK)).unwrap();
             wav.set_looping(true);
             sl.borrow().play(&wav);
             while sl.borrow().active_voice_count() > 0 {

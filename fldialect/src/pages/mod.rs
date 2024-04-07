@@ -19,8 +19,19 @@ use {
 pub fn main() {
     let file = env::var("HOME").unwrap() + CFG;
     let params: Vec<u8> = match Path::new(&file).exists() {
-        true => fs::read(&file).unwrap(),
-        false => Vec::from(PARAMS),
+        true => {
+            if let Ok(value) = fs::read(file) {
+                if value.len() == constants::PARAMS.len() {
+                    value
+                } else {
+                    fs::remove_file(file).unwrap();
+                    Vec::from(constants::PARAMS)
+                }
+            } else {
+                Vec::from(constants::PARAMS)
+            }
+        }
+        false => Vec::from(constants::PARAMS),
     };
     let mut window = Window::default()
         .with_size(

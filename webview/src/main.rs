@@ -1,12 +1,8 @@
-use fltk::{
-    app,
-    enums::Event,
-    prelude::*,
-    window,
-};
+#![forbid(unsafe_code)]
+#[cfg(target_os = "linux")]
+use fltk::{app, prelude::*, window};
 
 fn main() {
-    let app = app::App::default();
     let mut win = window::Window::default()
         .with_size(730, 430)
         .with_label("Webview");
@@ -17,9 +13,9 @@ fn main() {
     win.end();
     win.show();
 
-    let mut wv = fltk_webview::Webview::create(false, &mut wv_win);
+    let wv = fltk_webview::Webview::create(false, &mut wv_win);
     wv.navigate("https://google.com");
 
     // the webview handles the main loop
-    app.run().unwrap();
+    app::App::default().run().unwrap();
 }

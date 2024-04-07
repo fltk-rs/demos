@@ -1,5 +1,5 @@
 [package]
-name = "glium"
+name = "glium_demo"
 version = "0.1.0"
 authors = ["Mohammed Alyousef <may642_2000@hotmail.com>"]
 edition = "2021"
@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 glium = { version = "0.29", default-features = false } # no need for glutin
-fltk = { version = "1", features = ["enable-glwindow"] }
+fltk = { version = "^1.4", features = ["enable-glwindow"] }

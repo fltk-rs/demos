@@ -2,4 +2,4 @@
 
 Custom drawing of CSV data. Uses CSV and Serde.
 
-![alt_test](ex.jpg)
+![alt_test](assets/ex.jpg)

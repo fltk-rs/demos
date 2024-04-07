@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 use fltk::{enums::*, prelude::*, *};
 use serde::{Deserialize, Serialize};
 use std::ops::{Deref, DerefMut};
@@ -74,7 +75,6 @@ async fn main() {
     win.end();
     win.show();
 
-    app::background(255, 255, 255);
     pack.set_spacing(5);
     choice.set_color(Color::from_u32(0x673ab7));
     choice.set_text_color(Color::White);
@@ -115,5 +115,6 @@ async fn main() {
         });
     });
 
+    app::background(255, 255, 255);
     app.run().unwrap();
 }

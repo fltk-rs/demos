@@ -1,18 +1,8 @@
+#![forbid(unsafe_code)]
 mod term {
-    use fltk::{
-        enums::*,
-        prelude::*,
-        *,
-    };
-    use portable_pty::{
-        native_pty_system,
-        CommandBuilder,
-        PtySize
-    };
-    use std::io::{
-        Read,
-        Write
-    };
+    use fltk::{enums::*, prelude::*, *};
+    use portable_pty::{native_pty_system, CommandBuilder, PtySize};
+    use std::io::{Read, Write};
 
     pub struct AnsiTerm {
         st: text::SimpleTerminal,

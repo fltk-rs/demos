@@ -9,6 +9,7 @@ pub enum Message {
 }
 
 fn main() {
+    let app = app::App::default();
     let (sender, receiver) = app::channel::<Message>();
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
     win.make_resizable(true);
@@ -51,7 +52,7 @@ fn main() {
     mdp.set_key_input(false);
     mdp.set_mouse_input(false);
 
-    while app::App::default().with_scheme(app::AppScheme::Gtk).wait() {
+    while app.wait() {
         if let Some(val) = receiver.recv() {
             match val {
                 Message::Play => mdp.play().unwrap(),

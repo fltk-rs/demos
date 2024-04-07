@@ -8,6 +8,7 @@ pub enum Message {
 }
 
 fn main() {
+    let app = app::App::default();
     gstreamer::init().unwrap();
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
     win.make_resizable(true);
@@ -49,7 +50,7 @@ fn main() {
     but_play.emit(s, Message::Play);
     but_stop.emit(s, Message::Stop);
 
-    while app::App::default().with_scheme(app::AppScheme::Gtk).wait() {
+    while app.wait() {
         if let Some(val) = r.recv() {
             match val {
                 Message::Play => {

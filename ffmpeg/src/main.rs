@@ -44,6 +44,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     });
 
     let _a = MyApp {};
+    let app = app::App::default();
     let mut win = window::Window::default().with_size(600, 400);
     let mut frame = frame::Frame::default()
         .with_size(400, 300)
@@ -82,5 +83,5 @@ fn main() -> Result<(), Box<dyn error::Error>> {
         }
     });
 
-    Ok(app::App::default().run()?)
+    Ok(app.run()?)
 }

@@ -3,6 +3,7 @@ extern crate ttf_parser;
 use fltk::{enums::*, prelude::*, *};
 
 fn main() {
+    let app = app::App::default();
     dialog::message_title_default("Glyph Map");
     let mut wind = window::Window::default()
         .with_size(250, 300)
@@ -88,5 +89,5 @@ fn main() {
     });
 
     app::set_background_color(170, 189, 206);
-    app::App::default().with_scheme(app::Scheme::Base).run().unwrap();
+    app.run().unwrap();
 }

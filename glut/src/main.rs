@@ -84,6 +84,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 }
 
 fn main() {
+    let app = app::App::default();
     let mut win = window::GlWindow::new(100, 100, 500, 400, "");
     win.make_resizable(true);
     win.set_mode(enums::Mode::Opengl3);
@@ -143,5 +144,5 @@ fn main() {
         g.swap_buffers();
     });
 
-    app::App::default().run().unwrap();
+    app.run().unwrap();
 }

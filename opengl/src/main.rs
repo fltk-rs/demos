@@ -6,6 +6,7 @@ const W: i32 = 600;
 const H: i32 = 400;
 
 pub fn main() {
+    let app = app::App::default();
     let mut wind = window::GlWindow::new(100, 100, W, H, "Rotate me!");
     wind.make_resizable(true);
     wind.end();
@@ -26,7 +27,7 @@ pub fn main() {
         _ => false,
     });
 
-    while app::App::default().wait() {
+    while app.wait() {
         if let Some(coords) = r.recv() {
             let rand: f32 = ((coords.0 - W / 2) * (coords.1 - H / 2) / 360) as f32;
             *rotangle.borrow_mut() += rand;

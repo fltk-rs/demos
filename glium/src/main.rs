@@ -14,6 +14,7 @@ struct Vertex {
 implement_vertex!(Vertex, position);
 
 fn main() {
+    let app = app::App::default();
     let mut win = window::GlWindow::default().with_size(730, 430);
     win.set_mode(enums::Mode::Opengl3);
     win.end();
@@ -104,5 +105,5 @@ fn main() {
         .unwrap();
     target.finish().unwrap();
 
-    app::App::default().run().unwrap();
+    app.run().unwrap();
 }

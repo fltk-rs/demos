@@ -3,6 +3,7 @@
 use fltk::{enums::Color, prelude::*, *};
 
 fn main() {
+    let app = app::App::default();
     let mut win = window::Window::new(100, 100, 800, 600, "Media Player");
 
     // Create inner window to act as embedded media player
@@ -22,8 +23,5 @@ fn main() {
         .spawn()
         .unwrap();
 
-    app::App::default()
-        .with_scheme(app::AppScheme::Gtk)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }

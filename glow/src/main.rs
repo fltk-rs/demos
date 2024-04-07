@@ -2,6 +2,7 @@ use fltk::{prelude::*, *};
 use glow::*;
 
 fn main() {
+    let app = app::App::default();
     let mut win = window::GlWindow::default().with_size(800, 600);
     win.make_resizable(true);
     win.set_mode(enums::Mode::Opengl3);
@@ -77,5 +78,5 @@ fn main() {
         });
     }
 
-    app::App::default().run().unwrap();
+    app.run().unwrap();
 }

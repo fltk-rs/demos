@@ -1,5 +1,5 @@
 use crate::Message;
-use fltk::{app::Sender, enums::*, frame::*, group::*, input::*, prelude::*};
+use fltk::{app::Sender, enums::*, frame::Frame, group::Flex, input::IntInput, prelude::*};
 
 pub struct Temperature {
     pub celsius: IntInput,
@@ -9,11 +9,14 @@ pub struct Temperature {
 impl Temperature {
     pub fn build(sender: Sender<Message>) -> Self {
         let mut flex = Flex::default_fill().with_label("    Temperature    ");
-        flex.fixed(&Frame::default(), 100);
+        Frame::default();
         let col = Flex::default_fill().column();
+        Frame::default();
         let mut celsius = IntInput::default().with_label("Celsius = ");
         let mut fahrenheit = IntInput::default().with_label("Fahrenheit = ");
+        Frame::default();
         col.end();
+        Frame::default();
         flex.end();
         flex.set_margin(10);
         flex.set_pad(10);

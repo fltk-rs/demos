@@ -1,6 +1,9 @@
 use crate::Message;
 use chrono::{offset::Local, NaiveDate};
-use fltk::{app::Sender, button::*, dialog::*, enums::*, group::*, input::*, menu::*, prelude::*};
+use fltk::{
+    app::Sender, button::Button, dialog::*, enums::*, frame::Frame, group::Flex, input::Input,
+    menu::*, prelude::*,
+};
 
 pub struct FlightBooker {
     pub choice: Choice,
@@ -14,14 +17,20 @@ impl FlightBooker {
         let mut flex = Flex::default_fill()
             .with_label("    FlightBooker    ")
             .column();
+        Frame::default();
         let row = Flex::default_fill();
+        Frame::default();
         let mut choice = Choice::default();
         let mut start = Input::default();
+        Frame::default();
         row.end();
         let row = Flex::default_fill();
+        Frame::default();
         let mut back = Input::default();
         let mut book = Button::default().with_label("Book");
+        Frame::default();
         row.end();
+        Frame::default();
         let current: &str = &Local::now()
             .naive_local()
             .date()

@@ -16,27 +16,24 @@ pub struct Crud {
 
 impl Crud {
     pub fn build(sender: Sender<Message>) -> Self {
-        let mut flex = Flex::default_fill().with_label("    CRUD    ").column();
-        let mut row = Flex::default_fill();
-        let col = Flex::default_fill().column();
+        let mut flex = Flex::default_fill().with_label("    CRUD    ");
         let mut browser = HoldBrowser::default();
-        col.end();
-        let col = Flex::default_fill().column();
-        Frame::default();
-        col.end();
-        row.fixed(&col, 150);
-        let col = Flex::default_fill().column();
+        flex.fixed(&Frame::default(), 100);
+        let mut col = Flex::default_fill().column();
         let firstname = Input::default().with_label("Name:");
         let lastname = Input::default().with_label("Surname:");
-        let mut filter = Input::default().with_label("Filter prefix:");
-        col.end();
-        row.end();
-        let col = Flex::default_fill();
+        let mut filter = Input::default().with_label("Filter:");
+        Frame::default();
+        let row = Flex::default();
         let mut create = Button::default().with_label("Create");
         let mut update = Button::default().with_label("Update");
         let mut delete = Button::default().with_label("Delete");
+        row.end();
         col.end();
-        flex.fixed(&col, 35);
+        col.fixed(&firstname, 30);
+        col.fixed(&lastname, 30);
+        col.fixed(&filter, 30);
+        col.fixed(&row, 30);
         flex.end();
         flex.set_margin(10);
         flex.set_pad(10);

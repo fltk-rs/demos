@@ -1,7 +1,4 @@
-use fltk::{
-    prelude::*,
-    *,
-};
+use fltk::{prelude::*, *};
 use wgpu::include_wgsl;
 
 struct State {

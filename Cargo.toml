@@ -41,6 +41,7 @@ members = [
     "web-todo2",
     "webview",
     "wgpu",
+    "xterm",
 ]
 
 [profile.release]

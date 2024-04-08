@@ -1,6 +1,6 @@
-#[cfg(target_os = "windows")]
 use fltk::{app, enums::FrameType, prelude::*, *};
 
+#[cfg(target_os = "windows")]
 mod systray;
 
 type Hwnd = *mut std::os::raw::c_void;
@@ -17,7 +17,7 @@ fn main() {
     win.show();
 
     but.set_callback(move |_| frame.set_label("Hello world!"));
-
+    #[cfg(target_os = "windows")]
     {
         unsafe {
             WINDOW = win.raw_handle();

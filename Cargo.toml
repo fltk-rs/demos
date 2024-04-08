@@ -1,0 +1,51 @@
+[workspace]
+
+resolver = "2"
+members = [
+    "7gui",
+    "cairo",
+    "cairo_shadow_button",
+    "calendar",
+    "csv",
+    "egui",
+    "femtovg",
+    "ffmpeg",
+    "flcalculator",
+    "fldialect",
+    "flmusic",
+    "flpicture",
+    "flresters",
+    "fltext",
+    "framebuffer",
+    "glium",
+    "glow",
+    "glut",
+    "glyphmap",
+    "gst",
+    "image",
+    "inner",
+    "libmpv",
+    "libvlc",
+    "mpv",
+    "musicplayer",
+    "opengl",
+    "pixels",
+    "plotters",
+    "raqote",
+    "rounded-svg",
+    "speedy2d",
+    "systray",
+    "terminal",
+    "tinyskia",
+    "web-todo",
+    "web-todo2",
+    "webview",
+    "wgpu",
+    "xterm",
+]
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+panic = "abort"

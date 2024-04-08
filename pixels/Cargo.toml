@@ -9,4 +9,4 @@ resolver = "2"
 
 [dependencies]
 fltk = { version = "1", features = ["use-ninja", "raw-window-handle"] }
-pixels = "0.9.0"
+pixels = "0.10"

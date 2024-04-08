@@ -2,17 +2,8 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use fltk::{
-    app,
-    enums::Event,
-    prelude::*,
-    window::Window,
-};
-use pixels::{
-    Error,
-    Pixels,
-    SurfaceTexture
-};
+use fltk::{app, enums::Event, prelude::*, window::Window};
+use pixels::{Error, Pixels, SurfaceTexture};
 
 const WIDTH: u32 = 600;
 const HEIGHT: u32 = 400;
@@ -56,7 +47,7 @@ fn main() -> Result<(), Error> {
         world.update();
 
         // Draw the current frame
-        world.draw(pixels.get_frame());
+        world.draw(pixels.get_frame_mut());
         if pixels
             .render()
             .map_err(|e| eprintln!("pixels.render() failed: {}", e))

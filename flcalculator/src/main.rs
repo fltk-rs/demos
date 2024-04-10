@@ -18,7 +18,7 @@ use {
 };
 
 fn main() {
-    let file = env::var("HOME").unwrap() + "/.config/flcalculator";
+    let file = env::var("HOME").unwrap() + "/.config/" + NAME;
     let mut theme: u8 = match Path::new(&file).exists() {
         true => fs::read(&file).unwrap()[0],
         false => 0,
@@ -63,7 +63,7 @@ fn main() {
     }
     menu.set_frame(FrameType::FlatBox);
     let mut window = Window::default()
-        .with_label("flCalculator")
+        .with_label(NAME)
         .with_size(360, 640)
         .center_screen();
     let mut vbox = Flex::default_fill().column();
@@ -74,7 +74,7 @@ fn main() {
     header.wrap_mode(WrapMode::AtBounds, 0);
     header.set_buffer(TextBuffer::default());
     let menu_clone = menu.clone();
-    header.handle(move |_, event| match event {
+    window.handle(move |_, event| match event {
         Event::Push => match app::event_mouse_button() {
             app::MouseButton::Right => {
                 menu_clone.popup();
@@ -142,6 +142,7 @@ fn main() {
     vbox.set_pad(10);
     window.make_resizable(false);
     window.end();
+    window.set_xclass(NAME);
     window.show();
     window.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
     window.emit(sender, Message::Quit(false));
@@ -313,6 +314,7 @@ fn info() {
         app::wait();
     }
 }
+const NAME: &str = "flCalculator";
 const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
   <metadata id="metadata4">

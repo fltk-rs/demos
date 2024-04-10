@@ -102,13 +102,13 @@ pub fn tabs_handle(t: &mut group::Tabs, ev: Event, popup: &mut menu::MenuButton)
 
 pub fn init_edit_menu(m: &mut (impl MenuExt + 'static), header: &str) {
     m.add(
-        &format!("{}Undo\t", header),
+        &format!("{}@#undo  &Undo\t", header),
         Shortcut::Ctrl | 'z',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        &format!("{}Redo\t", header),
+        &format!("{}@#redo  &Redo\t", header),
         Shortcut::Ctrl | 'y',
         menu::MenuFlag::MenuDivider,
         cbs::menu_cb,
@@ -132,7 +132,7 @@ pub fn init_edit_menu(m: &mut (impl MenuExt + 'static), header: &str) {
         cbs::menu_cb,
     );
     m.add(
-        &format!("{}Find\t", header),
+        &format!("{}@#search  &Find\t", header),
         Shortcut::Ctrl | 'f',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
@@ -146,43 +146,43 @@ pub fn init_edit_menu(m: &mut (impl MenuExt + 'static), header: &str) {
 }
 pub fn init_menu(m: &mut (impl MenuExt + 'static), load_dir: bool) {
     m.add(
-        "&File/New File...\t",
+        "&File/@#filenew  &New File...\t",
         Shortcut::Ctrl | 'n',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        "&File/New Dir...\t",
+        "&File/@#fileopen  New Dir...\t",
         Shortcut::Ctrl | Shortcut::Shift | 'n',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        "&File/Open...\t",
+        "&File/@#fileopen  &Open...\t",
         Shortcut::Ctrl | 'o',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        "&File/Save\t",
+        "&File/@#filesave  &Save\t",
         Shortcut::Ctrl | 's',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        "&File/Save as...\t",
+        "&File/@#filesaveas  Save as...\t",
         Shortcut::Ctrl | Shortcut::Shift | 'w',
         menu::MenuFlag::Normal,
         cbs::menu_cb,
     );
     m.add(
-        "&File/Save All\t",
+        "&File/@#filesaveas  Save All\t",
         Shortcut::None,
         menu::MenuFlag::MenuDivider,
         cbs::menu_cb,
     );
     let idx = m.add(
-        "&File/Quit\t",
+        "&File/@#1+  Quit\t",
         Shortcut::Ctrl | 'q',
         menu::MenuFlag::Normal,
         cbs::menu_cb,

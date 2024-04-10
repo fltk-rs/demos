@@ -69,6 +69,7 @@ fn main() {
     let mut vbox = Flex::default_fill().column();
     let mut header = TextDisplay::default();
     header.set_text_size(SIZE);
+    header.set_scrollbar_size(3);
     header.set_frame(FrameType::FlatBox);
     header.wrap_mode(WrapMode::AtBounds, 0);
     header.set_buffer(TextBuffer::default());

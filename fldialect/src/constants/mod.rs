@@ -1,28 +1,26 @@
 use fltk::enums::Color;
 
+pub const NAME: &str = "FlDialect";
+pub const CONFIG: &str = "/.config/";
 pub const U8: i32 = 255;
-pub const WIDGET_WIDTH: i32 = 112;
-pub const WIDGET_SPACE: i32 = 10;
-pub const WIDGET_HEIGHT: i32 = 25;
-pub const TEXT_SIZE: i32 = 14;
-pub const THEMES: [&str; 2] = ["Light", "Dark"];
+pub const WIDTH: i32 = 105;
+pub const SPACE: i32 = 10;
+pub const HEIGHT: i32 = SPACE * 3;
+pub const DEFAULT: [u8; 9] = [
+    1,   // [0] window_width * U8 +
+    105, // [1] window_width_fract
+    2,   // [2] window_height * U8 +
+    130, // [3] window_height_fract
+    0,   // [4] theme
+    119, // [5] header_from
+    35,  // [6] header_to
+    1,   // [7] footer_font
+    14,  // [8] footer_size
+];
 pub const COLORS: [[Color; 2]; 2] = [
     [Color::from_hex(0xfdf6e3), Color::from_hex(0x586e75)],
     [Color::from_hex(0x002b36), Color::from_hex(0x93a1a1)],
 ];
-pub const PARAMS: [u8; 9] = [
-    0,   // [0] app_theme
-    1,   // [1] window_width * U8 +
-    105, // [2] window_width_fract
-    2,   // [3] window_height * U8 +
-    130, // [4] window_height_fract
-    119, // [5] header_from
-    35,  // [6] header_to
-    0,   // [7] footer_font
-    14,  // [8] footer_size
-];
-pub const CFG: &str = "/.config/fldialect";
-pub const APPNAME: &str = "FlDialect";
 pub const INFO: &str = r#"<p>
 <a href="https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/fltk-dialect">FlDialect</a>
  is similar to
@@ -61,14 +59,13 @@ pub enum Message {
     Open,
     Save,
     Tick,
-    Size,
-    Font,
+    Rename,
     Hide,
     Resize,
-    Reload([u8; 9]),
+    Reload(Vec<u8>),
     Request,
     Responce(String),
-    Themes(u8),
+    Themes,
     Switch,
     Info,
     Quit(bool),

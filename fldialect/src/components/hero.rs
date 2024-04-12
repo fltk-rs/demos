@@ -35,52 +35,51 @@ impl Hero {
         layout.set_pad(0);
         layout.fixed(&frame, SPACE);
         let popup = MenuItem::new(&["Paste", "Copy", "Cut"]);
-        let popup_to = popup.clone();
-        to.handle(move |to, event| match event {
-            Event::Push => text_cb(to, &popup_to),
-            _ => false,
-        });
-        let mut layout_clone = layout.clone();
-        let from_clone = from.clone();
-        frame.handle(move |frame, event| match event {
-            Event::Push => true,
-            Event::Drag => {
-                match layout_clone.get_type() {
-                    FlexType::Column => {
-                        if (layout_clone.y()
-                            ..=layout_clone.height() + layout_clone.y() - frame.height())
-                            .contains(&app::event_y())
-                        {
-                            layout_clone.fixed(&from_clone, app::event_y() - layout_clone.y());
-                        }
-                    }
-                    FlexType::Row => {
-                        if (layout_clone.x()
-                            ..=layout_clone.width() + layout_clone.x() - frame.width())
-                            .contains(&app::event_x())
-                        {
-                            layout_clone.fixed(&from_clone, app::event_x() - layout_clone.x());
-                        }
-                    }
-                }
-                app::redraw();
-                true
+        to.handle({
+            let popup = popup.clone();
+            move |to, event| match event {
+                Event::Push => text_cb(to, &popup),
+                _ => false,
             }
-            Event::Enter => {
-                frame
-                    .window()
-                    .unwrap()
-                    .set_cursor(match layout_clone.get_type() {
+        });
+        frame.handle({
+            let mut layout = layout.clone();
+            let from = from.clone();
+            move |frame, event| match event {
+                Event::Push => true,
+                Event::Drag => {
+                    match layout.get_type() {
+                        FlexType::Column => {
+                            if (layout.y()..=layout.height() + layout.y() - frame.height())
+                                .contains(&app::event_y())
+                            {
+                                layout.fixed(&from, app::event_y() - layout.y());
+                            }
+                        }
+                        FlexType::Row => {
+                            if (layout.x()..=layout.width() + layout.x() - frame.width())
+                                .contains(&app::event_x())
+                            {
+                                layout.fixed(&from, app::event_x() - layout.x());
+                            }
+                        }
+                    }
+                    app::redraw();
+                    true
+                }
+                Event::Enter => {
+                    frame.window().unwrap().set_cursor(match layout.get_type() {
                         FlexType::Column => Cursor::NS,
                         FlexType::Row => Cursor::WE,
                     });
-                true
+                    true
+                }
+                Event::Leave => {
+                    frame.window().unwrap().set_cursor(Cursor::Arrow);
+                    true
+                }
+                _ => false,
             }
-            Event::Leave => {
-                frame.window().unwrap().set_cursor(Cursor::Arrow);
-                true
-            }
-            _ => false,
         });
         from.handle({
             let mut dnd = false;

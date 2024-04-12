@@ -125,7 +125,7 @@ impl Page {
             self.rem.deactivate();
             self.size.deactivate();
         };
-        app::redraw();
+        self.window.redraw();
     }
     pub fn open(&mut self, ui: bool) {
         if ui {

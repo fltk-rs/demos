@@ -3,28 +3,20 @@
 mod components;
 
 use {
-    components::{Circles, Counter, Crud, FlightBooker, Temperature, Timer},
+    components::{Circles, Crud, Timer},
     fltk::{
         app,
         button::RadioButton,
         enums::{Color, Event, Font},
         group::{Flex, Wizard},
         misc::Progress,
-        prelude::{GroupExt, ValuatorExt, WidgetBase, WidgetExt, WindowExt},
+        prelude::{ButtonExt, GroupExt, WidgetBase, WidgetExt, WindowExt},
         window::Window,
     },
 };
 
 #[derive(Clone, Copy)]
 pub enum Message {
-    CounterInc,
-    CounterDec,
-    Celsius,
-    Fahrenheit,
-    Update,
-    Book,
-    Reset,
-    ChangeDuration,
     Tick,
     CrudSelect,
     CrudCreate,
@@ -42,7 +34,6 @@ pub enum Message {
 }
 
 pub fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Plastic);
     let (sender, receiver) = app::channel::<Message>();
     let mut window = Window::default()
         .with_size(960, 540)
@@ -61,17 +52,19 @@ pub fn main() {
     .into_iter()
     .enumerate()
     {
-        RadioButton::default()
-            .with_label(label)
-            .emit(sender, Message::Switch(idx as i32));
+        let mut button = RadioButton::default().with_label(label);
+        button.emit(sender, Message::Switch(idx as i32));
+        if idx == 0 {
+            button.set_value(true);
+        }
     }
     row.end();
     row.set_pad(0);
     flex.fixed(&row, 30);
     let mut wizard = Wizard::default_fill();
-    let mut counter = Counter::build(sender);
-    let mut temperature = Temperature::build(sender);
-    let mut flightbooker = FlightBooker::build(sender);
+    components::counter();
+    components::temperature();
+    components::flightbooker();
     let mut timer = Timer::build(sender);
     let mut crud = Crud::build(sender);
     let mut circles = Circles::build(sender);
@@ -81,7 +74,7 @@ pub fn main() {
     process.set_maximum(wizard.bounds().len() as f64);
     process.set_value(1_f64);
     flex.end();
-    flex.set_pad(0);
+    flex.set_pad(10);
     flex.fixed(&process, 10);
     flex.set_margin(10);
     window.end();
@@ -90,20 +83,13 @@ pub fn main() {
     window.emit(sender, Message::Quit(true));
     app::set_font_size(16);
     app::set_font(Font::Courier);
-    while app.wait() {
+    app::App::default().with_scheme(app::AppScheme::Plastic);
+    while app::wait() {
         match receiver.recv() {
             Some(Message::Switch(page)) => {
                 wizard.set_current_widget(&wizard.child(page).unwrap());
                 process.set_value((page + 1) as f64);
             }
-            Some(Message::CounterInc) => counter.inc(),
-            Some(Message::CounterDec) => counter.dec(),
-            Some(Message::Celsius) => temperature.celsius(),
-            Some(Message::Fahrenheit) => temperature.fahrenheit(),
-            Some(Message::Update) => flightbooker.update(),
-            Some(Message::Book) => flightbooker.book(),
-            Some(Message::Reset) => timer.progress.set_value(0.0),
-            Some(Message::ChangeDuration) => timer.progress.set_maximum(timer.slider.value()),
             Some(Message::Tick) => timer.tick(),
             Some(Message::CrudSelect) => crud.select(),
             Some(Message::CrudCreate) => crud.create(),
@@ -128,3 +114,7 @@ pub fn main() {
         }
     }
 }
+
+pub const PAD: i32 = 10;
+pub const WIDTH: i32 = 150;
+pub const HEIGHT: i32 = 30;

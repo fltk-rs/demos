@@ -6,6 +6,6 @@ mod temperature;
 mod timer;
 
 pub use {
-    circles::Circles, counter::Counter, crud::Crud, flightbooker::FlightBooker,
-    temperature::Temperature, timer::Timer,
+    circles::Circles, counter::counter, crud::Crud, flightbooker::flightbooker,
+    temperature::temperature, timer::Timer,
 };

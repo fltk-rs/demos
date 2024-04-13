@@ -1,72 +1,67 @@
 #![forbid(unsafe_code)]
-use fltk::{app, enums::*, frame::*, prelude::*, window::*};
-use soloud::*;
-use std::{cell::RefCell, rc::Rc};
-
-mod power_button;
-use power_button::PowerButton;
-
 mod fancy_slider;
-use fancy_slider::FancySlider;
+mod power_button;
 
-const TRACK: &str = "Alarm.mp3";
+use {
+    fltk::{app, enums::*, frame::*, prelude::*, window::*},
+    soloud::{audio, AudioExt, LoadExt, Soloud},
+    std::{cell::RefCell, rc::Rc},
+};
 
 fn main() {
+    const TRACK: &str = "assets/Alarm.mp3";
     let app = app::App::default();
     let mut wind = DoubleWindow::default()
+        .with_label("Music Player")
         .with_size(400, 300)
-        .center_screen()
-        .with_label("Music Player");
-    wind.make_resizable(true);
+        .center_screen();
 
     let mut frm = Frame::new(160, 80, 80, 40, TRACK);
-    frm.set_label_size(20);
     frm.set_label_color(Color::White);
-    let mut slider = FancySlider::new(50, 150);
-    let mut but = PowerButton::new(160, 210);
+    frm.set_label_size(20);
+    let mut slider = fancy_slider::FancySlider::new(50, 150);
+    let mut but = power_button::PowerButton::new(160, 210);
 
-    let sl = Soloud::default().unwrap();
-
-    wind.set_color(Color::Black);
     wind.end();
+    wind.make_resizable(true);
+    wind.set_color(Color::Black);
     wind.show();
 
-    let sl = Rc::from(RefCell::from(sl));
+    let sl = Rc::from(RefCell::from(Soloud::default().unwrap()));
 
+    let sl_clone = sl.clone();
     but.set_callback({
-        let sl = sl.clone();
         move |_| {
-            if sl.borrow().active_voice_count() > 0 {
+            if sl_clone.borrow().active_voice_count() > 0 {
                 // Checks that no active audio is playing
-                sl.borrow().stop_all();
-                return;
-            }
-            let mut wav = audio::Wav::default();
-            wav.load(std::path::Path::new(TRACK)).unwrap();
-            wav.set_looping(true);
-            sl.borrow().play(&wav);
-            while sl.borrow().active_voice_count() > 0 {
-                app.wait();
+                sl_clone.borrow().stop_all();
+            } else {
+                let mut wav = audio::Wav::default();
+                if wav.load(std::path::Path::new(TRACK)).is_ok() {
+                    wav.set_looping(true);
+                    sl_clone.borrow().play(&wav);
+                    while sl_clone.borrow().active_voice_count() > 0 {
+                        app::wait();
+                    }
+                }
             }
         }
     });
 
-    slider.handle({
-        let sl = sl.clone();
-        move |s, ev| match ev {
-            Event::Push => true,
-            Event::Drag => {
-                let slider_x = s.x() as f32 / 50.0;
-                let (x, _y) = app::event_coords();
-                if x > 45 && x < 350 {
-                    s.set_pos(x - 15, 150);
-                    sl.borrow_mut().set_global_volume(slider_x);
-                }
-                app::redraw();
-                true
+    let sl_clone = sl.clone();
+    slider.handle(move |slider, ev| match ev {
+        Event::Push => true,
+        Event::Drag => {
+            let slider_x = slider.x() as f32 / 50.0;
+            let (x, _y) = app::event_coords();
+            if x > 45 && x < 350 {
+                slider.set_pos(x - 15, 150);
+                sl_clone.borrow_mut().set_global_volume(slider_x);
             }
-            _ => false,
+            app::redraw();
+            true
         }
+        _ => false,
     });
 
     wind.set_callback(move |_| {

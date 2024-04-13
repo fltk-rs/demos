@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 fltk = { version = "^1.4", features = ["use-ninja"] }
 soloud = { version="^1.0" }
+serde = { version="1.0", features = ["derive"] }
+rmp-serde = { version="^1.1" }

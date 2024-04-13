@@ -92,19 +92,19 @@ pub fn app() {
                 if from != to && !source.is_empty() {
                     footer.trans.deactivate();
                     let voice = header.voice.value();
-                    let sender_clone = sender.clone();
                     let handler =
                         thread::spawn(move || -> String { commands::run(voice, from, to, source) });
-                    let sender = sender.clone();
-                    thread::spawn(move || {
-                        while !handler.is_finished() {
-                            let sender_clone = sender.clone();
-                            thread::sleep(Duration::from_millis(10));
-                            sender_clone.send(Message::Tick);
+                    thread::spawn({
+                        let sender = sender.clone();
+                        move || {
+                            while !handler.is_finished() {
+                                thread::sleep(Duration::from_millis(2));
+                                sender.send(Message::Tick);
+                            }
+                            if let Ok(msg) = handler.join() {
+                                sender.send(Message::Responce(msg));
+                            };
                         }
-                        if let Ok(msg) = handler.join() {
-                            sender_clone.send(Message::Responce(msg));
-                        };
                     });
                 };
             }

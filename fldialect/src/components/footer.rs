@@ -64,7 +64,7 @@ impl Footer {
             size.do_callback();
         };
         let mut dial = Dial::default();
-        dial.set_range(0_f64, 39_f64);
+        dial.set_maximum(99_f64);
         dial.set_precision(0);
         dial.set_callback(move |dial| dial.set_value(dial.value() + 1_f64));
         dial.deactivate();

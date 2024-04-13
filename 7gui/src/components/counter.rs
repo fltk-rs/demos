@@ -1,53 +1,43 @@
-use crate::Message;
-use fltk::{app::Sender, button::Button, frame::Frame, group::Flex, output::Output, prelude::*};
+use crate::{PAD, WIDTH};
+use fltk::{button::Button, frame::Frame, group::Flex, output::Output, prelude::*};
 
-pub struct Counter {
-    model: u8,
-    out: Output,
-    pub inc: Button,
-    pub dec: Button,
-}
-
-impl Counter {
-    pub fn build(sender: Sender<Message>) -> Self {
-        let mut flex = Flex::default_fill().with_label("    Counter    ");
-        Frame::default();
-        let col = Flex::default().column();
-        Frame::default();
-        let mut out = Output::default();
-        let row = Flex::default();
-        let mut dec = Button::default().with_label("-");
-        let mut inc = Button::default().with_label("+");
-        row.end();
-        Frame::default();
-        col.end();
-        Frame::default();
-        out.set_value("0");
-        out.set_text_size(90);
-        inc.emit(sender, Message::CounterInc);
-        inc.set_label_size(90);
-        dec.emit(sender, Message::CounterDec);
-        dec.set_label_size(90);
-        flex.end();
-        flex.set_margin(10);
-        flex.set_pad(10);
-        Self {
-            model: 0,
-            out,
-            inc,
-            dec,
-        }
+pub fn counter() {
+    let mut flex = Flex::default_fill().with_label("    Counter    ");
+    Frame::default();
+    let mut col = Flex::default().column();
+    Frame::default();
+    let mut out = Output::default();
+    out.set_value("0");
+    out.set_text_size(WIDTH);
+    let mut row = Flex::default();
+    for label in ["-", "+"] {
+        let mut button = Button::default().with_label(label);
+        button.set_label_size(WIDTH);
+        button.set_callback({
+            let mut out = out.clone();
+            move |button| {
+                let mut model: u8 = out.value().parse::<u8>().unwrap();
+                if button.label() == "-" {
+                    if model > 0 {
+                        model = model.saturating_sub(1);
+                    }
+                } else if model < 255 {
+                    model = model.saturating_add(1);
+                }
+                out.set_value(&model.to_string());
+            }
+        });
     }
-    pub fn inc(&mut self) {
-        if self.model < 255 {
-            self.model += 1;
-            self.out.set_value(&self.model.to_string());
-        }
-    }
-    pub fn dec(&mut self) {
-        if self.model > 0 {
-            self.model -= 1;
-            self.out.set_value(&self.model.to_string());
-        }
-    }
+    row.end();
+    row.set_pad(0);
+    Frame::default();
+    col.end();
+    col.fixed(&out, WIDTH);
+    col.fixed(&row, WIDTH);
+    col.set_pad(0);
+    Frame::default();
+    flex.end();
+    flex.set_margin(PAD);
+    flex.set_pad(PAD);
+    flex.fixed(&col, WIDTH * 2);
 }

@@ -66,13 +66,8 @@ fn main() {
         .with_label(NAME)
         .with_size(360, 640)
         .center_screen();
-    let mut vbox = Flex::default_fill().column();
-    let mut header = TextDisplay::default();
-    header.set_text_size(SIZE);
-    header.set_scrollbar_size(3);
-    header.set_frame(FrameType::FlatBox);
-    header.wrap_mode(WrapMode::AtBounds, 0);
-    header.set_buffer(TextBuffer::default());
+    let mut page = Flex::default_fill().column();
+    let mut header = crate::display();
     let menu_clone = menu.clone();
     window.handle(move |_, event| match event {
         Event::Push => match app::event_mouse_button() {
@@ -84,12 +79,7 @@ fn main() {
         },
         _ => false,
     });
-    let mut output = Frame::default().with_align(Align::Right | Align::Inside);
-    output.set_label_color(COLORS[0][1]);
-    output.set_color(COLORS[0][0]);
-    output.set_label_size(OUTPUT);
-    output.set_label("0");
-    output.set_frame(FrameType::FlatBox);
+    let mut output = crate::output();
     let mut footer = Flex::default_fill().column();
     let mut buttons: Vec<Button> = Vec::new();
     for row in [
@@ -135,11 +125,11 @@ fn main() {
     }
     footer.end();
     footer.set_pad(10);
-    vbox.end();
-    vbox.fixed(&output, OUTPUT);
-    vbox.fixed(&footer, 420);
-    vbox.set_margin(10);
-    vbox.set_pad(10);
+    page.end();
+    page.fixed(&output, OUTPUT);
+    page.fixed(&footer, 420);
+    page.set_margin(10);
+    page.set_pad(10);
     window.make_resizable(false);
     window.end();
     window.set_xclass(NAME);
@@ -193,14 +183,14 @@ fn main() {
                 match menu.at(idx).unwrap().value() {
                     false => {
                         footer.hide();
-                        vbox.fixed(&footer, 0);
+                        page.fixed(&footer, 0);
                     }
                     true => {
-                        vbox.fixed(&footer, 420);
+                        page.fixed(&footer, 420);
                         footer.show();
                     }
                 };
-                app::redraw();
+                page.redraw();
             }
             Some(Message::Number(num)) => {
                 if output.label() == "0" {
@@ -208,13 +198,13 @@ fn main() {
                 }
                 current_value.push(num);
                 output.set_label(&current_value);
-                app::redraw();
+                output.redraw();
             }
             Some(Message::Dot) => {
                 if !current_value.contains('.') {
                     current_value.push('.');
                     output.set_label(&current_value);
-                    app::redraw();
+                    output.redraw();
                 }
             }
             Some(Message::Back) => {
@@ -224,19 +214,18 @@ fn main() {
                     current_value = String::from("0");
                 };
                 output.set_label(&current_value);
-                app::redraw();
+                output.redraw();
             }
             Some(Message::C) => {
                 current_value = String::from("0");
                 output.set_label(&current_value);
-                app::redraw();
+                output.redraw();
             }
             Some(Message::CE) => {
                 header.buffer().unwrap().set_text("");
                 temp = 0.0;
                 current_operation = '=';
                 sender.send(Message::C);
-                app::redraw();
             }
             Some(Message::Ops(ops)) => {
                 match current_operation {
@@ -376,3 +365,23 @@ const COLORS: [[Color; 6]; 2] = [
         Color::from_hex(0xd33682),
     ],
 ];
+
+fn display() -> TextDisplay {
+    let mut element = TextDisplay::default();
+    element.set_text_size(SIZE);
+    element.set_scrollbar_size(3);
+    element.set_frame(FrameType::FlatBox);
+    element.wrap_mode(WrapMode::AtBounds, 0);
+    element.set_buffer(TextBuffer::default());
+    element
+}
+
+fn output() -> Frame {
+    let mut element = Frame::default().with_align(Align::Right | Align::Inside);
+    element.set_label_color(COLORS[0][1]);
+    element.set_color(COLORS[0][0]);
+    element.set_label_size(OUTPUT);
+    element.set_label("0");
+    element.set_frame(FrameType::FlatBox);
+    element
+}

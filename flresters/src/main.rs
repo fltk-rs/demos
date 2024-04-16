@@ -91,10 +91,9 @@ fn main() {
             }
         }
     });
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_scheme(app::Scheme::Plastic);
     app::set_font(Font::Courier);
-    app::App::default().run().unwrap();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::App::default().with_scheme(app::Scheme::Plastic).run().unwrap();
 }
 
 fn fill_style_buffer(sbuf: &mut text::TextBuffer, s: &str) {

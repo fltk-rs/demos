@@ -1,7 +1,8 @@
 use {
     crate::{Message, PAD},
     fltk::{
-        app::Sender, browser::*, button::*, menu::Choice, enums::*, frame::*, group::*, input::*, prelude::*,
+        app::Sender, browser::*, button::*, enums::*, frame::*, group::*, input::*, menu::Choice,
+        prelude::*,
     },
 };
 
@@ -78,7 +79,7 @@ impl Crud {
         component.filter();
         component
     }
-    pub fn select(&mut self){
+    pub fn select(&mut self) {
         if self.browser.value() == 0 {
             self.update.deactivate();
             self.delete.deactivate();
@@ -98,27 +99,46 @@ impl Crud {
         self.browser.clear();
         self.model.sort();
         for item in &self.model {
-            if item[self.choice.value() as usize].to_lowercase().starts_with(&prefix) {
+            if item[self.choice.value() as usize]
+                .to_lowercase()
+                .starts_with(&prefix)
+            {
                 self.browser.add(&format!("{}, {}", item[0], item[1]));
             }
         }
     }
     pub fn create(&mut self) {
-        self.model.push([self.lastname.value(),self.firstname.value(),self.secretname.value()]);
+        self.model.push([
+            self.lastname.value(),
+            self.firstname.value(),
+            self.secretname.value(),
+        ]);
         self.filter();
     }
     pub fn update(&mut self) {
         if !self.firstname.value().is_empty() && !self.lastname.value().is_empty() {
             if let Some(name) = self.browser.text(self.browser.value()) {
-                let index = self.model.iter().position(|value| format!("{}, {}", value[0], value[1]) == name).unwrap();
-                self.model[index] = [self.lastname.value(), self.firstname.value(),self.secretname.value()];
+                let index = self
+                    .model
+                    .iter()
+                    .position(|value| format!("{}, {}", value[0], value[1]) == name)
+                    .unwrap();
+                self.model[index] = [
+                    self.lastname.value(),
+                    self.firstname.value(),
+                    self.secretname.value(),
+                ];
                 self.filter();
             }
         }
     }
     pub fn delete(&mut self) {
         if let Some(name) = self.browser.text(self.browser.value()) {
-            let index = self.model.iter().position(|value| format!("{}, {}", value[0], value[1]) == name).unwrap();
+            let index = self
+                .model
+                .iter()
+                .position(|value| format!("{}, {}", value[0], value[1]) == name)
+                .unwrap();
             self.model.remove(index);
             self.filter();
         }

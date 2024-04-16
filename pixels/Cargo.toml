@@ -8,5 +8,5 @@ resolver = "2"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "1", features = ["use-ninja", "raw-window-handle"] }
-pixels = "0.10"
+fltk = { version = "1", features = ["use-ninja", "rwh05"] }
+pixels = "0.13"

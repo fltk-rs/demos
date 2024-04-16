@@ -2,8 +2,9 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use fltk::{app, enums::Event, prelude::*, window::Window};
+use fltk::{app, prelude::*, window::Window};
 use pixels::{Error, Pixels, SurfaceTexture};
+use std::{cell::RefCell, rc::Rc};
 
 const WIDTH: u32 = 600;
 const HEIGHT: u32 = 400;
@@ -27,32 +28,42 @@ fn main() -> Result<(), Error> {
     win.show();
 
     let mut pixels = {
-        let pixel_width = win.w() as u32;
-        let pixel_height = win.h() as u32;
+        let pixel_width = win.pixel_w() as u32;
+        let pixel_height = win.pixel_h() as u32;
         let surface_texture = SurfaceTexture::new(pixel_width, pixel_height, &win);
+
         Pixels::new(WIDTH, HEIGHT, surface_texture)?
     };
 
     let mut world = World::new();
 
-    while app.wait() {
-        // Handle window events
-        if app::event() == Event::Resize {
-            let pixel_width = win.w() as u32;
-            let pixel_height = win.h() as u32;
-            pixels.resize_surface(pixel_width, pixel_height);
-        }
+    // Handle resize events
+    let surface_size = Rc::new(RefCell::new(None));
+    let surface_resize = surface_size.clone();
+    win.resize_callback(move |win, _x, _y, width, height| {
+        let scale_factor = win.pixels_per_unit();
+        let width = (width as f32 * scale_factor) as u32;
+        let height = (height as f32 * scale_factor) as u32;
 
+        surface_resize.borrow_mut().replace((width, height));
+    });
+
+    while app.wait() {
         // Update internal state
         world.update();
 
+        // Resize the window
+        if let Some((width, height)) = surface_size.borrow_mut().take() {
+            if let Err(err) = pixels.resize_surface(width, height) {
+                eprintln!("pixels.resize_surface {}", err);
+                app.quit();
+            }
+        }
+
         // Draw the current frame
-        world.draw(pixels.get_frame_mut());
-        if pixels
-            .render()
-            .map_err(|e| eprintln!("pixels.render() failed: {}", e))
-            .is_err()
-        {
+        world.draw(pixels.frame_mut());
+        if let Err(err) = pixels.render() {
+            eprintln!("pixels.render {}", err);
             app.quit();
         }
 

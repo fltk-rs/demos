@@ -93,7 +93,10 @@ fn main() {
     });
     app::set_font(Font::Courier);
     ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::App::default().with_scheme(app::Scheme::Plastic).run().unwrap();
+    app::App::default()
+        .with_scheme(app::Scheme::Plastic)
+        .run()
+        .unwrap();
 }
 
 fn fill_style_buffer(sbuf: &mut text::TextBuffer, s: &str) {

@@ -1,5 +1,4 @@
 #[cfg(target_os = "linux")]
-
 use fltk::{enums::Color, prelude::*, *};
 
 fn main() {

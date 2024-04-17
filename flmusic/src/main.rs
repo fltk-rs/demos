@@ -20,13 +20,14 @@ use {
 };
 
 fn main() {
+    let app = app::App::default().with_scheme(app::Scheme::Plastic);
     let player = Rc::from(RefCell::from(
         Soloud::default().expect("Cannot access audio backend"),
     ));
     let mut window = crate::window(player.clone());
-    let mut page = Flex::default_fill().column();
-    let mut header = Flex::default_fill();
-    crate::menu("Menu", &mut header);
+    let mut page = Flex::default_fill().column().with_id("Page");
+    let mut header = Flex::default_fill().with_id("Header");
+    crate::menu("Menu", &mut header).with_id("Buttons");
     let mut buttons = Flex::default_fill();
     crate::button("Prev", "@#|<", &mut header).set_callback(crate::prev);
     crate::button("Play", "@#>", &mut header).set_callback({
@@ -45,7 +46,7 @@ fn main() {
                     play.set_tooltip("Stop");
                     let mut wav = Wav::default();
                     if wav
-                        .load(Path::new(&browser.text(browser.value()).unwrap()))
+                        .load(Path::new(&browser.selected_text().unwrap()))
                         .is_ok()
                     {
                         song.set_maximum(wav.length());
@@ -68,11 +69,12 @@ fn main() {
     crate::button("Next", "@#>|", &mut header).set_callback(crate::next);
     buttons.end();
     crate::progress("Progress", false);
-    let mut volume = crate::slider("Volume", 6_f64, false).with_type(SliderType::Horizontal);
-    volume.set_callback({
-        let player = player.clone();
-        move |slider| player.borrow_mut().set_global_volume(slider.value() as f32)
-    });
+    crate::slider("Volume", 6_f64, false, &mut header)
+        .with_type(SliderType::Horizontal)
+        .set_callback({
+            let player = player.clone();
+            move |slider| player.borrow_mut().set_global_volume(slider.value() as f32)
+        });
     header.end();
     crate::browser("Browser").with_type(BrowserType::Hold);
     page.end();
@@ -80,27 +82,23 @@ fn main() {
     window.show();
     {
         buttons.set_pad(0);
-        header.fixed(&volume, 150);
         header.fixed(&buttons, 90);
         header.set_pad(10);
         page.set_pad(10);
         page.set_margin(10);
         page.fixed(&header, 30);
     }
-    app::App::default()
-        .with_scheme(app::Scheme::Plastic)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }
 
-pub fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
+fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
     let mut element = Button::default().with_label(label).with_id(tooltip);
     element.set_tooltip(tooltip);
     flex.fixed(&element, 30);
     element
 }
 
-pub fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
+fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
     let mut element = MenuButton::default().with_label("@#menu").with_id(tooltip);
     element.add(
         "@#+  &Add",
@@ -163,7 +161,7 @@ pub fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
             match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
                 Some(0) => browser.remove(browser.value()),
                 Some(2) => {
-                    if fs::remove_file(browser.text(browser.value()).unwrap()).is_ok() {
+                    if fs::remove_file(browser.selected_text().unwrap()).is_ok() {
                         browser.remove(browser.value());
                     }
                 }
@@ -182,7 +180,7 @@ pub fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
     element
 }
 
-pub fn slider(tooltip: &str, maximum: f64, state: bool) -> Slider {
+fn slider(tooltip: &str, maximum: f64, state: bool, flex: &mut Flex) -> Slider {
     let mut element = Slider::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_maximum(maximum);
@@ -191,10 +189,11 @@ pub fn slider(tooltip: &str, maximum: f64, state: bool) -> Slider {
         true => element.activate(),
         false => element.deactivate(),
     };
+    flex.fixed(&element, 150);
     element
 }
 
-pub fn progress(tooltip: &str, state: bool) -> Progress {
+fn progress(tooltip: &str, state: bool) -> Progress {
     let mut element = Progress::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_selection_color(Color::Black);
@@ -205,7 +204,7 @@ pub fn progress(tooltip: &str, state: bool) -> Progress {
     element
 }
 
-pub fn browser(tooltip: &str) -> Browser {
+fn browser(tooltip: &str) -> Browser {
     let mut element = Browser::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     let file = env::var("HOME").unwrap() + "/.config/" + "FlMusic.bin";
@@ -227,7 +226,7 @@ pub fn browser(tooltip: &str) -> Browser {
     element
 }
 
-pub fn window(player: Rc<RefCell<Soloud>>) -> Window {
+fn window(player: Rc<RefCell<Soloud>>) -> Window {
     const NAME: &str = "FlMusic";
     let mut element = Window::default()
         .with_size(640, 360)

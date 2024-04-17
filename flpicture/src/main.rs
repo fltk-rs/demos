@@ -25,9 +25,10 @@ const HEIGHT: i32 = 30;
 const PAD: i32 = 10;
 
 fn main() {
+    let app = app::App::default().with_scheme(app::Scheme::Plastic);
     let mut windows = crate::window();
-    let mut page = Flex::default_fill().column();
-    let mut header = Flex::default();
+    let mut page = Flex::default_fill().column().with_id("Page");
+    let mut header = Flex::default().with_id("Header");
     crate::menu("Main menu", &mut header);
     crate::button("Open", "@#fileopen", &mut header).set_callback(crate::open);
     crate::button("Prev", "@#|<", &mut header).set_callback(crate::prev);
@@ -36,7 +37,7 @@ fn main() {
     crate::button("Remove", "@#1+", &mut header).set_callback(crate::rem);
     header.end();
     crate::frame("Image");
-    let list = crate::browser("List").with_type(BrowserType::Hold);
+    crate::browser("List", &mut page).with_type(BrowserType::Hold);
     page.end();
     windows.end();
     windows.show();
@@ -45,12 +46,8 @@ fn main() {
         page.set_pad(PAD);
         page.set_margin(PAD);
         page.fixed(&header, HEIGHT);
-        page.fixed(&list, HEIGHT * 2);
     }
-    app::App::default()
-        .with_scheme(app::Scheme::Plastic)
-        .run()
-        .unwrap();
+    app.run().unwrap();
 }
 
 fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
@@ -69,7 +66,7 @@ fn slider(tooltip: &str) -> Slider {
     element.set_callback(move |size| {
         let mut frame = app::widget_from_id::<Frame>("Image").unwrap();
         let browser = app::widget_from_id::<Browser>("List").unwrap();
-        if let Ok(mut image) = SharedImage::load(browser.text(browser.value()).unwrap()) {
+        if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
             image.scale(
                 (frame.width() as f64 * size.value()) as i32 / 100,
                 (frame.height() as f64 * size.value()) as i32 / 100,
@@ -90,7 +87,7 @@ fn frame(tooltip: &str) -> Frame {
     element
 }
 
-fn browser(tooltip: &str) -> Browser {
+fn browser(tooltip: &str, flex: &mut Flex) -> Browser {
     let mut element = Browser::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_trigger(CallbackTrigger::Changed);
@@ -99,7 +96,7 @@ fn browser(tooltip: &str) -> Browser {
         let size = app::widget_from_id::<Slider>("Size").unwrap();
         if browser.value() < 1 {
             frame.set_image(None::<SharedImage>);
-        } else if let Ok(mut image) = SharedImage::load(browser.text(browser.value()).unwrap()) {
+        } else if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
             image.scale(
                 (frame.width() as f64 * size.value()) as i32 / 100,
                 (frame.height() as f64 * size.value()) as i32 / 100,
@@ -111,6 +108,7 @@ fn browser(tooltip: &str) -> Browser {
         frame.redraw();
         browser.redraw();
     });
+    flex.fixed(&element, crate::HEIGHT * 2);
     element
 }
 
@@ -255,7 +253,7 @@ fn rem(_: &mut Button) {
     match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
         Some(0) => browser.remove(browser.value()),
         Some(2) => {
-            if fs::remove_file(browser.text(browser.value()).unwrap()).is_ok() {
+            if fs::remove_file(browser.selected_text().unwrap()).is_ok() {
                 browser.remove(browser.value());
             }
         }

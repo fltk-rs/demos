@@ -123,9 +123,11 @@ pub fn menu(tooltip: &str, theme: u8) -> MenuButton {
         MenuFlag::Toggle,
         crate::theme,
     );
+    let mut item = element.at(idx).unwrap();
     if theme != 0 {
-        element.at(idx).unwrap().set();
+        item.set();
     };
+    item.do_callback(&element);
     let idx: i32 = element.add(
         "&View/&Footer\t",
         Shortcut::None,

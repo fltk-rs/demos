@@ -7,5 +7,5 @@ mod timer;
 
 pub use {
     circles::Circles, counter::counter, crud::Crud, flightbooker::flightbooker,
-    temperature::temperature, timer::Timer,
+    temperature::temperature, timer::timer,
 };

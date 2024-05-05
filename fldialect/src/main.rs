@@ -90,6 +90,8 @@ fn app() {
         app::widget_from_id::<Counter>("Size")
             .unwrap()
             .do_callback();
+        let menu = app::widget_from_id::<MenuButton>("Menu").unwrap();
+        menu.at(1).unwrap().do_callback(&menu);
     }
     app.run().unwrap();
 }

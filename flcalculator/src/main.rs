@@ -145,7 +145,9 @@ pub fn menu(tooltip: &str, theme: u8) -> MenuButton {
         "@#1+  &Quit",
         Shortcut::Ctrl | 'q',
         MenuFlag::Normal,
-        move |_| println!("Quit"),
+        move |_| {
+            app::handle_main(Event::Close).unwrap();
+        },
     );
     element.at(ord).unwrap().set_label_color(Color::Red);
     element
@@ -289,6 +291,7 @@ fn window() -> (Window, u8) {
         },
         _ => false,
     });
+    let file = file.clone();
     element.set_callback(move |_| {
         if app::event() == Event::Close {
             fs::write(

@@ -1,2 +1,1 @@
-![FlMusic](assets/base.png "FlMusic")
-![FlMusic](assets/base_dark.png "FlMusic")
+![FlMusic](assets/flmusic.gif)

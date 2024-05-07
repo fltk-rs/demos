@@ -234,7 +234,9 @@ fn menu(tooltip: &str, theme: u8, flex: &mut Flex) -> MenuButton {
         "@#1+  &Quit",
         Shortcut::Ctrl | 'q',
         MenuFlag::Normal,
-        move |_| println!("Quit"),
+        move |_| {
+            app::handle_main(Event::Close).unwrap();
+        },
     );
     element.at(ord).unwrap().set_label_color(Color::Red);
     flex.fixed(&element, HEIGHT);

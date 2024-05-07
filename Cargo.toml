@@ -2,7 +2,6 @@
 
 resolver = "2"
 members = [
-    "7gui",
     "cairo",
     "cairo_shadow_button",
     "calendar",

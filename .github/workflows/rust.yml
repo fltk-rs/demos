@@ -58,11 +58,6 @@ jobs:
         if [[ ${RUNNER_OS} == "Linux" ]]; then
             cargo build --quiet || cargo build --verbose
         fi
-    - name: Build 7gui
-      working-directory: 7gui
-      shell: bash
-      run: |
-        cargo build --quiet || cargo build --verbose
     - name: Build cairo_shadow_button
       working-directory: cairo_shadow_button
       shell: bash

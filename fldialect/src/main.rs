@@ -40,12 +40,12 @@ fn app() {
     let mut page = Flex::default_fill().column().with_id("Page");
 
     let mut header = Flex::default_fill().with_id("Header"); // HEADER
-    crate::menu("Menu", params[4], &mut header);
+    crate::menu("Menu", &mut header);
     Frame::default();
     let lang = crate::list();
-    crate::choice("From", &lang, params[5], &mut header).set_callback(move |_| crate::rename());
+    crate::choice("From", &lang, params[4], &mut header).set_callback(move |_| crate::rename());
     crate::button("Switch", "@#refresh", &mut header).set_callback(crate::switch);
-    crate::choice("To", &lang, params[6], &mut header).set_callback(move |_| crate::rename());
+    crate::choice("To", &lang, params[5], &mut header).set_callback(move |_| crate::rename());
     Frame::default();
     crate::button("Speak", "@#<", &mut header).with_type(ButtonType::Toggle);
     header.end();
@@ -59,10 +59,10 @@ fn app() {
     let mut footer = Flex::default_fill().with_id("Footer"); //FOOTER
     crate::button("Open...", "@#fileopen", &mut footer).set_callback(crate::open);
     Frame::default();
-    crate::choice("Fonts", &app::fonts().join("|"), params[7], &mut footer)
+    crate::choice("Fonts", &app::fonts().join("|"), params[6], &mut footer)
         .set_callback(crate::font);
     crate::button("Translate", "@#circle", &mut footer).set_callback(crate::translate);
-    crate::counter("Size", params[8] as f64, &mut footer).with_type(CounterType::Simple);
+    crate::counter("Size", params[7] as f64, &mut footer).with_type(CounterType::Simple);
     crate::dial("Spinner", &mut footer);
     Frame::default();
     crate::button("Save as...", "@#filesaveas", &mut footer).set_callback(crate::save);
@@ -82,6 +82,7 @@ fn app() {
         page.set_margin(SPACE);
         page.set_pad(SPACE);
         page.set_frame(FrameType::FlatBox);
+        ColorTheme::new(color_themes::DARK_THEME).apply();
         crate::rename();
         app::widget_from_id::<Choice>("Fonts")
             .unwrap()
@@ -89,8 +90,6 @@ fn app() {
         app::widget_from_id::<Counter>("Size")
             .unwrap()
             .do_callback();
-        let menu = app::widget_from_id::<MenuButton>("Menu").unwrap();
-        menu.at(1).unwrap().do_callback(&menu);
     }
     app.run().unwrap();
 }
@@ -198,21 +197,14 @@ fn text(tooltip: &str) -> TextEditor {
     element.set_linenumber_width(HEIGHT);
     element.set_buffer(TextBuffer::default());
     element.wrap_mode(WrapMode::AtBounds, 0);
+    element.set_color(Color::from_hex(0x002b36));
+    element.set_text_color(Color::from_hex(0x93a1a1));
     element
 }
 
-fn menu(tooltip: &str, theme: u8, flex: &mut Flex) -> MenuButton {
+fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
     let mut element = MenuButton::default().with_id(tooltip);
     element.set_tooltip(tooltip);
-    let idx = element.add(
-        "&View/&Night mode\t",
-        Shortcut::Ctrl | 'n',
-        MenuFlag::Toggle,
-        crate::theme,
-    );
-    if theme != 0 {
-        element.at(idx).unwrap().set();
-    };
     let idx: i32 = element.add(
         "&View/&Footer\t",
         Shortcut::None,
@@ -354,24 +346,6 @@ fn switch(_: &mut Button) {
     }
 }
 
-fn theme(menu: &mut MenuButton) {
-    const COLORS: [[Color; 2]; 2] = [
-        [Color::from_hex(0xfdf6e3), Color::from_hex(0x586e75)],
-        [Color::from_hex(0x002b36), Color::from_hex(0x93a1a1)],
-    ];
-    let item = menu.at(1).unwrap();
-    if item.value() {
-        ColorTheme::new(color_themes::DARK_THEME).apply();
-    } else {
-        ColorTheme::new(color_themes::TAN_THEME).apply();
-    };
-    for label in ["Source", "Target"] {
-        let mut text = app::widget_from_id::<TextEditor>(label).unwrap();
-        text.set_color(COLORS[item.value() as usize][0]);
-        text.set_text_color(COLORS[item.value() as usize][1]);
-    }
-}
-
 fn translate(button: &mut Button) {
     let from = app::widget_from_id::<Choice>("From")
         .unwrap()
@@ -432,12 +406,11 @@ fn window() -> (Window, Vec<u8>) {
   <rect width="254" height="93" id="rect26" style="fill:url(#linearGradient8)"/>
   <path d="m 72,11.5 -60.5,0 0,78.5 m 0,-43 44.5,0 m 27.5,-44 0,78.5 51.5,0 m -25,-70 70,0 m -33.5,0 0,78.5 m 45,-87 0,87 m 71,-101 -57.75,57.75 57.75,57.75" id="path28" style="fill:none;stroke:#ffffff;stroke-width:17"/>
 </svg>"#;
-    const DEFAULT: [u8; 9] = [
+    const DEFAULT: [u8; 8] = [
         1,   // [0] window_width * U8 +
         105, // [1] window_width_fract
         2,   // [2] window_height * U8 +
         130, // [3] window_height_fract
-        0,   // [4] theme
         119, // [5] header_from
         35,  // [6] header_to
         1,   // [7] footer_font
@@ -501,11 +474,6 @@ fn window() -> (Window, Vec<u8>) {
                     (window.width() % U8) as u8,
                     (window.height() / U8) as u8,
                     (window.height() % U8) as u8,
-                    app::widget_from_id::<MenuButton>("Menu")
-                        .unwrap()
-                        .at(1)
-                        .unwrap()
-                        .value() as u8,
                     app::widget_from_id::<Choice>("From").unwrap().value() as u8,
                     app::widget_from_id::<Choice>("To").unwrap().value() as u8,
                     app::widget_from_id::<Choice>("Fonts").unwrap().value() as u8,
@@ -576,7 +544,7 @@ fn list() -> String {
             .expect("failed to execute bash");
         match run.status.success() {
             true => String::from_utf8_lossy(&run.stdout)
-                .split_whitespace()
+                .lines()
                 .map(str::to_string)
                 .collect::<Vec<String>>()
                 .join("|"),

@@ -83,6 +83,7 @@ fn app() {
         page.set_pad(SPACE);
         page.set_frame(FrameType::FlatBox);
         ColorTheme::new(color_themes::DARK_THEME).apply();
+        app::set_color(Color::Blue, 200, 200, 255);
         crate::rename();
         app::widget_from_id::<Choice>("Fonts")
             .unwrap()
@@ -322,17 +323,17 @@ fn hide(_: &mut MenuButton) {
 }
 
 fn rename() {
-    app::first_window().unwrap().set_label(&format!(
-        "Translate from {} to {} - {NAME}",
-        app::widget_from_id::<Choice>("From")
-            .unwrap()
-            .choice()
-            .unwrap(),
-        app::widget_from_id::<Choice>("To")
-            .unwrap()
-            .choice()
-            .unwrap(),
-    ));
+    // app::first_window().unwrap().set_label(&format!(
+    //     "Translate from {} to {} - {NAME}",
+    //     app::widget_from_id::<Choice>("From")
+    //         .unwrap()
+    //         .choice()
+    //         .unwrap(),
+    //     app::widget_from_id::<Choice>("To")
+    //         .unwrap()
+    //         .choice()
+    //         .unwrap(),
+    // ));
 }
 
 fn switch(_: &mut Button) {
@@ -537,22 +538,22 @@ fn run(voice: bool, from: String, to: String, word: String) -> String {
 }
 
 fn list() -> String {
-    if cfg!(target_family = "unix") {
-        let run = Command::new("trans")
-            .arg("-list-languages-english")
-            .output()
-            .expect("failed to execute bash");
-        match run.status.success() {
-            true => String::from_utf8_lossy(&run.stdout)
-                .lines()
-                .map(str::to_string)
-                .collect::<Vec<String>>()
-                .join("|"),
-            false => panic!("\x1b[31m{}\x1b[0m", String::from_utf8_lossy(&run.stderr)),
-        }
-    } else {
+    // if cfg!(target_family = "unix") {
+    //     let run = Command::new("trans")
+    //         .arg("-list-languages-english")
+    //         .output()
+    //         .expect("failed to execute bash");
+    //     match run.status.success() {
+    //         true => String::from_utf8_lossy(&run.stdout)
+    //             .lines()
+    //             .map(str::to_string)
+    //             .collect::<Vec<String>>()
+    //             .join("|"),
+    //         false => panic!("\x1b[31m{}\x1b[0m", String::from_utf8_lossy(&run.stderr)),
+    //     }
+    // } else {
         "no way".to_string()
-    }
+    // }
 }
 
 fn once() -> bool {

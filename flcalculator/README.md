@@ -1,1 +1,1 @@
-![FLCalculator](assets/flcalculator.gif)
+![FlCalculator](assets/flcalculator.gif)

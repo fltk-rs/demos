@@ -468,7 +468,7 @@ fn window() -> (Window, Vec<u8>) {
         .center_screen();
     element.size_range(
         DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
-        DEFAULT[2] as i32 * U8 + DEFAULT[3] as i32,
+        DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
         0,
         0,
     );

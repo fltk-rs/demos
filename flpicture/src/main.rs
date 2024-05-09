@@ -7,7 +7,7 @@ use {
         browser::{Browser, BrowserType},
         button::Button,
         dialog::{choice2_default, FileChooser, FileChooserType},
-        enums::{CallbackTrigger, Color, Event, Shortcut},
+        enums::{CallbackTrigger, Color, Event, Shortcut, FrameType},
         frame::Frame,
         group::Flex,
         image::SharedImage,
@@ -18,6 +18,7 @@ use {
         valuator::{Slider, SliderType},
         window::Window,
     },
+    fltk_theme::{color_themes, ColorTheme},
     std::{env, fs, path::Path},
 };
 
@@ -25,7 +26,7 @@ const HEIGHT: i32 = 30;
 const PAD: i32 = 10;
 
 fn main() {
-    let app = app::App::default().with_scheme(app::Scheme::Plastic);
+    let app = app::App::default();
     let mut windows = crate::window();
     let mut page = Flex::default_fill().column().with_id("Page");
     let mut header = Flex::default().with_id("Header");
@@ -46,6 +47,8 @@ fn main() {
         page.set_pad(PAD);
         page.set_margin(PAD);
         page.fixed(&header, HEIGHT);
+        page.set_frame(FrameType::FlatBox);
+        ColorTheme::new(color_themes::DARK_THEME).apply();
     }
     app.run().unwrap();
 }
@@ -105,8 +108,7 @@ fn browser(tooltip: &str, flex: &mut Flex) -> Browser {
             );
             frame.set_image(Some(image));
         };
-        frame.redraw();
-        browser.redraw();
+        app::redraw();
     });
     flex.fixed(&element, crate::HEIGHT * 2);
     element

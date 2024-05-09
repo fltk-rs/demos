@@ -2,4 +2,4 @@
 
 Custom drawing of CSV data. Uses CSV and Serde.
 
-![alt_test](assets/csv.gif)
+![FlCSV](assets/csv.gif)

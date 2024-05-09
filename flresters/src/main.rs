@@ -94,7 +94,6 @@ fn main() {
     app::set_font(Font::Courier);
     ColorTheme::new(color_themes::DARK_THEME).apply();
     app::App::default()
-        .with_scheme(app::Scheme::Plastic)
         .run()
         .unwrap();
 }

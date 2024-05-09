@@ -9,3 +9,4 @@ edition = "2021"
 
 [dependencies]
 fltk = { version = "^1.4", features = ["use-ninja"] }
+fltk-theme = { version="0.7" }

@@ -7,7 +7,7 @@ use {
         browser::{Browser, BrowserType},
         button::Button,
         dialog::{choice2_default, FileChooser, FileChooserType},
-        enums::{Color, Event, Shortcut},
+        enums::{Color, Event, Shortcut, FrameType},
         group::Flex,
         menu::{MenuButton, MenuFlag},
         misc::Progress,
@@ -15,12 +15,13 @@ use {
         valuator::{Slider, SliderType},
         window::Window,
     },
+    fltk_theme::{color_themes, ColorTheme},
     soloud::{audio::Wav, AudioExt, LoadExt, Soloud},
     std::{cell::RefCell, env, fs, path::Path, rc::Rc, thread, time::Duration},
 };
 
 fn main() {
-    let app = app::App::default().with_scheme(app::Scheme::Plastic);
+    let app = app::App::default();
     let player = Rc::from(RefCell::from(
         Soloud::default().expect("Cannot access audio backend"),
     ));
@@ -87,6 +88,8 @@ fn main() {
         page.set_pad(10);
         page.set_margin(10);
         page.fixed(&header, 30);
+        page.set_frame(FrameType::FlatBox);
+        ColorTheme::new(color_themes::DARK_THEME).apply();
     }
     app.run().unwrap();
 }

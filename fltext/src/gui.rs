@@ -15,7 +15,6 @@ const MENU_HEIGHT: i32 = if cfg!(target_os = "macos") { 1 } else { 30 };
 
 pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App {
     ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_scheme(app::Scheme::Plastic);
     app::set_font(Font::Courier);
     app::set_menu_linespacing(10);
     let mut buf = text::TextBuffer::default();
@@ -185,7 +184,9 @@ pub fn init_menu(m: &mut (impl MenuExt + 'static), load_dir: bool) {
         "&File/@#1+  Quit\t",
         Shortcut::Ctrl | 'q',
         menu::MenuFlag::Normal,
-        cbs::menu_cb,
+        move |_| {
+            app::handle_main(Event::Close).unwrap();
+        },
     );
     m.at(idx)
         .unwrap()

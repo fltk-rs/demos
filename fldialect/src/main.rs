@@ -77,7 +77,7 @@ fn app() {
     let mut bar = Flex::default();
     crate::choice("Fonts", &app::fonts().join("|"), params[4]).set_callback(crate::font);
     crate::button("Translate", "@#circle", &mut bar).set_callback(crate::translate);
-    crate::counter("Size", params[5] as f64).with_type(CounterType::Simple);
+    crate::counter("Size", params[5] as f64);
     bar.end();
     bar.set_pad(0);
     footer.fixed(&bar, WIDTH * 2 + HEIGHT);
@@ -181,7 +181,9 @@ fn handle(tooltip: &str) -> Frame {
 }
 
 fn counter(tooltip: &str, value: f64) -> Counter {
-    let mut element = Counter::default().with_id(tooltip);
+    let mut element = Counter::default()
+        .with_type(CounterType::Simple)
+        .with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_range(14_f64, 22_f64);
     element.set_precision(0);

@@ -84,10 +84,10 @@ fn main() {
     {
         buttons.set_pad(0);
         header.fixed(&buttons, 90);
-        header.set_pad(10);
-        page.set_pad(10);
-        page.set_margin(10);
-        page.fixed(&header, 30);
+        header.set_pad(0);
+        page.set_pad(PAD);
+        page.set_margin(PAD);
+        page.fixed(&header, HEIGHT);
         page.set_frame(FrameType::FlatBox);
         ColorTheme::new(color_themes::DARK_THEME).apply();
     }
@@ -97,7 +97,7 @@ fn main() {
 fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
     let mut element = Button::default().with_label(label).with_id(tooltip);
     element.set_tooltip(tooltip);
-    flex.fixed(&element, 30);
+    flex.fixed(&element, 26);
     element
 }
 
@@ -181,7 +181,7 @@ fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
         },
     );
     element.at(ord).unwrap().set_label_color(Color::Red);
-    flex.fixed(&element, 50);
+    flex.fixed(&element, 46);
     element
 }
 
@@ -278,3 +278,6 @@ fn prev(_: &mut Button) {
     };
     browser.do_callback();
 }
+
+const PAD: i32 = 10;
+const HEIGHT: i32 = PAD * 3;

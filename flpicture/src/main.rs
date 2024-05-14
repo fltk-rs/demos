@@ -37,13 +37,16 @@ fn main() {
     crate::button("Next", "@#>|", &mut header).set_callback(crate::next);
     crate::button("Remove", "@#1+", &mut header).set_callback(crate::rem);
     header.end();
+    let mut hero = Flex::default_fill();
     crate::frame("Image");
+    hero.end();
     crate::browser("List", &mut page).with_type(BrowserType::Hold);
     page.end();
     windows.end();
     windows.show();
     {
         header.set_pad(0);
+        hero.set_frame(FrameType::DownBox);
         page.set_pad(PAD);
         page.set_margin(PAD);
         page.fixed(&header, HEIGHT);

@@ -10,9 +10,12 @@ use {
         frame::Frame,
         group::{Flex, FlexType},
         image::SvgImage,
+        input::Input,
         menu::{Choice, MenuButton, MenuFlag},
+        misc::InputChoice,
         prelude::{
-            ButtonExt, DisplayExt, GroupExt, MenuExt, ValuatorExt, WidgetBase, WidgetExt, WindowExt,
+            ButtonExt, DisplayExt, GroupExt, InputExt, MenuExt, ValuatorExt, WidgetBase, WidgetExt,
+            WindowExt,
         },
         text::{TextBuffer, TextEditor, WrapMode},
         valuator::{Counter, CounterType, Dial},
@@ -23,9 +26,14 @@ use {
 };
 
 const NAME: &str = "FlDialect";
-const WIDTH: i32 = 105;
+const WIDTH: i32 = 125;
 const SPACE: i32 = 10;
 const HEIGHT: i32 = SPACE * 3;
+
+#[derive(Clone)]
+struct Model {
+    languages: Vec<String>,
+}
 
 fn main() {
     if crate::once() {
@@ -34,18 +42,24 @@ fn main() {
 }
 
 fn app() {
+    app::GlobalState::new(Model {
+        languages: crate::list(),
+    });
     let app = app::App::default();
     let (mut window, params) = crate::window();
 
     let mut page = Flex::default_fill().column().with_id("Page");
 
     let mut header = Flex::default_fill().with_id("Header"); // HEADER
-    crate::menu("Menu", &mut header);
+    header.fixed(&crate::menu("Menu"), HEIGHT);
     Frame::default();
-    let lang = crate::list();
-    crate::choice("From", &lang, params[4], &mut header).set_callback(move |_| crate::rename());
-    crate::button("Switch", "@#refresh", &mut header).set_callback(crate::switch);
-    crate::choice("To", &lang, params[5], &mut header).set_callback(move |_| crate::rename());
+    let mut bar = Flex::default();
+    crate::input("From");
+    crate::button("Switch", "@#refresh", &mut bar).set_callback(crate::switch);
+    crate::input("To");
+    bar.end();
+    bar.set_pad(0);
+    header.fixed(&bar, WIDTH * 2 + HEIGHT);
     Frame::default();
     crate::button("Speak", "@#<", &mut header).with_type(ButtonType::Toggle);
     header.end();
@@ -59,11 +73,15 @@ fn app() {
     let mut footer = Flex::default_fill().with_id("Footer"); //FOOTER
     crate::button("Open...", "@#fileopen", &mut footer).set_callback(crate::open);
     Frame::default();
-    crate::choice("Fonts", &app::fonts().join("|"), params[6], &mut footer)
-        .set_callback(crate::font);
-    crate::button("Translate", "@#circle", &mut footer).set_callback(crate::translate);
-    crate::counter("Size", params[7] as f64, &mut footer).with_type(CounterType::Simple);
-    crate::dial("Spinner", &mut footer);
+    footer.fixed(&Frame::default(), HEIGHT);
+    let mut bar = Flex::default();
+    crate::choice("Fonts", &app::fonts().join("|"), params[4]).set_callback(crate::font);
+    crate::button("Translate", "@#circle", &mut bar).set_callback(crate::translate);
+    crate::counter("Size", params[5] as f64).with_type(CounterType::Simple);
+    bar.end();
+    bar.set_pad(0);
+    footer.fixed(&bar, WIDTH * 2 + HEIGHT);
+    footer.fixed(&crate::dial("Spinner"), HEIGHT);
     Frame::default();
     crate::button("Save as...", "@#filesaveas", &mut footer).set_callback(crate::save);
 
@@ -76,7 +94,8 @@ fn app() {
     {
         header.set_pad(SPACE);
         hero.set_pad(0);
-        footer.set_pad(SPACE);
+        hero.set_margin(0);
+        footer.set_pad(0);
         page.fixed(&header, HEIGHT);
         page.fixed(&footer, HEIGHT);
         page.set_margin(SPACE);
@@ -101,6 +120,20 @@ fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
     element.set_label_size(HEIGHT / 2);
     flex.fixed(&element, HEIGHT);
     element
+}
+
+fn search(input: &mut Input, label: &str) {
+    let model = app::GlobalState::<Model>::get();
+    let mut choice = app::widget_from_id::<InputChoice>(label).unwrap();
+    choice.clear();
+    for lang in model.with(|model| model.languages.clone()) {
+        if lang
+            .to_lowercase()
+            .starts_with(&input.value().to_lowercase())
+        {
+            choice.add(&lang);
+        }
+    }
 }
 
 fn handle(tooltip: &str) -> Frame {
@@ -147,7 +180,7 @@ fn handle(tooltip: &str) -> Frame {
     element
 }
 
-fn counter(tooltip: &str, value: f64, flex: &mut Flex) -> Counter {
+fn counter(tooltip: &str, value: f64) -> Counter {
     let mut element = Counter::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_range(14_f64, 22_f64);
@@ -161,12 +194,11 @@ fn counter(tooltip: &str, value: f64, flex: &mut Flex) -> Counter {
             }
         }
     });
-    flex.fixed(&element, WIDTH - HEIGHT - SPACE);
     element.do_callback();
     element
 }
 
-fn dial(tooltip: &str, flex: &mut Flex) -> Dial {
+fn dial(tooltip: &str) -> Dial {
     const DIAL: u8 = 120;
     let mut element = Dial::default().with_id(tooltip);
     element.deactivate();
@@ -179,20 +211,28 @@ fn dial(tooltip: &str, flex: &mut Flex) -> Dial {
             dial.value() + 1f64
         })
     });
-    flex.fixed(&element, HEIGHT);
     element
 }
 
-fn choice(tooltip: &str, choice: &str, value: u8, flex: &mut Flex) -> Choice {
+fn choice(tooltip: &str, choice: &str, value: u8) -> Choice {
     let mut element = Choice::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.add_choice(choice);
     element.set_value(value as i32);
-    flex.fixed(&element, WIDTH);
     element
 }
 
-fn text(tooltip: &str) -> TextEditor {
+fn input(tooltip: &'static str) {
+    let mut element = InputChoice::default().with_id(tooltip);
+    element.set_tooltip(tooltip);
+    element
+        .input()
+        .set_callback(move |input| crate::search(input, tooltip));
+    element.input().do_callback();
+    element.set_callback(move |_| crate::rename());
+}
+
+fn text(tooltip: &str) {
     let mut element = TextEditor::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_linenumber_width(HEIGHT);
@@ -200,10 +240,9 @@ fn text(tooltip: &str) -> TextEditor {
     element.wrap_mode(WrapMode::AtBounds, 0);
     element.set_color(Color::from_hex(0x002b36));
     element.set_text_color(Color::from_hex(0x93a1a1));
-    element
 }
 
-fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
+fn menu(tooltip: &str) -> MenuButton {
     let mut element = MenuButton::default().with_id(tooltip);
     element.set_tooltip(tooltip);
     let idx: i32 = element.add(
@@ -238,7 +277,6 @@ fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
         },
     );
     element.at(ord).unwrap().set_label_color(Color::Red);
-    flex.fixed(&element, HEIGHT);
     element
 }
 
@@ -323,38 +361,38 @@ fn hide(_: &mut MenuButton) {
 }
 
 fn rename() {
-    // app::first_window().unwrap().set_label(&format!(
-    //     "Translate from {} to {} - {NAME}",
-    //     app::widget_from_id::<Choice>("From")
-    //         .unwrap()
-    //         .choice()
-    //         .unwrap(),
-    //     app::widget_from_id::<Choice>("To")
-    //         .unwrap()
-    //         .choice()
-    //         .unwrap(),
-    // ));
+    app::first_window().unwrap().set_label(&format!(
+        "Translate from {} to {} - {NAME}",
+        app::widget_from_id::<InputChoice>("From")
+            .unwrap()
+            .value()
+            .unwrap(),
+        app::widget_from_id::<InputChoice>("To")
+            .unwrap()
+            .value()
+            .unwrap(),
+    ));
 }
 
 fn switch(_: &mut Button) {
-    let mut from = app::widget_from_id::<Choice>("From").unwrap();
-    let mut to = app::widget_from_id::<Choice>("To").unwrap();
+    let mut from = app::widget_from_id::<InputChoice>("From").unwrap();
+    let mut to = app::widget_from_id::<InputChoice>("To").unwrap();
     if from.value() != to.value() {
-        let temp = from.value();
-        from.set_value(to.value());
-        to.set_value(temp);
+        let temp = from.value().unwrap();
+        from.set_value(&to.value().unwrap());
+        to.set_value(&temp);
         crate::rename();
     }
 }
 
 fn translate(button: &mut Button) {
-    let from = app::widget_from_id::<Choice>("From")
+    let from = app::widget_from_id::<InputChoice>("From")
         .unwrap()
-        .choice()
+        .value()
         .unwrap();
-    let to = app::widget_from_id::<Choice>("To")
+    let to = app::widget_from_id::<InputChoice>("To")
         .unwrap()
-        .choice()
+        .value()
         .unwrap();
     let source = app::widget_from_id::<TextEditor>("Source")
         .unwrap()
@@ -407,15 +445,13 @@ fn window() -> (Window, Vec<u8>) {
   <rect width="254" height="93" id="rect26" style="fill:url(#linearGradient8)"/>
   <path d="m 72,11.5 -60.5,0 0,78.5 m 0,-43 44.5,0 m 27.5,-44 0,78.5 51.5,0 m -25,-70 70,0 m -33.5,0 0,78.5 m 45,-87 0,87 m 71,-101 -57.75,57.75 57.75,57.75" id="path28" style="fill:none;stroke:#ffffff;stroke-width:17"/>
 </svg>"#;
-    const DEFAULT: [u8; 8] = [
+    const DEFAULT: [u8; 6] = [
         1,   // [0] window_width * U8 +
         105, // [1] window_width_fract
         2,   // [2] window_height * U8 +
         130, // [3] window_height_fract
-        119, // [5] header_from
-        35,  // [6] header_to
-        1,   // [7] footer_font
-        14,  // [8] footer_size
+        1,   // [4] footer_font
+        14,  // [5] footer_size
     ];
     const U8: i32 = 255;
     const CONFIG: &str = "/.config/";
@@ -442,7 +478,7 @@ fn window() -> (Window, Vec<u8>) {
         .center_screen();
     element.size_range(
         DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
-        DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
+        DEFAULT[2] as i32 * U8 + DEFAULT[3] as i32,
         0,
         0,
     );
@@ -475,8 +511,6 @@ fn window() -> (Window, Vec<u8>) {
                     (window.width() % U8) as u8,
                     (window.height() / U8) as u8,
                     (window.height() % U8) as u8,
-                    app::widget_from_id::<Choice>("From").unwrap().value() as u8,
-                    app::widget_from_id::<Choice>("To").unwrap().value() as u8,
                     app::widget_from_id::<Choice>("Fonts").unwrap().value() as u8,
                     app::widget_from_id::<Counter>("Size").unwrap().value() as u8,
                 ],
@@ -537,23 +571,22 @@ fn run(voice: bool, from: String, to: String, word: String) -> String {
     .to_string()
 }
 
-fn list() -> String {
-    // if cfg!(target_family = "unix") {
-    //     let run = Command::new("trans")
-    //         .arg("-list-languages-english")
-    //         .output()
-    //         .expect("failed to execute bash");
-    //     match run.status.success() {
-    //         true => String::from_utf8_lossy(&run.stdout)
-    //             .lines()
-    //             .map(str::to_string)
-    //             .collect::<Vec<String>>()
-    //             .join("|"),
-    //         false => panic!("\x1b[31m{}\x1b[0m", String::from_utf8_lossy(&run.stderr)),
-    //     }
-    // } else {
-        "no way".to_string()
-    // }
+fn list() -> Vec<String> {
+    if cfg!(target_family = "unix") {
+        let run = Command::new("trans")
+            .arg("-list-languages-english")
+            .output()
+            .expect("failed to execute bash");
+        match run.status.success() {
+            true => String::from_utf8_lossy(&run.stdout)
+                .lines()
+                .map(str::to_string)
+                .collect::<Vec<String>>(),
+            false => panic!("\x1b[31m{}\x1b[0m", String::from_utf8_lossy(&run.stderr)),
+        }
+    } else {
+        Vec::from(["no way".to_string()])
+    }
 }
 
 fn once() -> bool {

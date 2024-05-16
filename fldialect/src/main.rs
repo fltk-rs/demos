@@ -231,6 +231,7 @@ fn input(tooltip: &'static str) {
         .input()
         .set_callback(move |input| crate::search(input, tooltip));
     element.input().do_callback();
+    element.set_value_index(0);
     element.set_callback(move |_| crate::rename());
 }
 

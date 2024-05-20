@@ -1,26 +1,62 @@
 #![forbid(unsafe_code)]
 use {
     cairo::{Context, Format, ImageSurface},
-    fltk::{button::Button, enums::*, prelude::*, window::Window, *},
+    fltk::{button::Button, enums::*, frame::Frame, group::Flex, prelude::*, window::Window, *},
 };
 
-fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Base);
+const INC: i32 = 101;
+const DEC: i32 = 102;
+
+fn main() -> Result<(), FltkError> {
+    let mut value: u8 = 0;
+    let app = app::App::default();
     let mut window = crate::window();
-    crate::cairobutton()
-        .with_size(200, 200)
-        .with_label("Cairo")
+    let page = Flex::default()
+        .with_size(300, 200)
         .center_of_parent()
-        .set_callback(|_| println!("clicked!"));
+        .column();
+    Frame::default()
+        .with_label(&value.to_string())
+        .handle(move |frame, event| match event.bits() {
+            crate::INC => {
+                if value < 255 {
+                    value = value.saturating_add(1);
+                    frame.set_label(&value.to_string());
+                }
+                true
+            }
+            crate::DEC => {
+                if value > 0 {
+                    value = value.saturating_sub(1);
+                    frame.set_label(&value.to_string());
+                }
+                true
+            }
+            _ => false,
+        });
+    let row = Flex::default();
+    for label in ["@#<", "@#>"] {
+        crate::cairobutton()
+            .with_label(label)
+            .set_callback(move |button| {
+                app::handle_main(match button.label() == "@#<" {
+                    true => crate::DEC,
+                    false => crate::INC,
+                })
+                .unwrap();
+            });
+    }
+    row.end();
+    page.end();
     window.end();
     window.show();
-    app.run().unwrap();
+    app.run()
 }
 
 fn window() -> Window {
     let mut element = Window::default()
         .with_label("Demo: Cairo")
-        .with_size(600, 600)
+        .with_size(640, 360)
         .center_screen();
     element.set_color(Color::White);
     element.make_resizable(true);

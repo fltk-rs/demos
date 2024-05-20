@@ -154,10 +154,9 @@ impl Widget {
     }
 }
 
-fn main() {
-    let app = app::App::default();
+fn main() -> Result<(), FltkError> {
     Widget::view();
-    app.run().unwrap();
+    app::App::default().run()
 }
 
 fn window() -> Window {

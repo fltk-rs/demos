@@ -11,15 +11,18 @@ use {
         prelude::*,
         text::{StyleTableEntry, TextBuffer, TextDisplay, WrapMode},
         window::Window,
+        valuator::Dial,
         *,
     },
     fltk_theme::{color_themes, ColorTheme},
     json_tools::{Buffer, BufferType, Lexer, Span, TokenType},
-    ureq::Error,
+    ureq::{Response,Error},
+    std::thread,
 };
 
 #[derive(Clone)]
 struct Widget {
+    dial: Dial,
     buffer: TextBuffer,
     choice: Choice,
     input: InputChoice,
@@ -36,7 +39,7 @@ impl Widget {
         header.fixed(&Frame::default(), WIDTH);
         let choice = crate::choice();
         header.fixed(&Frame::default(), WIDTH);
-        let mut input = crate::input();
+        let input = crate::input();
         header.fixed(&crate::info(), HEIGHT);
         header.end();
 
@@ -48,6 +51,8 @@ impl Widget {
         let mut footer = Flex::default(); //FOOTER
         footer.fixed(&Frame::default().with_label("Status: "), WIDTH);
         let status = Frame::default().with_align(Align::Left | Align::Inside);
+        let dial = crate::dial("Spinner");
+        footer.fixed(&dial, HEIGHT);
         footer.end();
 
         page.end();
@@ -57,19 +62,23 @@ impl Widget {
             header.set_pad(PAD);
             header.fixed(&choice, WIDTH);
             page.fixed(&header, HEIGHT);
-            page.fixed(&footer, 20);
+            page.fixed(&footer, HEIGHT);
             page.set_pad(PAD);
             page.set_margin(PAD);
             page.set_frame(FrameType::FlatBox);
-            input.set_trigger(CallbackTrigger::EnterKeyAlways);
         }
-        let component = Self {
+        let mut component = Self {
+            dial,
             buffer,
             choice,
             input,
             text,
             status,
         };
+        let mut clone = component.clone();
+        component
+            .input
+            .set_callback(move |_| clone.update());
         let mut clone = component.clone();
         component
             .input
@@ -91,27 +100,37 @@ impl Widget {
             1 => ureq::post(&path),
             _ => unreachable!(),
         };
-        match req.call() {
-            Ok(response) => {
-                if let Ok(json) = response.into_json::<serde_json::Value>() {
-                    let json: String = serde_json::to_string_pretty(&json).unwrap();
-                    self.text.buffer().unwrap().set_text(&json);
-                    self.fill_style_buffer(&json);
-                    self.status.set_label("200 OK");
-                    self.status.set_label_color(enums::Color::Yellow);
-                } else {
-                    dialog::message_default("Error parsing json");
+        let handler = thread::spawn(move || -> Result<Response, Error> {
+            req.call()
+        });
+        while !handler.is_finished() {
+            app::wait();
+            app::sleep(0.02);
+            self.dial.do_callback();
+        }
+        if let Ok(req) = handler.join() {
+            match req {
+                Ok(response) => {
+                    if let Ok(json) = response.into_json::<serde_json::Value>() {
+                        let json: String = serde_json::to_string_pretty(&json).unwrap();
+                        self.text.buffer().unwrap().set_text(&json);
+                        self.fill_style_buffer(&json);
+                        self.status.set_label("200 OK");
+                        self.status.set_label_color(enums::Color::Yellow);
+                    } else {
+                        dialog::message_default("Error parsing json");
+                    }
+                }
+                Err(Error::Status(code, response)) => {
+                    self.status
+                        .set_label(&format!("{} {}", code, response.status_text()));
+                    self.status.set_label_color(enums::Color::Red);
+                }
+                Err(e) => {
+                    dialog::message_default(&e.to_string());
                 }
             }
-            Err(Error::Status(code, response)) => {
-                self.status
-                    .set_label(&format!("{} {}", code, response.status_text()));
-                self.status.set_label_color(enums::Color::Red);
-            }
-            Err(e) => {
-                dialog::message_default(&e.to_string());
-            }
-        }
+        };
     }
     fn fill_style_buffer(&mut self, s: &str) {
         let mut buffer = vec![b'A'; s.len()];
@@ -198,9 +217,28 @@ fn choice() -> Choice {
 fn input() -> InputChoice {
     let mut element = InputChoice::default().with_label("URL: ");
     for item in ["users", "posts", "albums", "todos", "comments", "posts"] {
-        element.add(&(format!("https://jsonplaceholder.typicode.com/{item}")));
+        element.add(&(format!(r#"https:\/\/jsonplaceholder.typicode.com\/{item}"#)));
     }
-    element.set_value_index(1);
+    element.add(r#"https:\/\/lingva.ml\/api\/v1\/languages"#);
+    element.add(r#"https:\/\/ipinfo.io\/json"#);
+    element.input().set_trigger(CallbackTrigger::EnterKeyAlways);
+    element.set_value_index(0);
+    element
+}
+
+fn dial(tooltip: &str) -> Dial {
+    const DIAL: u8 = 120;
+    let mut element = Dial::default().with_id(tooltip);
+    element.deactivate();
+    element.set_maximum((DIAL / 4 * 3) as f64);
+    element.set_precision(0);
+    element.set_callback(move |dial| {
+        dial.set_value(if dial.value() == (DIAL - 1) as f64 {
+            dial.minimum()
+        } else {
+            dial.value() + 1f64
+        })
+    });
     element
 }
 

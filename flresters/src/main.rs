@@ -10,15 +10,17 @@ use {
         misc::InputChoice,
         prelude::*,
         text::{StyleTableEntry, TextBuffer, TextDisplay, WrapMode},
-        window::Window,
         valuator::Dial,
+        window::Window,
         *,
     },
     fltk_theme::{color_themes, ColorTheme},
     json_tools::{Buffer, BufferType, Lexer, Span, TokenType},
-    ureq::{Response,Error},
     std::thread,
+    ureq::{Error, Response},
 };
+
+const DIAL: &str = "Spinner";
 
 #[derive(Clone)]
 struct Widget {
@@ -50,8 +52,7 @@ impl Widget {
         let mut footer = Flex::default(); //FOOTER
         footer.fixed(&Frame::default().with_label("Status: "), WIDTH);
         let status = Frame::default().with_align(Align::Left | Align::Inside);
-        let dial = crate::dial("Spinner");
-        footer.fixed(&dial, HEIGHT);
+        footer.fixed(&crate::dial(), HEIGHT);
         footer.end();
 
         page.end();
@@ -74,9 +75,7 @@ impl Widget {
             status,
         };
         let mut clone = component.clone();
-        component
-            .input
-            .set_callback(move |_| clone.update());
+        component.input.set_callback(move |_| clone.update());
         let mut clone = component.clone();
         component
             .input
@@ -98,13 +97,13 @@ impl Widget {
             1 => ureq::post(&path),
             _ => unreachable!(),
         };
-        let handler = thread::spawn(move || -> Result<Response, Error> {
-            req.call()
-        });
+        let handler = thread::spawn(move || -> Result<Response, Error> { req.call() });
         while !handler.is_finished() {
             app::wait();
             app::sleep(0.02);
-            app::handle_main(crate::DIAL).unwrap;
+            app::widget_from_id::<Dial>(crate::DIAL)
+                .unwrap()
+                .do_callback();
         }
         if let Ok(req) = handler.join() {
             match req {
@@ -223,25 +222,22 @@ fn input() -> InputChoice {
     element
 }
 
-fn dial(tooltip: &str) -> Dial {
+fn dial() -> Dial {
     const DIAL: u8 = 120;
-    let mut element = Dial::default().with_id(tooltip);
+    let mut element = Dial::default().with_id(crate::DIAL);
     element.deactivate();
     element.set_maximum((DIAL / 4 * 3) as f64);
     element.set_precision(0);
-    element.handle(move |dial, event| if event.bits() == crate::DIAL {
-        dial.set_value(match dial.value() == (DIAL - 1) as f64 {
-            true => dial.minimum(),
-            false => dial.value() + 1f64,
-        });
-        true
-    } else {
-        false
+    element.set_callback(move |dial| {
+        dial.set_value(if dial.value() == (DIAL - 1) as f64 {
+            dial.minimum()
+        } else {
+            dial.value() + 1f64
+        })
     });
     element
 }
 
-const DIAL: i32 = 101;
 const PAD: i32 = 10;
 const HEIGHT: i32 = PAD * 3;
 const WIDTH: i32 = HEIGHT * 3;

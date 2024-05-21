@@ -26,6 +26,19 @@ use {
 };
 
 const NAME: &str = "FlDialect";
+const DIAL: &str = "Spinner";
+const FROM: &str = "From";
+const TO: &str = "To";
+const SOURCE: &str = "Source";
+const TARGET: &str = "Target";
+const PAGE: &str = "Page";
+const HERO: &str = "Hero";
+const FOOTER: &str = "Footer";
+const FONTS: &str = "Fonts";
+const SIZE: &str = "Size";
+const TRANSLATE: &str = "Translate";
+const SPEAK: &str = "Speak";
+const HANDLE: &str = "Handle";
 const WIDTH: i32 = 125;
 const SPACE: i32 = 10;
 const HEIGHT: i32 = SPACE * 3;
@@ -48,40 +61,40 @@ fn app() {
     let app = app::App::default();
     let (mut window, params) = crate::window();
 
-    let mut page = Flex::default_fill().column().with_id("Page");
+    let mut page = Flex::default_fill().column().with_id(crate::PAGE);
 
-    let mut header = Flex::default_fill().with_id("Header"); // HEADER
-    header.fixed(&crate::menu("Menu"), HEIGHT);
+    let mut header = Flex::default_fill(); // HEADER
+    header.fixed(&crate::menu(), HEIGHT);
     Frame::default();
     let mut bar = Flex::default();
-    crate::input("From");
+    crate::input(crate::FROM);
     crate::button("Switch", "@#refresh", &mut bar).set_callback(crate::switch);
-    crate::input("To");
+    crate::input(crate::TO);
     bar.end();
     bar.set_pad(0);
     header.fixed(&bar, WIDTH * 2 + HEIGHT);
     Frame::default();
-    crate::button("Speak", "@#<", &mut header).with_type(ButtonType::Toggle);
+    crate::button(crate::SPEAK, "@#<", &mut header).with_type(ButtonType::Toggle);
     header.end();
 
-    let mut hero = Flex::default().column().with_id("Hero"); //HERO
-    crate::text("Source");
-    crate::handle("Handle");
-    crate::text("Target");
+    let mut hero = Flex::default().column().with_id(crate::HERO); //HERO
+    crate::text(crate::SOURCE);
+    crate::handle(crate::HANDLE);
+    crate::text(crate::TARGET);
     hero.end();
 
-    let mut footer = Flex::default_fill().with_id("Footer"); //FOOTER
+    let mut footer = Flex::default_fill().with_id(crate::FOOTER); //FOOTER
     crate::button("Open...", "@#fileopen", &mut footer).set_callback(crate::open);
     Frame::default();
     footer.fixed(&Frame::default(), HEIGHT);
     let mut bar = Flex::default();
     crate::choice("Fonts", &app::fonts().join("|"), params[4]).set_callback(crate::font);
-    crate::button("Translate", "@#circle", &mut bar).set_callback(crate::translate);
+    crate::button(crate::TRANSLATE, "@#circle", &mut bar).set_callback(crate::translate);
     crate::counter("Size", params[5] as f64);
     bar.end();
     bar.set_pad(0);
     footer.fixed(&bar, WIDTH * 2 + HEIGHT);
-    footer.fixed(&crate::dial("Spinner"), HEIGHT);
+    footer.fixed(&crate::dial(), HEIGHT);
     Frame::default();
     crate::button("Save as...", "@#filesaveas", &mut footer).set_callback(crate::save);
 
@@ -104,10 +117,10 @@ fn app() {
         ColorTheme::new(color_themes::DARK_THEME).apply();
         app::set_color(Color::Blue, 200, 200, 255);
         crate::rename();
-        app::widget_from_id::<Choice>("Fonts")
+        app::widget_from_id::<Choice>(crate::FONTS)
             .unwrap()
             .do_callback();
-        app::widget_from_id::<Counter>("Size")
+        app::widget_from_id::<Counter>(crate::SIZE)
             .unwrap()
             .do_callback();
     }
@@ -136,14 +149,14 @@ fn search(input: &mut Input, label: &str) {
     }
 }
 
-fn handle(tooltip: &str) -> Frame {
+fn handle(tooltip: &str) {
     let mut element = Frame::default().with_id(tooltip);
     element.handle(move |frame, event| {
-        let mut hero = app::widget_from_id::<Flex>("Hero").unwrap();
+        let mut hero = app::widget_from_id::<Flex>(crate::HERO).unwrap();
         match event {
             Event::Push => true,
             Event::Drag => {
-                let editor = app::widget_from_id::<TextEditor>("Source").unwrap();
+                let editor = app::widget_from_id::<TextEditor>(crate::SOURCE).unwrap();
                 match hero.get_type() {
                     FlexType::Column => {
                         if (hero.y()..=hero.height() + hero.y() - frame.height())
@@ -177,7 +190,6 @@ fn handle(tooltip: &str) -> Frame {
             _ => false,
         }
     });
-    element
 }
 
 fn counter(tooltip: &str, value: f64) -> Counter {
@@ -189,7 +201,7 @@ fn counter(tooltip: &str, value: f64) -> Counter {
     element.set_precision(0);
     element.set_value(value);
     element.set_callback(move |size| {
-        for label in ["Source", "Target"] {
+        for label in [crate::SOURCE, crate::TARGET] {
             if let Some(mut text) = app::widget_from_id::<TextEditor>(label) {
                 text.set_text_size(size.value() as i32);
                 text.redraw();
@@ -200,9 +212,9 @@ fn counter(tooltip: &str, value: f64) -> Counter {
     element
 }
 
-fn dial(tooltip: &str) -> Dial {
+fn dial() -> Dial {
     const DIAL: u8 = 120;
-    let mut element = Dial::default().with_id(tooltip);
+    let mut element = Dial::default().with_id(crate::DIAL);
     element.deactivate();
     element.set_maximum((DIAL / 4 * 3) as f64);
     element.set_precision(0);
@@ -245,9 +257,9 @@ fn text(tooltip: &str) {
     element.set_text_color(Color::from_hex(0x93a1a1));
 }
 
-fn menu(tooltip: &str) -> MenuButton {
-    let mut element = MenuButton::default().with_id(tooltip);
-    element.set_tooltip(tooltip);
+fn menu() -> MenuButton {
+    let mut element = MenuButton::default();
+    element.set_tooltip("Menu");
     let idx: i32 = element.add(
         "&View/&Footer\t",
         Shortcut::None,
@@ -260,7 +272,7 @@ fn menu(tooltip: &str) -> MenuButton {
         Shortcut::Ctrl | 'r',
         MenuFlag::Normal,
         move |_| {
-            app::widget_from_id::<Button>("Translate")
+            app::widget_from_id::<Button>(crate::TRANSLATE)
                 .unwrap()
                 .do_callback()
         },
@@ -313,7 +325,7 @@ fn open(_: &mut Button) {
     }
     if dialog.count() > 0 {
         if let Some(file) = dialog.value(1) {
-            app::widget_from_id::<TextEditor>("Source")
+            app::widget_from_id::<TextEditor>(crate::SOURCE)
                 .unwrap()
                 .buffer()
                 .unwrap()
@@ -324,7 +336,7 @@ fn open(_: &mut Button) {
     };
 }
 fn save(_: &mut Button) {
-    if let Some(mut editor) = app::widget_from_id::<TextEditor>("Target")
+    if let Some(mut editor) = app::widget_from_id::<TextEditor>(crate::TARGET)
         .unwrap()
         .buffer()
     {
@@ -351,8 +363,8 @@ fn save(_: &mut Button) {
 }
 
 fn hide(_: &mut MenuButton) {
-    let mut page = app::widget_from_id::<Flex>("Page").unwrap();
-    let mut footer = app::widget_from_id::<Flex>("Footer").unwrap();
+    let mut page = app::widget_from_id::<Flex>(crate::PAGE).unwrap();
+    let mut footer = app::widget_from_id::<Flex>(crate::FOOTER).unwrap();
     if footer.visible() {
         page.fixed(&footer, 0);
         footer.hide();
@@ -366,11 +378,11 @@ fn hide(_: &mut MenuButton) {
 fn rename() {
     app::first_window().unwrap().set_label(&format!(
         "Translate from {} to {} - {NAME}",
-        app::widget_from_id::<InputChoice>("From")
+        app::widget_from_id::<InputChoice>(crate::FROM)
             .unwrap()
             .value()
             .unwrap(),
-        app::widget_from_id::<InputChoice>("To")
+        app::widget_from_id::<InputChoice>(crate::TO)
             .unwrap()
             .value()
             .unwrap(),
@@ -378,8 +390,8 @@ fn rename() {
 }
 
 fn switch(_: &mut Button) {
-    let mut from = app::widget_from_id::<InputChoice>("From").unwrap();
-    let mut to = app::widget_from_id::<InputChoice>("To").unwrap();
+    let mut from = app::widget_from_id::<InputChoice>(crate::FROM).unwrap();
+    let mut to = app::widget_from_id::<InputChoice>(crate::TO).unwrap();
     if from.value() != to.value() {
         let temp = from.value().unwrap();
         from.set_value(&to.value().unwrap());
@@ -389,31 +401,32 @@ fn switch(_: &mut Button) {
 }
 
 fn translate(button: &mut Button) {
-    let from = app::widget_from_id::<InputChoice>("From")
+    let from = app::widget_from_id::<InputChoice>(crate::FROM)
         .unwrap()
         .value()
         .unwrap();
-    let to = app::widget_from_id::<InputChoice>("To")
+    let to = app::widget_from_id::<InputChoice>(crate::TO)
         .unwrap()
         .value()
         .unwrap();
-    let source = app::widget_from_id::<TextEditor>("Source")
+    let source = app::widget_from_id::<TextEditor>(crate::SOURCE)
         .unwrap()
         .buffer()
         .unwrap()
         .text();
     if from != to && !source.is_empty() {
         button.deactivate();
-        let voice = app::widget_from_id::<Button>("Speak").unwrap().value();
+        let voice = app::widget_from_id::<Button>(crate::SPEAK).unwrap().value();
         let handler = thread::spawn(move || -> String { crate::run(voice, from, to, source) });
-        let mut dial = app::widget_from_id::<Dial>("Spinner").unwrap();
         while !handler.is_finished() {
             app::wait();
             app::sleep(0.02);
-            dial.do_callback();
+            app::widget_from_id::<Dial>(crate::DIAL)
+                .unwrap()
+                .do_callback();
         }
         if let Ok(msg) = handler.join() {
-            app::widget_from_id::<TextEditor>("Target")
+            app::widget_from_id::<TextEditor>(TARGET)
                 .unwrap()
                 .buffer()
                 .unwrap()
@@ -490,8 +503,8 @@ fn window() -> (Window, Vec<u8>) {
     element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
     element.handle(move |window, event| {
         if event == Event::Resize {
-            let mut flex = app::widget_from_id::<Flex>("Hero").unwrap();
-            let from = app::widget_from_id::<TextEditor>("Source").unwrap();
+            let mut flex = app::widget_from_id::<Flex>(crate::HERO).unwrap();
+            let from = app::widget_from_id::<TextEditor>(crate::SOURCE).unwrap();
             if window.width() < window.height() {
                 flex.set_type(FlexType::Column);
                 flex.fixed(&from, 0);
@@ -499,7 +512,7 @@ fn window() -> (Window, Vec<u8>) {
                 flex.set_type(FlexType::Row);
                 flex.fixed(&from, 0);
             };
-            flex.fixed(&app::widget_from_id::<Frame>("Handle").unwrap(), SPACE);
+            flex.fixed(&app::widget_from_id::<Frame>(crate::HANDLE).unwrap(), SPACE);
             true
         } else {
             false
@@ -514,8 +527,8 @@ fn window() -> (Window, Vec<u8>) {
                     (window.width() % U8) as u8,
                     (window.height() / U8) as u8,
                     (window.height() % U8) as u8,
-                    app::widget_from_id::<Choice>("Fonts").unwrap().value() as u8,
-                    app::widget_from_id::<Counter>("Size").unwrap().value() as u8,
+                    app::widget_from_id::<Choice>(crate::FONTS).unwrap().value() as u8,
+                    app::widget_from_id::<Counter>(crate::SIZE).unwrap().value() as u8,
                 ],
             )
             .unwrap();
@@ -525,7 +538,7 @@ fn window() -> (Window, Vec<u8>) {
     (element, params)
 }
 fn font(font: &mut Choice) {
-    for label in ["Source", "Target"] {
+    for label in [crate::SOURCE, crate::TARGET] {
         if let Some(mut text) = app::widget_from_id::<TextEditor>(label) {
             text.set_text_font(Font::by_name(&font.choice().unwrap()));
             text.redraw();

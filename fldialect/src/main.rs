@@ -43,11 +43,6 @@ const WIDTH: i32 = 125;
 const SPACE: i32 = 10;
 const HEIGHT: i32 = SPACE * 3;
 
-#[derive(Clone)]
-struct Model {
-    languages: Vec<String>,
-}
-
 fn main() {
     if crate::once() {
         app();
@@ -55,9 +50,7 @@ fn main() {
 }
 
 fn app() {
-    app::GlobalState::new(Model {
-        languages: crate::list(),
-    });
+    app::GlobalState::new(crate::list());
     let app = app::App::default();
     let (mut window, params) = crate::window();
 
@@ -136,10 +129,9 @@ fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
 }
 
 fn search(input: &mut Input, label: &str) {
-    let model = app::GlobalState::<Model>::get();
     let mut choice = app::widget_from_id::<InputChoice>(label).unwrap();
     choice.clear();
-    for lang in model.with(|model| model.languages.clone()) {
+    for lang in app::GlobalState::<Vec<String>>::get().with(|languages| languages.clone()) {
         if lang
             .to_lowercase()
             .starts_with(&input.value().to_lowercase())

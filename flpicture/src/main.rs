@@ -68,7 +68,7 @@ fn button(tooltip: &str, label: &str, msg: i32, flex: &mut Flex) {
     let mut element = Button::default().with_label(label);
     element.set_tooltip(tooltip);
     element.set_callback(move |_| {
-        app::handle_main(msg).unwrap();
+        app::handle_main(Event::from_i32(msg)).unwrap();
     });
     flex.fixed(&element, crate::HEIGHT);
 }
@@ -144,7 +144,7 @@ fn browser_handle(browser: &mut Browser, event: Event) -> bool {
                 }
                 _ => {}
             };
-            app::handle_main(crate::NEXT).unwrap();
+            app::handle_main(Event::from_i32(crate::NEXT)).unwrap();
             true
         }
         crate::OPEN => {

@@ -39,10 +39,10 @@ fn main() -> Result<(), FltkError> {
         crate::cairobutton()
             .with_label(label)
             .set_callback(move |button| {
-                app::handle_main(match button.label() == "@#<" {
+                app::handle_main(Event::from_i32(match button.label() == "@#<" {
                     true => crate::DEC,
                     false => crate::INC,
-                })
+                }))
                 .unwrap();
             });
     }

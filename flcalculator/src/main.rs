@@ -11,40 +11,48 @@ use {
         group::Flex,
         image::SvgImage,
         menu::{MenuButton, MenuButtonType, MenuFlag},
-        prelude::{ButtonExt, DisplayExt, GroupExt, MenuExt, WidgetBase, WidgetExt, WindowExt},
+        prelude::*,
         text::{TextBuffer, TextDisplay, WrapMode},
         window::Window,
     },
     std::{env, fs, path::Path},
 };
 
-const BUTTONS: [[&str; 4]; 5] = [
+const PAD: i32 = 10;
+const HEIGHT: i32 = PAD * 3;
+const PAGE: &str = "Page";
+const BUTTONS: &str = "Buttons";
+const OUTPUT: &str = "Output";
+const PREVIOUS: &str = "Previous";
+const OPERATION: &str = "Operation";
+const CURRENT: &str = "Current";
+const MENU: &str = "Menu";
+const EQUAL: &str = "=";
+const LABELS: [[&str; 4]; 5] = [
     ["CE", "C", "%", "/"],
     ["7", "8", "9", "x"],
     ["4", "5", "6", "-"],
     ["1", "2", "3", "+"],
-    ["0", ".", "@<-", "="],
+    ["0", ".", "@<-", crate::EQUAL],
 ];
-const PAD: i32 = 10;
-const HEIGHT: i32 = PAD * 3;
 
-fn main() {
+fn main() -> Result<(), FltkError> {
     // let mut temp: f64 = 0.0;
     let app = app::App::default();
     let (mut window, theme) = crate::window();
-    let mut page = Flex::default_fill().column().with_id("Page");
-    crate::display("Output");
+    let mut page = Flex::default_fill().column().with_id(crate::PAGE);
+    crate::display(crate::OUTPUT);
     let mut row = Flex::default();
-    row.fixed(&crate::output("Operation", ""), 30);
+    row.fixed(&crate::output(crate::OPERATION, ""), 30);
     let mut col = Flex::default().column();
-    crate::output("Previous", "0");
-    crate::output("Current", "0");
+    crate::output(crate::PREVIOUS, "0");
+    crate::output(crate::CURRENT, "0");
     col.end();
     col.set_pad(0);
     row.end();
     row.set_pad(0);
-    let mut buttons = Flex::default_fill().column().with_id("Buttons");
-    for line in BUTTONS {
+    let mut buttons = Flex::default_fill().column().with_id(crate::BUTTONS);
+    for line in crate::LABELS {
         let mut row = Flex::default();
         for label in line {
             button(label).set_callback(crate::run);
@@ -57,7 +65,7 @@ fn main() {
     page.end();
     window.end();
     window.show();
-    crate::menu("Menu", theme);
+    crate::menu(crate::MENU, theme);
     {
         row.set_pad(PAD);
         row.set_margin(0);
@@ -70,7 +78,7 @@ fn main() {
         page.fixed(&buttons, 425);
         app::set_font(Font::Courier);
     }
-    app.run().unwrap();
+    app.run()
 }
 
 fn button(title: &'static str) -> Button {
@@ -80,13 +88,13 @@ fn button(title: &'static str) -> Button {
     match title {
         "@<-" => element.set_shortcut(Shortcut::None | Key::BackSpace),
         "CE" => element.set_shortcut(Shortcut::None | Key::Delete),
-        "=" => element.set_shortcut(Shortcut::None | Key::Enter),
+        crate::EQUAL => element.set_shortcut(Shortcut::None | Key::Enter),
         "x" => element.set_shortcut(Shortcut::None | '*'),
         _ => element.set_shortcut(Shortcut::None | title.chars().next().unwrap()),
     }
     element
 }
-pub fn display(tooltip: &str) -> TextDisplay {
+pub fn display(tooltip: &str) {
     let mut element = TextDisplay::default().with_id(tooltip);
     element.set_text_size(HEIGHT - 5);
     element.set_scrollbar_size(3);
@@ -100,7 +108,6 @@ pub fn display(tooltip: &str) -> TextDisplay {
             0,
         )
     });
-    element
 }
 pub fn output(tooltip: &str, label: &str) -> Frame {
     let mut element = Frame::default()
@@ -170,8 +177,8 @@ fn info(_: &mut MenuButton) {
     }
 }
 pub fn hide(_: &mut MenuButton) {
-    let mut page = app::widget_from_id::<Flex>("Page").unwrap();
-    let mut footer = app::widget_from_id::<Flex>("Buttons").unwrap();
+    let mut page = app::widget_from_id::<Flex>(crate::PAGE).unwrap();
+    let mut footer = app::widget_from_id::<Flex>(crate::BUTTONS).unwrap();
     if footer.visible() {
         page.fixed(&footer, 0);
         footer.hide();
@@ -202,10 +209,10 @@ pub fn theme(menu: &mut MenuButton) {
     ];
     let theme = menu.at(1).unwrap().value();
     let mut window = app::first_window().unwrap();
-    let mut operation = app::widget_from_id::<Frame>("Operation").unwrap();
-    let mut prev = app::widget_from_id::<Frame>("Previous").unwrap();
-    let mut output = app::widget_from_id::<Frame>("Current").unwrap();
-    let mut display = app::widget_from_id::<TextDisplay>("Output").unwrap();
+    let mut operation = app::widget_from_id::<Frame>(crate::OPERATION).unwrap();
+    let mut prev = app::widget_from_id::<Frame>(crate::PREVIOUS).unwrap();
+    let mut output = app::widget_from_id::<Frame>(crate::CURRENT).unwrap();
+    let mut display = app::widget_from_id::<TextDisplay>(crate::OUTPUT).unwrap();
     window.set_color(COLORS[theme as usize][0]);
     output.set_color(COLORS[theme as usize][0]);
     output.set_label_color(COLORS[theme as usize][1]);
@@ -217,7 +224,7 @@ pub fn theme(menu: &mut MenuButton) {
     menu.set_text_color(COLORS[theme as usize][0]);
     display.set_color(COLORS[theme as usize][0]);
     display.set_text_color(COLORS[theme as usize][1]);
-    for row in BUTTONS {
+    for row in crate::LABELS {
         for label in row {
             let mut button = app::widget_from_id::<Button>(label).unwrap();
             match button.label().as_str() {
@@ -229,7 +236,7 @@ pub fn theme(menu: &mut MenuButton) {
                     button.set_color(COLORS[theme as usize][4]);
                     button.set_label_color(COLORS[theme as usize][0]);
                 }
-                "=" => {
+                crate::EQUAL => {
                     button.set_color(COLORS[theme as usize][5]);
                     button.set_label_color(COLORS[theme as usize][0]);
                 }
@@ -284,7 +291,9 @@ fn window() -> (Window, u8) {
     element.handle(move |_, event| match event {
         Event::Push => match app::event_mouse_button() {
             app::MouseButton::Right => {
-                app::widget_from_id::<MenuButton>("Menu").unwrap().popup();
+                app::widget_from_id::<MenuButton>(crate::MENU)
+                    .unwrap()
+                    .popup();
                 true
             }
             _ => false,
@@ -296,7 +305,7 @@ fn window() -> (Window, u8) {
         if app::event() == Event::Close {
             fs::write(
                 &file,
-                [app::widget_from_id::<MenuButton>("Menu")
+                [app::widget_from_id::<MenuButton>(crate::MENU)
                     .unwrap()
                     .at(1)
                     .unwrap()
@@ -310,17 +319,19 @@ fn window() -> (Window, u8) {
 }
 
 fn run(button: &mut Button) {
-    let mut prev = app::widget_from_id::<Frame>("Previous").unwrap();
-    let mut current = app::widget_from_id::<Frame>("Current").unwrap();
-    let mut operation = app::widget_from_id::<Frame>("Operation").unwrap();
-    let mut output = app::widget_from_id::<TextDisplay>("Output").unwrap();
+    let mut prev = app::widget_from_id::<Frame>(crate::PREVIOUS).unwrap();
+    let mut current = app::widget_from_id::<Frame>(crate::CURRENT).unwrap();
+    let mut operation = app::widget_from_id::<Frame>(crate::OPERATION).unwrap();
+    let mut output = app::widget_from_id::<TextDisplay>(crate::OUTPUT).unwrap();
     match button.label().as_str() {
         "/" | "x" | "+" | "-" | "%" => {
             if operation.label().is_empty() {
                 operation.set_label(&button.label());
                 prev.set_label(&current.label());
             } else {
-                app::widget_from_id::<Button>("=").unwrap().do_callback();
+                app::widget_from_id::<Button>(crate::EQUAL)
+                    .unwrap()
+                    .do_callback();
                 operation.set_label(&button.label());
             }
             output
@@ -330,7 +341,7 @@ fn run(button: &mut Button) {
             output.do_callback();
             current.set_label("0");
         }
-        "=" => {
+        crate::EQUAL => {
             if !operation.label().is_empty() {
                 let left: f64 = prev.label().parse().unwrap();
                 let right: f64 = current.label().parse().unwrap();

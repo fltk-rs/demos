@@ -7,14 +7,12 @@ use {
         browser::{Browser, BrowserType},
         button::Button,
         dialog::{choice2_default, FileChooser, FileChooserType},
-        enums::{CallbackTrigger, Color, Event, Shortcut, FrameType},
+        enums::{Color, Event, FrameType, Shortcut},
         frame::Frame,
         group::Flex,
         image::SharedImage,
         menu::{MenuButton, MenuFlag},
-        prelude::{
-            BrowserExt, GroupExt, ImageExt, MenuExt, ValuatorExt, WidgetBase, WidgetExt, WindowExt,
-        },
+        prelude::*,
         valuator::{Slider, SliderType},
         window::Window,
     },
@@ -24,23 +22,33 @@ use {
 
 const HEIGHT: i32 = 30;
 const PAD: i32 = 10;
+const IMAGE: &str = "Image";
+const SIZE: &str = "Size";
+const LIST: &str = "List";
+const NEXT: i32 = 101;
+const PREV: i32 = 102;
+const OPEN: i32 = 103;
+const REM: i32 = 104;
 
-fn main() {
+fn main() -> Result<(), FltkError> {
     let app = app::App::default();
     let mut windows = crate::window();
-    let mut page = Flex::default_fill().column().with_id("Page");
-    let mut header = Flex::default().with_id("Header");
-    crate::menu("Main menu", &mut header);
-    crate::button("Open", "@#fileopen", &mut header).set_callback(crate::open);
-    crate::button("Prev", "@#|<", &mut header).set_callback(crate::prev);
-    crate::slider("Size").with_type(SliderType::Horizontal);
-    crate::button("Next", "@#>|", &mut header).set_callback(crate::next);
-    crate::button("Remove", "@#1+", &mut header).set_callback(crate::rem);
+    let mut page = Flex::default_fill().column(); //Page
+
+    let mut header = Flex::default(); //HEADER
+    crate::menu(&mut header);
+    crate::button("Open", "@#fileopen", crate::OPEN, &mut header);
+    crate::button("Prev", "@#|<", crate::PREV, &mut header);
+    crate::slider(crate::SIZE).set_callback(crate::size);
+    crate::button("Next", "@#>|", crate::NEXT, &mut header);
+    crate::button("Remove", "@#1+", crate::REM, &mut header);
     header.end();
-    let mut hero = Flex::default_fill();
-    crate::frame("Image");
+
+    let mut hero = Flex::default_fill(); //HERO
+    crate::frame(crate::IMAGE);
     hero.end();
-    crate::browser("List", &mut page).with_type(BrowserType::Hold);
+
+    crate::browser(crate::LIST, &mut page);
     page.end();
     windows.end();
     windows.show();
@@ -53,37 +61,42 @@ fn main() {
         page.set_frame(FrameType::FlatBox);
         ColorTheme::new(color_themes::DARK_THEME).apply();
     }
-    app.run().unwrap();
+    app.run()
 }
 
-fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
-    let mut element = Button::default().with_id(tooltip).with_label(label);
+fn button(tooltip: &str, label: &str, msg: i32, flex: &mut Flex) {
+    let mut element = Button::default().with_label(label);
     element.set_tooltip(tooltip);
+    element.set_callback(move |_| {
+        app::handle_main(msg).unwrap();
+    });
     flex.fixed(&element, crate::HEIGHT);
-    element
 }
 
 fn slider(tooltip: &str) -> Slider {
-    let mut element = Slider::default().with_id(tooltip);
+    let mut element = Slider::default()
+        .with_type(SliderType::Horizontal)
+        .with_id(tooltip);
     element.set_tooltip(tooltip);
     element.set_maximum(100f64);
     element.set_precision(0);
     element.set_value(element.maximum());
-    element.set_callback(move |size| {
-        let mut frame = app::widget_from_id::<Frame>("Image").unwrap();
-        let browser = app::widget_from_id::<Browser>("List").unwrap();
-        if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
-            image.scale(
-                (frame.width() as f64 * size.value()) as i32 / 100,
-                (frame.height() as f64 * size.value()) as i32 / 100,
-                true,
-                true,
-            );
-            frame.set_image(Some(image));
-            app::redraw();
-        };
-    });
     element
+}
+
+fn size(size: &mut Slider) {
+    let mut frame = app::widget_from_id::<Frame>(crate::IMAGE).unwrap();
+    let browser = app::widget_from_id::<Browser>(crate::LIST).unwrap();
+    if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
+        image.scale(
+            (frame.width() as f64 * size.value()) as i32 / 100,
+            (frame.height() as f64 * size.value()) as i32 / 100,
+            true,
+            true,
+        );
+        frame.set_image(Some(image));
+        app::redraw();
+    };
 }
 
 fn frame(tooltip: &str) -> Frame {
@@ -93,47 +106,109 @@ fn frame(tooltip: &str) -> Frame {
     element
 }
 
-fn browser(tooltip: &str, flex: &mut Flex) -> Browser {
-    let mut element = Browser::default().with_id(tooltip);
+fn browser(tooltip: &str, flex: &mut Flex) {
+    let mut element = Browser::default()
+        .with_type(BrowserType::Hold)
+        .with_id(tooltip);
     element.set_tooltip(tooltip);
-    element.set_trigger(CallbackTrigger::Changed);
-    element.set_callback(move |browser| {
-        let mut frame = app::widget_from_id::<Frame>("Image").unwrap();
-        let size = app::widget_from_id::<Slider>("Size").unwrap();
-        if browser.value() < 1 {
-            frame.set_image(None::<SharedImage>);
-        } else if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
-            image.scale(
-                (frame.width() as f64 * size.value()) as i32 / 100,
-                (frame.height() as f64 * size.value()) as i32 / 100,
-                true,
-                true,
-            );
-            frame.set_image(Some(image));
-        };
-        app::redraw();
-    });
+    element.handle(crate::browser_handle);
+    element.set_callback(crate::choice);
     flex.fixed(&element, crate::HEIGHT * 2);
-    element
 }
 
-fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
-    let mut element = MenuButton::default().with_id(tooltip).with_label("@#menu");
-    element.set_tooltip(tooltip);
+fn browser_handle(browser: &mut Browser, event: Event) -> bool {
+    match event.bits() {
+        crate::NEXT => {
+            match browser.value() < browser.size() {
+                true => browser.select(browser.value() + 1),
+                false => browser.select(1),
+            };
+            browser.do_callback();
+            true
+        }
+        crate::PREV => {
+            match browser.value() > 1 {
+                true => browser.select(browser.value() - 1),
+                false => browser.select(browser.size()),
+            };
+            browser.do_callback();
+            true
+        }
+        crate::REM => {
+            match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
+                Some(0) => browser.remove(browser.value()),
+                Some(2) => {
+                    if fs::remove_file(browser.selected_text().unwrap()).is_ok() {
+                        browser.remove(browser.value());
+                    }
+                }
+                _ => {}
+            };
+            app::handle_main(crate::NEXT).unwrap();
+            true
+        }
+        crate::OPEN => {
+            let mut dialog = FileChooser::new(
+                std::env::var("HOME").unwrap(),
+                "*.{png,svg}",
+                FileChooserType::Multi,
+                "Choose File...",
+            );
+            dialog.show();
+            while dialog.shown() {
+                app::wait();
+            }
+            if dialog.count() > 0 {
+                let mut browser = app::widget_from_id::<Browser>(crate::LIST).unwrap();
+                for item in 1..=dialog.count() {
+                    if let Some(file) = dialog.value(item) {
+                        browser.add(&file);
+                    };
+                }
+                browser.sort();
+                browser.select(1);
+                browser.do_callback();
+            };
+            true
+        }
+        _ => false,
+    }
+}
+
+fn choice(browser: &mut Browser) {
+    let mut frame: Frame = app::widget_from_id(crate::IMAGE).unwrap();
+    let size: Slider = app::widget_from_id(crate::SIZE).unwrap();
+    if browser.value() < 1 {
+        frame.set_image(None::<SharedImage>);
+    } else if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
+        image.scale(
+            (frame.width() as f64 * size.value()) as i32 / 100,
+            (frame.height() as f64 * size.value()) as i32 / 100,
+            true,
+            true,
+        );
+        frame.set_image(Some(image));
+    };
+    app::redraw();
+}
+
+fn menu(flex: &mut Flex) {
+    let mut element = MenuButton::default().with_label("@#menu");
+    element.set_tooltip("Main menu");
     element.add(
         "&File/@#fileopen  &Open",
         Shortcut::Ctrl | 'o',
         MenuFlag::Normal,
-        move |_| app::widget_from_id::<Button>("Open").unwrap().do_callback(),
+        move |_| {
+            app::handle_main(crate::OPEN).unwrap();
+        },
     );
     let ord: i32 = element.add(
         "&File/@#1+  &Remove",
         Shortcut::Ctrl | 'd',
         MenuFlag::Normal,
         move |_| {
-            app::widget_from_id::<Button>("Remove")
-                .unwrap()
-                .do_callback()
+            app::handle_main(crate::REM).unwrap();
         },
     );
     element.at(ord).unwrap().set_label_color(Color::Red);
@@ -141,16 +216,19 @@ fn menu(tooltip: &str, flex: &mut Flex) -> MenuButton {
         "&Image/@#>|  &Next",
         Shortcut::Ctrl | 'o',
         MenuFlag::Normal,
-        move |_| app::widget_from_id::<Button>("Next").unwrap().do_callback(),
+        move |_| {
+            app::handle_main(crate::NEXT).unwrap();
+        },
     );
     element.add(
         "&Image/@#|<  &Prev",
         Shortcut::Ctrl | 'o',
         MenuFlag::Normal,
-        move |_| app::widget_from_id::<Button>("Prev").unwrap().do_callback(),
+        move |_| {
+            app::handle_main(crate::PREV).unwrap();
+        },
     );
     flex.fixed(&element, 50);
-    element
 }
 
 fn window() -> Window {
@@ -208,61 +286,4 @@ fn window() -> Window {
         }
     });
     element
-}
-
-fn open(_: &mut Button) {
-    let mut dialog = FileChooser::new(
-        std::env::var("HOME").unwrap(),
-        "*.{png,svg}",
-        FileChooserType::Multi,
-        "Choose File...",
-    );
-    dialog.show();
-    while dialog.shown() {
-        app::wait();
-    }
-    if dialog.count() > 0 {
-        let mut browser = app::widget_from_id::<Browser>("List").unwrap();
-        for item in 1..=dialog.count() {
-            if let Some(file) = dialog.value(item) {
-                browser.add(&file);
-            };
-        }
-        browser.sort();
-        browser.select(1);
-        browser.do_callback();
-    };
-}
-
-fn next(_: &mut Button) {
-    let mut browser = app::widget_from_id::<Browser>("List").unwrap();
-    match browser.value() < browser.size() {
-        true => browser.select(browser.value() + 1),
-        false => browser.select(1),
-    };
-    browser.do_callback();
-}
-
-fn prev(_: &mut Button) {
-    let mut browser = app::widget_from_id::<Browser>("List").unwrap();
-    match browser.value() > 1 {
-        true => browser.select(browser.value() - 1),
-        false => browser.select(browser.size()),
-    };
-    browser.do_callback();
-}
-
-fn rem(_: &mut Button) {
-    let mut browser = app::widget_from_id::<Browser>("List").unwrap();
-    let mut next = app::widget_from_id::<Button>("Next").unwrap();
-    match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
-        Some(0) => browser.remove(browser.value()),
-        Some(2) => {
-            if fs::remove_file(browser.selected_text().unwrap()).is_ok() {
-                browser.remove(browser.value());
-            }
-        }
-        _ => {}
-    };
-    next.do_callback();
 }

@@ -22,7 +22,6 @@ use {
 
 #[derive(Clone)]
 struct Widget {
-    dial: Dial,
     buffer: TextBuffer,
     choice: Choice,
     input: InputChoice,
@@ -68,7 +67,6 @@ impl Widget {
             page.set_frame(FrameType::FlatBox);
         }
         let mut component = Self {
-            dial,
             buffer,
             choice,
             input,
@@ -106,7 +104,7 @@ impl Widget {
         while !handler.is_finished() {
             app::wait();
             app::sleep(0.02);
-            self.dial.do_callback();
+            app::handle_main(crate::DIAL).unwrap;
         }
         if let Ok(req) = handler.join() {
             match req {
@@ -231,16 +229,19 @@ fn dial(tooltip: &str) -> Dial {
     element.deactivate();
     element.set_maximum((DIAL / 4 * 3) as f64);
     element.set_precision(0);
-    element.set_callback(move |dial| {
-        dial.set_value(if dial.value() == (DIAL - 1) as f64 {
-            dial.minimum()
-        } else {
-            dial.value() + 1f64
-        })
+    element.handle(move |dial, event| if event.bits() == crate::DIAL {
+        dial.set_value(match dial.value() == (DIAL - 1) as f64 {
+            true => dial.minimum(),
+            false => dial.value() + 1f64,
+        });
+        true
+    } else {
+        false
     });
     element
 }
 
+const DIAL: i32 = 101;
 const PAD: i32 = 10;
 const HEIGHT: i32 = PAD * 3;
 const WIDTH: i32 = HEIGHT * 3;

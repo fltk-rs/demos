@@ -53,70 +53,70 @@ fn app() {
     app::GlobalState::new(crate::list());
     let app = app::App::default();
     let (mut window, params) = crate::window();
-
-    let mut page = Flex::default_fill().column().with_id(crate::PAGE);
-
-    let mut header = Flex::default_fill(); // HEADER
-    header.fixed(&crate::menu(), HEIGHT);
-    Frame::default();
-    let mut bar = Flex::default();
-    crate::input(crate::FROM);
-    crate::button("Switch", "@#refresh", &mut bar).set_callback(crate::switch);
-    crate::input(crate::TO);
-    bar.end();
-    bar.set_pad(0);
-    header.fixed(&bar, WIDTH * 2 + HEIGHT);
-    Frame::default();
-    crate::button(crate::SPEAK, "@#<", &mut header).with_type(ButtonType::Toggle);
-    header.end();
-
-    let mut hero = Flex::default().column().with_id(crate::HERO); //HERO
-    crate::text(crate::SOURCE);
-    hero.fixed(&crate::handle(crate::HANDLE), SPACE);
-    crate::text(crate::TARGET);
-    hero.end();
-
-    let mut footer = Flex::default_fill().with_id(crate::FOOTER); //FOOTER
-    crate::button("Open...", "@#fileopen", &mut footer).set_callback(crate::open);
-    Frame::default();
-    footer.fixed(&Frame::default(), HEIGHT);
-    let mut bar = Flex::default();
-    crate::choice("Fonts", &app::fonts().join("|"), params[4]).set_callback(crate::font);
-    crate::button(crate::TRANSLATE, "@#circle", &mut bar).set_callback(crate::translate);
-    crate::counter("Size", params[5] as f64);
-    bar.end();
-    bar.set_pad(0);
-    footer.fixed(&bar, WIDTH * 2 + HEIGHT);
-    footer.fixed(&crate::dial(), HEIGHT);
-    Frame::default();
-    crate::button("Save as...", "@#filesaveas", &mut footer).set_callback(crate::save);
-
-    footer.end();
-
-    page.end();
-
-    window.end();
-    window.show();
     {
-        header.set_pad(SPACE);
-        hero.set_pad(0);
-        hero.set_margin(0);
-        footer.set_pad(0);
-        page.fixed(&header, HEIGHT);
-        page.fixed(&footer, HEIGHT);
+        let mut page = Flex::default_fill().column().with_id(crate::PAGE);
+        {
+            let mut header = Flex::default_fill(); // HEADER
+            header.fixed(&crate::menu(), HEIGHT);
+            Frame::default();
+            let mut bar = Flex::default();
+            crate::input(crate::FROM);
+            crate::button("Switch", "@#refresh", &mut bar).set_callback(crate::switch);
+            crate::input(crate::TO);
+            bar.end();
+            bar.set_pad(0);
+            header.fixed(&bar, WIDTH * 2 + HEIGHT);
+            Frame::default();
+            crate::button(crate::SPEAK, "@#<", &mut header).with_type(ButtonType::Toggle);
+            header.end();
+            header.set_pad(SPACE);
+            page.fixed(&header, HEIGHT);
+        }
+        {
+            let mut hero = Flex::default_fill().column().with_id(crate::HERO); //HERO
+            crate::text(crate::SOURCE);
+            hero.fixed(&crate::handle(crate::HANDLE), SPACE);
+            crate::text(crate::TARGET);
+            hero.end();
+            hero.handle(crate::resize);
+            hero.set_pad(0);
+            hero.set_margin(0);
+        }
+        {
+            let mut footer = Flex::default_fill().with_id(crate::FOOTER); //FOOTER
+            crate::button("Open...", "@#fileopen", &mut footer).set_callback(crate::open);
+            Frame::default();
+            footer.fixed(&Frame::default(), HEIGHT);
+            let mut bar = Flex::default();
+            crate::choice("Fonts", &app::fonts().join("|"), params[4]).set_callback(crate::font);
+            crate::button(crate::TRANSLATE, "@#circle", &mut bar).set_callback(crate::translate);
+            crate::counter("Size", params[5] as f64);
+            bar.end();
+            bar.set_pad(0);
+            footer.fixed(&bar, WIDTH * 2 + HEIGHT);
+            footer.fixed(&crate::dial(), HEIGHT);
+            Frame::default();
+            crate::button("Save as...", "@#filesaveas", &mut footer).set_callback(crate::save);
+            footer.end();
+            footer.set_pad(0);
+            page.fixed(&footer, HEIGHT);
+        }
+        page.end();
         page.set_margin(SPACE);
         page.set_pad(SPACE);
         page.set_frame(FrameType::FlatBox);
-        ColorTheme::new(color_themes::DARK_THEME).apply();
-        app::set_color(Color::Blue, 200, 200, 255);
-        crate::rename();
-        app::widget_from_id::<Choice>(crate::FONTS)
-            .unwrap()
-            .do_callback();
-        app::widget_from_id::<Counter>(crate::SIZE)
-            .unwrap()
-            .do_callback();
     }
+    window.end();
+    window.show();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::set_color(Color::Blue, 200, 200, 255);
+    crate::rename();
+    app::widget_from_id::<Choice>(crate::FONTS)
+        .unwrap()
+        .do_callback();
+    app::widget_from_id::<Counter>(crate::SIZE)
+        .unwrap()
+        .do_callback();
     app.run().unwrap();
 }
 
@@ -144,24 +144,24 @@ fn search(input: &mut Input, label: &str) {
 fn handle(tooltip: &str) -> Frame {
     let mut element = Frame::default().with_id(tooltip);
     element.handle(move |frame, event| {
-        let mut hero = app::widget_from_id::<Flex>(crate::HERO).unwrap();
+        let mut flex = app::widget_from_id::<Flex>(crate::HERO).unwrap();
         match event {
             Event::Push => true,
             Event::Drag => {
-                let editor = app::widget_from_id::<TextEditor>(crate::SOURCE).unwrap();
-                match hero.get_type() {
+                let child = flex.child(0).unwrap();
+                match flex.get_type() {
                     FlexType::Column => {
-                        if (hero.y()..=hero.height() + hero.y() - frame.height())
+                        if (flex.y()..=flex.height() + flex.y() - frame.height())
                             .contains(&app::event_y())
                         {
-                            hero.fixed(&editor, app::event_y() - hero.y());
+                            flex.fixed(&child, app::event_y() - flex.y());
                         }
                     }
                     FlexType::Row => {
-                        if (hero.x()..=hero.width() + hero.x() - frame.width())
+                        if (flex.x()..=flex.width() + flex.x() - frame.width())
                             .contains(&app::event_x())
                         {
-                            hero.fixed(&editor, app::event_x() - hero.x());
+                            flex.fixed(&child, app::event_x() - flex.x());
                         }
                     }
                 }
@@ -169,7 +169,7 @@ fn handle(tooltip: &str) -> Frame {
                 true
             }
             Event::Enter => {
-                frame.window().unwrap().set_cursor(match hero.get_type() {
+                frame.window().unwrap().set_cursor(match flex.get_type() {
                     FlexType::Column => Cursor::NS,
                     FlexType::Row => Cursor::WE,
                 });
@@ -382,6 +382,20 @@ fn rename() {
     ));
 }
 
+fn resize(flex: &mut Flex, event: Event) -> bool {
+    if event == Event::Resize {
+        flex.set_type(match flex.width() < flex.height() {
+            true => FlexType::Column,
+            false => FlexType::Row,
+        });
+        flex.fixed(&flex.child(0).unwrap(), 0);
+        flex.fixed(&flex.child(1).unwrap(), SPACE);
+        true
+    } else {
+        false
+    }
+}
+
 fn switch(_: &mut Button) {
     let mut from = app::widget_from_id::<InputChoice>(crate::FROM).unwrap();
     let mut to = app::widget_from_id::<InputChoice>(crate::TO).unwrap();
@@ -494,23 +508,6 @@ fn window() -> (Window, Vec<u8>) {
     element.set_xclass(NAME);
     element.make_resizable(true);
     element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
-    element.handle(move |window, event| {
-        if event == Event::Resize {
-            let mut flex = app::widget_from_id::<Flex>(crate::HERO).unwrap();
-            let from = app::widget_from_id::<TextEditor>(crate::SOURCE).unwrap();
-            if window.width() < window.height() {
-                flex.set_type(FlexType::Column);
-                flex.fixed(&from, 0);
-            } else {
-                flex.set_type(FlexType::Row);
-                flex.fixed(&from, 0);
-            };
-            flex.fixed(&app::widget_from_id::<Frame>(crate::HANDLE).unwrap(), SPACE);
-            true
-        } else {
-            false
-        }
-    });
     element.set_callback(move |window| {
         if app::event() == Event::Close {
             fs::write(
@@ -530,6 +527,7 @@ fn window() -> (Window, Vec<u8>) {
     });
     (element, params)
 }
+
 fn font(font: &mut Choice) {
     for label in [crate::SOURCE, crate::TARGET] {
         if let Some(mut text) = app::widget_from_id::<TextEditor>(label) {

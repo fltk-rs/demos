@@ -1,6 +1,14 @@
 use {
     crate::{cbs, dialogs, fbr, utils},
-    fltk::{enums::*, prelude::*, window::Window,group::Flex, *},
+    fltk::{
+        enums::*,
+        frame::Frame,
+        menu::{MenuButton, MenuButtonType},
+        group::{Flex, Tabs},
+        prelude::*,
+        window::Window,
+        *,
+    },
     fltk_theme::{color_themes, ColorTheme},
     std::path::{Path, PathBuf},
 };
@@ -16,9 +24,6 @@ const HEIGHT: i32 = 600;
 const MENU_HEIGHT: i32 = if cfg!(target_os = "macos") { 1 } else { 30 };
 
 pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App {
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_font(Font::Courier);
-    app::set_menu_linespacing(10);
     let mut buf = text::TextBuffer::default();
     buf.set_tab_distance(4);
 
@@ -26,7 +31,9 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     let _replace_dialog = dialogs::ReplaceDialog::new();
     let _image_dialog = dialogs::ImageDialog::new();
 
-    let mut popup = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
+    let mut popup = MenuButton::default()
+        .with_type(MenuButtonType::Popup3)
+        .with_id("Popup");
     init_edit_menu(&mut popup, "");
 
     let mut window = window();
@@ -34,21 +41,23 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     let mut page = Flex::default_fill().column();
     let mut m = menu::SysMenuBar::default().with_id("menu");
     init_menu(&mut m, current_file.is_none());
-    let mut row = group::Flex::default();
+    let mut row = Flex::default();
     row.set_pad(0);
     let fbr = fbr::Fbr::new(current_path);
-    if current_file.is_none() {
-        row.fixed(&*fbr, 180);
-    } else {
-        row.fixed(&*fbr, 1);
-    }
-    let mut fbr_splitter = frame::Frame::default();
+    row.fixed(
+        &*fbr,
+        match current_file.is_none() {
+            true => 180,
+            false => 1,
+        },
+    );
+    let mut fbr_splitter = Frame::default();
     fbr_splitter.handle(cbs::fbr_splitter_cb);
     row.fixed(&fbr_splitter, 4);
-    let mut col = group::Flex::default().column();
+    let mut col = Flex::default().column();
     col.set_pad(0);
-    let mut tabs = group::Tabs::default().with_id("tabs");
-    tabs.handle(move |t, ev| tabs_handle(t, ev, &mut popup));
+    let mut tabs = Tabs::default().with_id("tabs");
+    tabs.handle(tabs_handle);
     tabs.handle_overflow(group::TabsOverflow::Pulldown);
     tabs.end();
     tabs.auto_layout();
@@ -62,7 +71,7 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     }
     col.end();
     row.end();
-    let info = frame::Frame::default()
+    let info = Frame::default()
         .with_label(&format!(
             "Directory: {}",
             utils::strip_unc_path(current_path)
@@ -76,6 +85,9 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     //w.resizable(&row);
     window.end();
     window.show();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::set_font(Font::Courier);
+    app::set_menu_linespacing(10);
     app::App::default()
 }
 
@@ -88,14 +100,14 @@ fn window() -> Window {
     element
 }
 
-pub fn tabs_handle(t: &mut group::Tabs, ev: Event, popup: &mut menu::MenuButton) -> bool {
+pub fn tabs_handle(t: &mut group::Tabs, ev: Event) -> bool {
     match ev {
         Event::Push => {
             if app::event_mouse_button() == app::MouseButton::Right
                 && app::event_y() > t.y() + 30
                 && t.children() > 0
             {
-                popup.popup();
+                app::widget_from_id::<MenuButton>("Popup").unwrap().popup();
                 true
             } else {
                 false

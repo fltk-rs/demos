@@ -72,7 +72,7 @@ fn app() {
 
     let mut hero = Flex::default().column().with_id(crate::HERO); //HERO
     crate::text(crate::SOURCE);
-    crate::handle(crate::HANDLE);
+    hero.fixed(&crate::handle(crate::HANDLE), SPACE);
     crate::text(crate::TARGET);
     hero.end();
 
@@ -141,7 +141,7 @@ fn search(input: &mut Input, label: &str) {
     }
 }
 
-fn handle(tooltip: &str) {
+fn handle(tooltip: &str) -> Frame {
     let mut element = Frame::default().with_id(tooltip);
     element.handle(move |frame, event| {
         let mut hero = app::widget_from_id::<Flex>(crate::HERO).unwrap();
@@ -182,6 +182,7 @@ fn handle(tooltip: &str) {
             _ => false,
         }
     });
+    element
 }
 
 fn counter(tooltip: &str, value: f64) -> Counter {

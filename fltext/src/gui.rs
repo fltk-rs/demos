@@ -1,7 +1,9 @@
-use crate::{cbs, dialogs, fbr, utils};
-use fltk::{enums::*, prelude::*, *};
-use fltk_theme::{color_themes, ColorTheme};
-use std::path::{Path, PathBuf};
+use {
+    crate::{cbs, dialogs, fbr, utils},
+    fltk::{enums::*, prelude::*, window::Window,group::Flex, *},
+    fltk_theme::{color_themes, ColorTheme},
+    std::path::{Path, PathBuf},
+};
 
 #[cfg(feature = "term")]
 use fltk_term as term;
@@ -27,16 +29,11 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     let mut popup = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
     init_edit_menu(&mut popup, "");
 
-    let mut w = window::Window::default()
-        .with_size(WIDTH, HEIGHT)
-        .with_label("flText");
-    w.set_xclass("red");
+    let mut window = window();
 
-    let mut col0 = group::Flex::default_fill().column();
-    col0.set_pad(2);
+    let mut page = Flex::default_fill().column();
     let mut m = menu::SysMenuBar::default().with_id("menu");
     init_menu(&mut m, current_file.is_none());
-    col0.fixed(&m, MENU_HEIGHT);
     let mut row = group::Flex::default();
     row.set_pad(0);
     let fbr = fbr::Fbr::new(current_path);
@@ -72,14 +69,23 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
         ))
         .with_align(enums::Align::Left | enums::Align::Inside)
         .with_id("info");
-    col0.fixed(&info, 20);
-    col0.end();
-    w.resizable(&row);
-    w.end();
-    w.make_resizable(true);
-    w.show();
-    w.set_callback(cbs::win_cb);
+    page.set_pad(2);
+    page.fixed(&m, MENU_HEIGHT);
+    page.fixed(&info, 20);
+    page.end();
+    //w.resizable(&row);
+    window.end();
+    window.show();
     app::App::default()
+}
+
+fn window() -> Window {
+    const NAME: &str = "FlText";
+    let mut element = Window::default().with_size(WIDTH, HEIGHT).with_label(NAME);
+    element.set_xclass(NAME);
+    element.make_resizable(true);
+    element.set_callback(cbs::win_cb);
+    element
 }
 
 pub fn tabs_handle(t: &mut group::Tabs, ev: Event, popup: &mut menu::MenuButton) -> bool {

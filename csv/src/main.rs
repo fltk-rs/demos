@@ -92,6 +92,8 @@ fn browser(tooltip: &str) -> Browser {
             element.add(entry.strip_suffix(".csv").unwrap());
         }
     }
+    element.set_tooltip(tooltip);
+    element.select(1);
     element.set_callback(move |browser| {
         if let Some(file) = browser.selected_text() {
             browser
@@ -102,7 +104,7 @@ fn browser(tooltip: &str) -> Browser {
             app::redraw();
         }
     });
-    element.set_tooltip(tooltip);
+    element.do_callback();
     element
 }
 

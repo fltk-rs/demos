@@ -4,52 +4,43 @@ use {
     fltk::{button::Button, enums::*, frame::Frame, group::Flex, prelude::*, window::Window, *},
 };
 
-const INC: i32 = 101;
-const DEC: i32 = 102;
+#[derive(Debug, Clone)]
+struct Model {
+    value: u8,
+}
+impl Model {
+    fn inc(&mut self) {
+        if self.value < 255 {
+            self.value = self.value.saturating_add(1);
+        }
+    }
+    fn dec(&mut self) {
+        if self.value > 0 {
+            self.value = self.value.saturating_sub(1);
+        }
+    }
+}
 
 fn main() -> Result<(), FltkError> {
-    let mut value: u8 = 0;
+    app::GlobalState::<Model>::new(Model { value: 0 });
     let app = app::App::default();
     let mut window = crate::window();
     let page = Flex::default()
         .with_size(300, 200)
         .center_of_parent()
         .column();
-    Frame::default()
-        .with_label(&value.to_string())
-        .handle(move |frame, event| match event.bits() {
-            crate::INC => {
-                if value < 255 {
-                    value = value.saturating_add(1);
-                    frame.set_label(&value.to_string());
-                }
-                true
-            }
-            crate::DEC => {
-                if value > 0 {
-                    value = value.saturating_sub(1);
-                    frame.set_label(&value.to_string());
-                }
-                true
-            }
-            _ => false,
-        });
+    Frame::default().draw(crate::draw);
     let row = Flex::default();
     for label in ["@#<", "@#>"] {
         crate::cairobutton()
             .with_label(label)
-            .set_callback(move |button| {
-                app::handle_main(Event::from_i32(match button.label() == "@#<" {
-                    true => crate::DEC,
-                    false => crate::INC,
-                }))
-                .unwrap();
-            });
+            .set_callback(crate::count);
     }
     row.end();
     page.end();
     window.end();
     window.show();
+    app::redraw();
     app.run()
 }
 
@@ -61,6 +52,21 @@ fn window() -> Window {
     element.set_color(Color::White);
     element.make_resizable(true);
     element
+}
+
+fn draw(frame: &mut Frame) {
+    let value = app::GlobalState::<Model>::get().with(move |model| model.value);
+    frame.set_label(&value.to_string());
+    println!("{value}");
+}
+
+fn count(button: &mut Button) {
+    let label = button.label();
+    app::GlobalState::<Model>::get().with(move |model| match label == "@#<" {
+        true => model.dec(),
+        false => model.inc(),
+    });
+    app::redraw();
 }
 
 fn cairobutton() -> Button {

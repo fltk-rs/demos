@@ -30,7 +30,7 @@ const PREV: i32 = 102;
 const OPEN: i32 = 103;
 const REM: i32 = 104;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Model {
     cash: HashMap<String, SharedImage>,
     curr: String,
@@ -54,7 +54,7 @@ fn main() -> Result<(), FltkError> {
         size: 100,
     });
     let app = app::App::default();
-    let mut windows = crate::window();
+    let mut window = crate::window();
     let mut page = Flex::default_fill().column(); //Page
     {
         let mut header = Flex::default(); //HEADER
@@ -74,8 +74,8 @@ fn main() -> Result<(), FltkError> {
     page.set_pad(PAD);
     page.set_margin(PAD);
     page.set_frame(FrameType::FlatBox);
-    windows.end();
-    windows.show();
+    window.end();
+    window.show();
     app.run()
 }
 
@@ -104,7 +104,7 @@ fn size(size: &mut Slider) {
 }
 
 fn frame(tooltip: &str) -> Frame {
-    let mut element = Frame::default_fill().with_id(tooltip);
+    let mut element = Frame::default_fill();
     element.set_tooltip(tooltip);
     element.draw(move |frame| {
         let model = app::GlobalState::<Model>::get().with(move |model| model.clone());

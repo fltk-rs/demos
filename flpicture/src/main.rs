@@ -30,8 +30,29 @@ const PREV: i32 = 102;
 const OPEN: i32 = 103;
 const REM: i32 = 104;
 
+#[derive(Clone)]
+struct Model {
+    cash: HashMap<String, SharedImage>,
+    curr: String,
+    size: i32,
+}
+impl Model {
+    fn choice(&mut self, file: String) {
+        if self.cash.contains_key(&file) {
+            self.curr = file.clone();
+        } else if let Ok(image) = SharedImage::load(file.clone()) {
+            self.cash.insert(file.clone(), image.clone());
+            self.curr = file.clone();
+        }
+    }
+}
+
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<HashMap<String, SharedImage>>::new(HashMap::new());
+    app::GlobalState::<Model>::new(Model {
+        cash: HashMap::new(),
+        curr: String::new(),
+        size: 100,
+    });
     let app = app::App::default();
     let mut windows = crate::window();
     let mut page = Flex::default_fill().column(); //Page
@@ -68,9 +89,7 @@ fn button(tooltip: &str, label: &str, msg: i32, flex: &mut Flex) {
 }
 
 fn slider(tooltip: &str) -> Slider {
-    let mut element = Slider::default()
-        .with_type(SliderType::Horizontal)
-        .with_id(tooltip);
+    let mut element = Slider::default().with_type(SliderType::Horizontal);
     element.set_tooltip(tooltip);
     element.set_maximum(100f64);
     element.set_precision(0);
@@ -79,25 +98,29 @@ fn slider(tooltip: &str) -> Slider {
 }
 
 fn size(size: &mut Slider) {
-    let mut frame = app::widget_from_id::<Frame>(crate::IMAGE).unwrap();
-    let browser = app::widget_from_id::<Browser>(crate::LIST).unwrap();
-    let model =
-        app::GlobalState::<HashMap<String, SharedImage>>::get().with(move |model| model.clone());
-    let mut image = model[&browser.selected_text().unwrap()].clone();
-    image.scale(
-        (frame.width() as f64 * size.value()) as i32 / 100,
-        (frame.height() as f64 * size.value()) as i32 / 100,
-        true,
-        true,
-    );
-    frame.set_image(Some(image));
+    let size = size.value() as i32;
+    app::GlobalState::<Model>::get().with(move |model| model.size = size);
     app::redraw();
 }
 
 fn frame(tooltip: &str) -> Frame {
     let mut element = Frame::default_fill().with_id(tooltip);
     element.set_tooltip(tooltip);
-    element.set_image(None::<SharedImage>);
+    element.draw(move |frame| {
+        let model = app::GlobalState::<Model>::get().with(move |model| model.clone());
+        if model.curr.is_empty() {
+            frame.set_image(None::<SharedImage>);
+        } else {
+            let mut image = model.cash[&model.curr].clone();
+            image.scale(
+                frame.width() * model.size / 100,
+                frame.height() * model.size / 100,
+                true,
+                true,
+            );
+            frame.set_image(Some(image));
+        }
+    });
     element
 }
 
@@ -107,7 +130,12 @@ fn browser(tooltip: &str, flex: &mut Flex) {
         .with_id(tooltip);
     element.set_tooltip(tooltip);
     element.handle(crate::browser_handle);
-    element.set_callback(crate::choice);
+    element.set_callback(move |browser| {
+        if let Some(file) = browser.selected_text() {
+            app::GlobalState::<Model>::get().with(move |model| model.choice(file.clone()));
+            app::redraw();
+        };
+    });
     flex.fixed(&element, crate::HEIGHT * 2);
 }
 
@@ -167,25 +195,6 @@ fn browser_handle(browser: &mut Browser, event: Event) -> bool {
         }
         _ => false,
     }
-}
-
-fn choice(browser: &mut Browser) {
-    let mut frame: Frame = app::widget_from_id(crate::IMAGE).unwrap();
-    if browser.size() > 0 {
-        let mut size: Slider = app::widget_from_id(crate::SIZE).unwrap();
-        let model = app::GlobalState::<HashMap<String, SharedImage>>::get();
-        let file = browser.selected_text().unwrap();
-        if model.with(move |model| model.clone()).contains_key(&file) {
-            size.set_value(size.maximum());
-            size.do_callback();
-        } else if let Ok(image) = SharedImage::load(file.clone()) {
-            model.with(move |model| model.insert(file.clone(), image.clone()));
-            browser.do_callback();
-        };
-    } else {
-        frame.set_image(None::<SharedImage>);
-    }
-    app::redraw();
 }
 
 fn menu(flex: &mut Flex) {

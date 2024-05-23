@@ -29,7 +29,10 @@ fn main() -> Result<(), FltkError> {
         .with_size(300, 200)
         .center_of_parent()
         .column();
-    Frame::default().draw(crate::draw);
+    Frame::default().draw(move |frame| {
+        let value = app::GlobalState::<Model>::get().with(move |model| model.value);
+        frame.set_label(&value.to_string());
+    });
     let row = Flex::default();
     for label in ["@#<", "@#>"] {
         crate::cairobutton()
@@ -45,19 +48,19 @@ fn main() -> Result<(), FltkError> {
 }
 
 fn window() -> Window {
+    const NAME: &str = "Demo: Cairo";
     let mut element = Window::default()
-        .with_label("Demo: Cairo")
+        .with_label(NAME)
         .with_size(640, 360)
         .center_screen();
+    element.set_xclass(NAME);
     element.set_color(Color::White);
     element.make_resizable(true);
+    element.draw(move |window| {
+        let value = app::GlobalState::<Model>::get().with(move |model| model.value);
+        window.set_label(&format!("{value} - {NAME}"));
+    });
     element
-}
-
-fn draw(frame: &mut Frame) {
-    let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-    frame.set_label(&value.to_string());
-    println!("{value}");
 }
 
 fn count(button: &mut Button) {
@@ -72,56 +75,57 @@ fn count(button: &mut Button) {
 fn cairobutton() -> Button {
     let mut element = button::Button::default();
     element.super_draw(false);
-    element.draw(|w| {
-        draw::draw_rect_fill(w.x(), w.y(), w.w(), w.h(), Color::White);
-        let mut surface =
-            ImageSurface::create(Format::ARgb32, w.w(), w.h()).expect("Couldn’t create surface");
-        crate::draw_surface(&mut surface, w.w(), w.h());
-        if !w.value() {
+    element.draw(move |button| {
+        draw::draw_rect_fill(button.x(), button.y(), button.w(), button.h(), Color::White);
+        let mut surface = ImageSurface::create(Format::ARgb32, button.w(), button.h())
+            .expect("Couldn’t create surface");
+        crate::draw_surface(&mut surface, button.w(), button.h());
+        if !button.value() {
             cairo_blur::blur_image_surface(&mut surface, 20);
         }
         surface
             .with_data(|s| {
-                let mut img = image::RgbImage::new(s, w.w(), w.h(), ColorDepth::Rgba8).unwrap();
-                img.draw(w.x(), w.y(), w.w(), w.h());
+                let mut img =
+                    image::RgbImage::new(s, button.w(), button.h(), ColorDepth::Rgba8).unwrap();
+                img.draw(button.x(), button.y(), button.w(), button.h());
             })
             .unwrap();
         draw::set_draw_color(Color::Black);
         draw::set_font(Font::Helvetica, app::font_size());
-        if !w.value() {
+        if !button.value() {
             draw::draw_rbox(
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 6,
-                w.h() - 6,
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 6,
+                button.h() - 6,
                 15,
                 true,
                 Color::White,
             );
             draw::draw_text2(
-                &w.label(),
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 6,
-                w.h() - 6,
+                &button.label(),
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 6,
+                button.h() - 6,
                 Align::Center,
             );
         } else {
             draw::draw_rbox(
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 4,
-                w.h() - 4,
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 4,
+                button.h() - 4,
                 15,
                 true,
                 Color::White,
             );
             draw::draw_text2(
-                &w.label(),
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 4,
-                w.h() - 4,
+                &button.label(),
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 4,
+                button.h() - 4,
                 Align::Center,
             );
         }

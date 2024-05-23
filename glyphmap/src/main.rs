@@ -17,7 +17,7 @@ use {
     ttf_parser::Face,
 };
 
-fn main() {
+fn main() -> Result<(), FltkError> {
     let app = app::App::default();
     dialog::message_title_default(crate::NAME);
     let mut window = crate::window();
@@ -31,15 +31,14 @@ fn main() {
     crate::input().with_id(crate::INPUT).below_of(&scroll, 2);
     window.end();
     window.show();
-
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app.run().unwrap();
+    app.run()
 }
 
 fn window() -> Window {
     let mut element = Window::default()
         .with_size(WIDTH, HEIGHT)
-        .with_label(crate::NAME);
+        .with_label(crate::NAME)
+        .center_screen();
     element.set_xclass("glyphmap");
     element.make_resizable(false);
     element.set_callback(move |_| {
@@ -47,6 +46,7 @@ fn window() -> Window {
             app::quit();
         }
     });
+    ColorTheme::new(color_themes::DARK_THEME).apply();
     element
 }
 
@@ -95,7 +95,6 @@ fn load(menu: &mut MenuBar) {
                 .set_label(&format!("{}-{NAME}", font));
             let mut input = app::widget_from_id::<Input>(crate::INPUT).unwrap();
             input.set_text_font(Font::by_name(&font));
-            input.redraw();
             let mut scroll = app::widget_from_id::<Scroll>(crate::SCROLL).unwrap();
             scroll.scroll_to(0, 0);
             let mut pack = app::widget_from_id::<Pack>(crate::PACK).unwrap();
@@ -105,7 +104,7 @@ fn load(menu: &mut MenuBar) {
             let face = Face::from_slice(&data, 0).unwrap();
             let cmap = face.tables().cmap.unwrap();
             if let Some(table) = cmap.subtables.into_iter().last() {
-                table.codepoints(|codepoint| {
+                table.codepoints(move |codepoint| {
                     let c = char::from_u32(codepoint).unwrap();
                     let txt = String::from(c);
                     let (w, h) = draw::measure(&txt, true);
@@ -127,7 +126,7 @@ fn load(menu: &mut MenuBar) {
                 });
             }
             pack.end();
-            scroll.redraw();
+            app::redraw();
         }
     }
 }

@@ -6,11 +6,10 @@ use {
         app::WidgetId,
         button::{Button, ButtonType},
         dialog::{alert_default, FileChooser, FileChooserType, HelpDialog},
-        enums::{Color, Cursor, Event, Font, FrameType, Shortcut},
+        enums::{Color, Cursor, Event, Font, FrameType, Shortcut, CallbackTrigger},
         frame::Frame,
         group::{Flex, FlexType},
         image::SvgImage,
-        input::Input,
         menu::{Choice, MenuButton, MenuFlag},
         misc::InputChoice,
         prelude::{
@@ -128,19 +127,6 @@ fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
     element
 }
 
-fn search(input: &mut Input, label: &str) {
-    let mut choice = app::widget_from_id::<InputChoice>(label).unwrap();
-    choice.clear();
-    for lang in app::GlobalState::<Vec<String>>::get().with(|languages| languages.clone()) {
-        if lang
-            .to_lowercase()
-            .starts_with(&input.value().to_lowercase())
-        {
-            choice.add(&lang);
-        }
-    }
-}
-
 fn handle(tooltip: &str) -> Frame {
     let mut element = Frame::default().with_id(tooltip);
     element.handle(move |frame, event| {
@@ -232,9 +218,19 @@ fn choice(tooltip: &str, choice: &str, value: u8) -> Choice {
 fn input(tooltip: &'static str) {
     let mut element = InputChoice::default().with_id(tooltip);
     element.set_tooltip(tooltip);
-    element
-        .input()
-        .set_callback(move |input| crate::search(input, tooltip));
+    let mut choice = element.clone();
+    element.input().set_trigger(CallbackTrigger::Changed);
+    element.input().set_callback(move |input| {
+        choice.clear();
+        for lang in app::GlobalState::<Vec<String>>::get().with(|languages| languages.clone()) {
+            if lang
+                .to_lowercase()
+                .starts_with(&input.value().to_lowercase())
+            {
+                choice.add(&lang);
+            }
+        };
+    });
     element.input().do_callback();
     element.set_value_index(0);
     element.set_callback(move |_| crate::rename());

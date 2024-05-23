@@ -41,27 +41,25 @@ lazy_static! {
     pub static ref PRICES: Mutex<Vec<Price>> = Mutex::new(vec![]);
 }
 
-fn main() {
+fn main() -> Result<(), FltkError>  {
     let app = app::App::default();
     let mut window = crate::window();
     let mut page = Flex::default_fill();
-    let mut left = Flex::default_fill().column();
-    crate::browser("Browser");
-    let save = crate::button("Save image");
-    left.end();
-    crate::frame("Canvas");
-    page.end();
-    window.end();
-    window.show();
     {
-        left.fixed(&save, 30);
+        let mut left = Flex::default_fill().column();
+        crate::browser("Browser");
+        crate::button("Save image", &mut left);
+        left.end();
         left.set_pad(10);
         page.fixed(&left, 90);
-        page.set_pad(10);
-        page.set_margin(10);
-        ColorTheme::new(color_themes::DARK_THEME).apply();
     }
-    app.run().unwrap();
+    crate::frame("Canvas");
+    page.end();
+    page.set_pad(10);
+    page.set_margin(10);
+    window.end();
+    window.show();
+    app.run()
 }
 
 fn browser(tooltip: &str) -> Browser {
@@ -74,8 +72,7 @@ fn browser(tooltip: &str) -> Browser {
     }
     element.set_callback(move |browser| {
         if let Some(file) = browser.selected_text() {
-            let mut window = app::first_window().unwrap();
-            window.set_label(&format!("{file} - {NAME}"));
+            browser.window().unwrap().set_label(&format!("{file} - {NAME}"));
             let file = format!("assets/historical_data/{}.csv", file);
             let mut rdr = csv::Reader::from_reader(std::fs::File::open(file).unwrap());
             let mut data = PRICES.lock().unwrap();
@@ -84,14 +81,14 @@ fn browser(tooltip: &str) -> Browser {
                 let price: Price = result.unwrap();
                 data.push(price);
             }
-            window.redraw();
+            app::redraw();
         }
     });
     element.set_tooltip(tooltip);
     element
 }
 
-fn button(tooltip: &str) -> Button {
+fn button(tooltip: &str, flex: &mut Flex) {
     let mut element = Button::default().with_label("@#filesave");
     element.set_tooltip(tooltip);
     element.set_callback(move |_| {
@@ -109,7 +106,7 @@ fn button(tooltip: &str) -> Button {
             .save(app::first_window().unwrap().label() + ".jpg")
             .unwrap();
     });
-    element
+    flex.fixed(&element, 30);
 }
 
 fn frame(tooltip: &str) -> Frame {
@@ -166,5 +163,6 @@ fn window() -> Window {
             app::quit();
         }
     });
+    ColorTheme::new(color_themes::DARK_THEME).apply();
     element
 }

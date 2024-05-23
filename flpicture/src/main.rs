@@ -17,7 +17,7 @@ use {
         window::Window,
     },
     fltk_theme::{color_themes, ColorTheme},
-    std::{env, fs, path::Path},
+    std::{collections::HashMap, env, fs, path::Path},
 };
 
 const HEIGHT: i32 = 30;
@@ -31,36 +31,30 @@ const OPEN: i32 = 103;
 const REM: i32 = 104;
 
 fn main() -> Result<(), FltkError> {
+    app::GlobalState::<HashMap<String, SharedImage>>::new(HashMap::new());
     let app = app::App::default();
     let mut windows = crate::window();
     let mut page = Flex::default_fill().column(); //Page
-
-    let mut header = Flex::default(); //HEADER
-    crate::menu(&mut header);
-    crate::button("Open", "@#fileopen", crate::OPEN, &mut header);
-    crate::button("Prev", "@#|<", crate::PREV, &mut header);
-    crate::slider(crate::SIZE).set_callback(crate::size);
-    crate::button("Next", "@#>|", crate::NEXT, &mut header);
-    crate::button("Remove", "@#1+", crate::REM, &mut header);
-    header.end();
-
-    let mut hero = Flex::default_fill(); //HERO
-    crate::frame(crate::IMAGE);
-    hero.end();
-
+    {
+        let mut header = Flex::default(); //HEADER
+        crate::menu(&mut header);
+        crate::button("Open", "@#fileopen", crate::OPEN, &mut header);
+        crate::button("Prev", "@#|<", crate::PREV, &mut header);
+        crate::slider(crate::SIZE).set_callback(crate::size);
+        crate::button("Next", "@#>|", crate::NEXT, &mut header);
+        crate::button("Remove", "@#1+", crate::REM, &mut header);
+        header.end();
+        header.set_pad(0);
+        page.fixed(&header, HEIGHT);
+    }
+    crate::frame(crate::IMAGE).set_frame(FrameType::DownBox);
     crate::browser(crate::LIST, &mut page);
     page.end();
+    page.set_pad(PAD);
+    page.set_margin(PAD);
+    page.set_frame(FrameType::FlatBox);
     windows.end();
     windows.show();
-    {
-        header.set_pad(0);
-        hero.set_frame(FrameType::DownBox);
-        page.set_pad(PAD);
-        page.set_margin(PAD);
-        page.fixed(&header, HEIGHT);
-        page.set_frame(FrameType::FlatBox);
-        ColorTheme::new(color_themes::DARK_THEME).apply();
-    }
     app.run()
 }
 
@@ -87,16 +81,17 @@ fn slider(tooltip: &str) -> Slider {
 fn size(size: &mut Slider) {
     let mut frame = app::widget_from_id::<Frame>(crate::IMAGE).unwrap();
     let browser = app::widget_from_id::<Browser>(crate::LIST).unwrap();
-    if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
-        image.scale(
-            (frame.width() as f64 * size.value()) as i32 / 100,
-            (frame.height() as f64 * size.value()) as i32 / 100,
-            true,
-            true,
-        );
-        frame.set_image(Some(image));
-        app::redraw();
-    };
+    let model =
+        app::GlobalState::<HashMap<String, SharedImage>>::get().with(move |model| model.clone());
+    let mut image = model[&browser.selected_text().unwrap()].clone();
+    image.scale(
+        (frame.width() as f64 * size.value()) as i32 / 100,
+        (frame.height() as f64 * size.value()) as i32 / 100,
+        true,
+        true,
+    );
+    frame.set_image(Some(image));
+    app::redraw();
 }
 
 fn frame(tooltip: &str) -> Frame {
@@ -159,7 +154,6 @@ fn browser_handle(browser: &mut Browser, event: Event) -> bool {
                 app::wait();
             }
             if dialog.count() > 0 {
-                let mut browser = app::widget_from_id::<Browser>(crate::LIST).unwrap();
                 for item in 1..=dialog.count() {
                     if let Some(file) = dialog.value(item) {
                         browser.add(&file);
@@ -177,18 +171,20 @@ fn browser_handle(browser: &mut Browser, event: Event) -> bool {
 
 fn choice(browser: &mut Browser) {
     let mut frame: Frame = app::widget_from_id(crate::IMAGE).unwrap();
-    let size: Slider = app::widget_from_id(crate::SIZE).unwrap();
-    if browser.value() < 1 {
+    if browser.size() > 0 {
+        let mut size: Slider = app::widget_from_id(crate::SIZE).unwrap();
+        let model = app::GlobalState::<HashMap<String, SharedImage>>::get();
+        let file = browser.selected_text().unwrap();
+        if model.with(move |model| model.clone()).contains_key(&file) {
+            size.set_value(size.maximum());
+            size.do_callback();
+        } else if let Ok(image) = SharedImage::load(file.clone()) {
+            model.with(move |model| model.insert(file.clone(), image.clone()));
+            browser.do_callback();
+        };
+    } else {
         frame.set_image(None::<SharedImage>);
-    } else if let Ok(mut image) = SharedImage::load(browser.selected_text().unwrap()) {
-        image.scale(
-            (frame.width() as f64 * size.value()) as i32 / 100,
-            (frame.height() as f64 * size.value()) as i32 / 100,
-            true,
-            true,
-        );
-        frame.set_image(Some(image));
-    };
+    }
     app::redraw();
 }
 
@@ -285,5 +281,6 @@ fn window() -> Window {
             app::quit();
         }
     });
+    ColorTheme::new(color_themes::DARK_THEME).apply();
     element
 }

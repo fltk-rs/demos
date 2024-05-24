@@ -7,7 +7,7 @@ use {
         browser::{Browser, BrowserType},
         button::Button,
         dialog::{choice2_default, FileChooser, FileChooserType},
-        enums::{Color, Event, FrameType, Shortcut, CallbackTrigger},
+        enums::{CallbackTrigger, Color, Event, FrameType, Shortcut},
         frame::Frame,
         group::Flex,
         image::SharedImage,
@@ -56,6 +56,7 @@ impl Model {
                 true => self.curr += 1,
                 false => self.curr = 0,
             };
+            self.choice(self.curr);
         }
     }
     fn dec(&mut self) {
@@ -64,6 +65,7 @@ impl Model {
                 true => self.curr -= 1,
                 false => self.curr = self.temp.len() - 1,
             };
+            self.choice(self.curr);
         }
     }
 }
@@ -171,17 +173,19 @@ fn browser(tooltip: &str, flex: &mut Flex) {
 
 fn remove(button: &mut Button) {
     button.deactivate();
-    app::GlobalState::<Model>::get().with(move |model| {
+    let (curr, temp) =
+        app::GlobalState::<Model>::get().with(move |model| (model.curr, model.temp.clone()));
+    if !temp.is_empty() {
         match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
-            Some(0) => model.remove(),
+            Some(0) => app::GlobalState::<Model>::get().with(move |model| model.remove()),
             Some(2) => {
-                if fs::remove_file(model.temp[model.curr].clone()).is_ok() {
-                    model.remove();
+                if fs::remove_file(temp[curr].clone()).is_ok() {
+                    app::GlobalState::<Model>::get().with(move |model| model.remove());
                 }
             }
             _ => {}
         };
-    });
+    };
     button.activate();
     app::redraw();
 }

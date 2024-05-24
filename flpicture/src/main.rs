@@ -7,7 +7,7 @@ use {
         browser::{Browser, BrowserType},
         button::Button,
         dialog::{choice2_default, FileChooser, FileChooserType},
-        enums::{Color, Event, FrameType, Shortcut},
+        enums::{Color, Event, FrameType, Shortcut, CallbackTrigger},
         frame::Frame,
         group::Flex,
         image::SharedImage,
@@ -33,16 +33,37 @@ const REM: i32 = 104;
 #[derive(Debug, Clone)]
 struct Model {
     cash: HashMap<String, SharedImage>,
-    curr: String,
+    temp: Vec<String>,
+    curr: usize,
     size: i32,
 }
 impl Model {
-    fn choice(&mut self, file: String) {
-        if self.cash.contains_key(&file) {
-            self.curr = file.clone();
-        } else if let Ok(image) = SharedImage::load(file.clone()) {
-            self.cash.insert(file.clone(), image.clone());
-            self.curr = file.clone();
+    fn choice(&mut self, curr: usize) {
+        if self.cash.contains_key(&self.temp[curr]) {
+            self.curr = curr;
+        } else if let Ok(image) = SharedImage::load(&self.temp[curr]) {
+            self.cash.insert(self.temp[curr].clone(), image.clone());
+            self.curr = curr;
+        }
+    }
+    fn remove(&mut self) {
+        self.temp.remove(self.curr);
+        self.inc();
+    }
+    fn inc(&mut self) {
+        if !self.temp.is_empty() {
+            match self.curr < self.temp.len() - 1 {
+                true => self.curr += 1,
+                false => self.curr = 0,
+            };
+        }
+    }
+    fn dec(&mut self) {
+        if !self.temp.is_empty() {
+            match self.curr > 0 {
+                true => self.curr -= 1,
+                false => self.curr = self.temp.len() - 1,
+            };
         }
     }
 }
@@ -50,8 +71,9 @@ impl Model {
 fn main() -> Result<(), FltkError> {
     app::GlobalState::<Model>::new(Model {
         cash: HashMap::new(),
-        curr: String::new(),
+        temp: Vec::new(),
         size: 100,
+        curr: 0,
     });
     let app = app::App::default();
     let mut window = crate::window();
@@ -59,11 +81,11 @@ fn main() -> Result<(), FltkError> {
     {
         let mut header = Flex::default(); //HEADER
         crate::menu(&mut header);
-        crate::button("Open", "@#fileopen", crate::OPEN, &mut header);
-        crate::button("Prev", "@#|<", crate::PREV, &mut header);
+        crate::button("Open", "@#fileopen", &mut header).set_callback(crate::open);
+        crate::button("Prev", "@#|<", &mut header).set_callback(crate::shift);
         crate::slider(crate::SIZE).set_callback(crate::size);
-        crate::button("Next", "@#>|", crate::NEXT, &mut header);
-        crate::button("Remove", "@#1+", crate::REM, &mut header);
+        crate::button("Next", "@#>|", &mut header).set_callback(crate::shift);
+        crate::button("Remove", "@#1+", &mut header).set_callback(crate::remove);
         header.end();
         header.set_pad(0);
         page.fixed(&header, HEIGHT);
@@ -79,13 +101,11 @@ fn main() -> Result<(), FltkError> {
     app.run()
 }
 
-fn button(tooltip: &str, label: &str, msg: i32, flex: &mut Flex) {
+fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
     let mut element = Button::default().with_label(label);
     element.set_tooltip(tooltip);
-    element.set_callback(move |_| {
-        app::handle_main(Event::from_i32(msg)).unwrap();
-    });
     flex.fixed(&element, crate::HEIGHT);
+    element
 }
 
 fn slider(tooltip: &str) -> Slider {
@@ -108,10 +128,10 @@ fn frame(tooltip: &str) -> Frame {
     element.set_tooltip(tooltip);
     element.draw(move |frame| {
         let model = app::GlobalState::<Model>::get().with(move |model| model.clone());
-        if model.curr.is_empty() {
+        if model.temp.is_empty() {
             frame.set_image(None::<SharedImage>);
         } else {
-            let mut image = model.cash[&model.curr].clone();
+            let mut image = model.cash[&model.temp[model.curr]].clone();
             image.scale(
                 frame.width() * model.size / 100,
                 frame.height() * model.size / 100,
@@ -129,72 +149,78 @@ fn browser(tooltip: &str, flex: &mut Flex) {
         .with_type(BrowserType::Hold)
         .with_id(tooltip);
     element.set_tooltip(tooltip);
-    element.handle(crate::browser_handle);
+    element.set_trigger(CallbackTrigger::Changed);
     element.set_callback(move |browser| {
-        if let Some(file) = browser.selected_text() {
-            app::GlobalState::<Model>::get().with(move |model| model.choice(file.clone()));
+        if browser.value() > 0 {
+            let curr: usize = browser.value() as usize - 1;
+            app::GlobalState::<Model>::get().with(move |model| model.choice(curr));
             app::redraw();
-        };
+        }
+    });
+    element.draw(move |browser| {
+        let (curr, temp) =
+            app::GlobalState::<Model>::get().with(move |model| (model.curr, model.temp.clone()));
+        browser.clear();
+        for item in temp {
+            browser.add(&item);
+        }
+        browser.select(curr as i32 + 1);
     });
     flex.fixed(&element, crate::HEIGHT * 2);
 }
 
-fn browser_handle(browser: &mut Browser, event: Event) -> bool {
-    match event.bits() {
-        crate::NEXT => {
-            match browser.value() < browser.size() {
-                true => browser.select(browser.value() + 1),
-                false => browser.select(1),
-            };
-            browser.do_callback();
-            true
-        }
-        crate::PREV => {
-            match browser.value() > 1 {
-                true => browser.select(browser.value() - 1),
-                false => browser.select(browser.size()),
-            };
-            browser.do_callback();
-            true
-        }
-        crate::REM => {
-            match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
-                Some(0) => browser.remove(browser.value()),
-                Some(2) => {
-                    if fs::remove_file(browser.selected_text().unwrap()).is_ok() {
-                        browser.remove(browser.value());
-                    }
+fn remove(button: &mut Button) {
+    button.deactivate();
+    app::GlobalState::<Model>::get().with(move |model| {
+        match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
+            Some(0) => model.remove(),
+            Some(2) => {
+                if fs::remove_file(model.temp[model.curr].clone()).is_ok() {
+                    model.remove();
                 }
-                _ => {}
-            };
-            app::handle_main(Event::from_i32(crate::NEXT)).unwrap();
-            true
-        }
-        crate::OPEN => {
-            let mut dialog = FileChooser::new(
-                std::env::var("HOME").unwrap(),
-                "*.{png,svg}",
-                FileChooserType::Multi,
-                "Choose File...",
-            );
-            dialog.show();
-            while dialog.shown() {
-                app::wait();
             }
-            if dialog.count() > 0 {
-                for item in 1..=dialog.count() {
-                    if let Some(file) = dialog.value(item) {
-                        browser.add(&file);
-                    };
-                }
-                browser.sort();
-                browser.select(1);
-                browser.do_callback();
-            };
-            true
-        }
-        _ => false,
+            _ => {}
+        };
+    });
+    button.activate();
+    app::redraw();
+}
+
+fn shift(button: &mut Button) {
+    button.deactivate();
+    let label = button.label();
+    app::GlobalState::<Model>::get().with(move |model| match label == "@#<" {
+        true => model.dec(),
+        false => model.inc(),
+    });
+    button.activate();
+    app::redraw();
+}
+
+fn open(button: &mut Button) {
+    button.deactivate();
+    let mut dialog = FileChooser::new(
+        std::env::var("HOME").unwrap(),
+        "*.{png,svg}",
+        FileChooserType::Multi,
+        "Choose File...",
+    );
+    dialog.show();
+    while dialog.shown() {
+        app::wait();
     }
+    if dialog.count() > 0 {
+        app::GlobalState::<Model>::get().with(move |model| {
+            for item in 1..=dialog.count() {
+                if let Some(file) = dialog.value(item) {
+                    model.temp.push(file);
+                };
+                model.choice(0);
+            }
+        });
+    };
+    button.activate();
+    app::redraw();
 }
 
 fn menu(flex: &mut Flex) {
@@ -265,7 +291,6 @@ fn window() -> Window {
             params[0] as i32 * U8 + params[1] as i32,
             params[2] as i32 * U8 + params[3] as i32,
         )
-        .with_label(NAME)
         .center_screen();
     element.size_range(
         DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
@@ -289,6 +314,14 @@ fn window() -> Window {
             .unwrap();
             app::quit();
         }
+    });
+    element.draw(move |window| {
+        let (temp, curr) =
+            app::GlobalState::<Model>::get().with(move |model| (model.temp.clone(), model.curr));
+        match temp.is_empty() {
+            true => window.set_label(NAME),
+            false => window.set_label(&format!("{} - {NAME}", temp[curr].clone())),
+        };
     });
     ColorTheme::new(color_themes::DARK_THEME).apply();
     element

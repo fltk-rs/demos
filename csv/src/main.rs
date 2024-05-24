@@ -39,21 +39,22 @@ const NAME: &str = "FlCSV";
 #[derive(Debug, Clone)]
 struct Model {
     cash: HashMap<String, Vec<Price>>,
-    curr: String,
+    temp: Vec<String>,
+    curr: usize,
     save: bool,
 }
 
 impl Model {
-    fn choice(&mut self, file: String) {
-        if self.cash.contains_key(&file) {
-            self.curr = file;
-        } else if let Ok(data) = fs::read(format!("assets/historical_data/{file}.csv")) {
+    fn choice(&mut self, curr: usize) {
+        if self.cash.contains_key(&self.temp[curr]) {
+            self.curr = curr;
+        } else if let Ok(data) = fs::read(format!("assets/historical_data/{}.csv", self.temp[curr])) {
             let mut prices: Vec<Price> = Vec::new();
             for result in Reader::from_reader(data.as_slice()).deserialize() {
                 prices.push(result.unwrap());
             }
-            self.cash.insert(file.clone(), prices);
-            self.curr = file;
+            self.cash.insert(self.temp[curr].clone(), prices);
+            self.curr = curr;
         }
     }
 }
@@ -61,8 +62,9 @@ impl Model {
 fn main() -> Result<(), FltkError> {
     app::GlobalState::<Model>::new(Model {
         cash: HashMap::new(),
-        curr: String::new(),
+        temp: Vec::new(),
         save: false,
+        curr: 0,
     });
     let app = app::App::default();
     let mut window = crate::window();
@@ -85,26 +87,34 @@ fn main() -> Result<(), FltkError> {
 }
 
 fn browser(tooltip: &str) -> Browser {
-    let mut element = Browser::default().with_type(BrowserType::Hold);
-    for file in std::fs::read_dir("assets/historical_data").unwrap() {
-        let entry = file.unwrap().file_name().into_string().unwrap();
-        if entry.ends_with(".csv") {
-            element.add(entry.strip_suffix(".csv").unwrap());
+    app::GlobalState::<Model>::get().with(move |model| {
+        for file in std::fs::read_dir("assets/historical_data").unwrap() {
+            let entry = file.unwrap().file_name().into_string().unwrap();
+            if entry.ends_with(".csv") {
+                model.temp.push(entry.strip_suffix(".csv").unwrap().to_string());
+            }
+            model.choice(0);
         }
-    }
+    });
+    let mut element = Browser::default().with_type(BrowserType::Hold);
     element.set_tooltip(tooltip);
-    element.select(1);
+    element.draw(move |browser| {
+        let (curr, temp) =
+            app::GlobalState::<Model>::get().with(move |model| (model.curr, model.temp.clone()));
+        browser.clear();
+        for item in temp {
+            browser.add(&item);
+        }
+        browser.select(curr as i32 + 1);
+    });
+    element.set_trigger(CallbackTrigger::Changed);
     element.set_callback(move |browser| {
-        if let Some(file) = browser.selected_text() {
-            browser
-                .window()
-                .unwrap()
-                .set_label(&format!("{file} - {NAME}"));
-            app::GlobalState::<Model>::get().with(move |model| model.choice(file.clone()));
+        if browser.value() > 0 {
+            let curr: usize = browser.value() as usize - 1;
+            app::GlobalState::<Model>::get().with(move |model| model.choice(curr));
             app::redraw();
         }
     });
-    element.do_callback();
     element
 }
 
@@ -126,8 +136,7 @@ fn frame(tooltip: &str) -> Frame {
     element.set_callback(crate::save);
     element.draw(|frame| {
         let model = app::GlobalState::<Model>::get().with(move |model| model.clone());
-        if !model.curr.is_empty() {
-            let data = &model.cash[&model.curr];
+        if let Some(data) = model.cash.get(&model.temp[model.curr]) {
             let mut highest = data
                 .iter()
                 .map(|elem| elem.low)
@@ -193,6 +202,10 @@ fn window() -> Window {
         if app::event() == Event::Close {
             app::quit();
         }
+    });
+    element.draw(move |window| {
+        let value = app::GlobalState::<Model>::get().with(move |model| model.temp[model.curr].clone());
+        window.set_label(&format!("{value} - {NAME}"));
     });
     ColorTheme::new(color_themes::DARK_THEME).apply();
     element

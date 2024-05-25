@@ -31,7 +31,15 @@ fn main() -> Result<(), FltkError> {
         .column();
     Frame::default().draw(move |frame| {
         let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-        frame.set_label(&value.to_string());
+            draw::set_draw_color(Color::Black);
+            draw::draw_text2(
+                &value.to_string(),
+                frame.x() + 1,
+                frame.y() + 1,
+                frame.w() - 6,
+                frame.h() - 6,
+                Align::Center,
+            );
     });
     let row = Flex::default();
     for label in ["@#<", "@#>"] {
@@ -92,12 +100,12 @@ fn cairobutton() -> Button {
             .unwrap();
         draw::set_draw_color(Color::Black);
         draw::set_font(Font::Helvetica, app::font_size());
-        if !button.value() {
+        if button.value() {
             draw::draw_rbox(
                 button.x() + 1,
                 button.y() + 1,
-                button.w() - 6,
-                button.h() - 6,
+                button.w() - 4,
+                button.h() - 4,
                 15,
                 true,
                 Color::White,
@@ -106,16 +114,16 @@ fn cairobutton() -> Button {
                 &button.label(),
                 button.x() + 1,
                 button.y() + 1,
-                button.w() - 6,
-                button.h() - 6,
+                button.w() - 4,
+                button.h() - 4,
                 Align::Center,
             );
         } else {
             draw::draw_rbox(
                 button.x() + 1,
                 button.y() + 1,
-                button.w() - 4,
-                button.h() - 4,
+                button.w() - 6,
+                button.h() - 6,
                 15,
                 true,
                 Color::White,
@@ -124,8 +132,8 @@ fn cairobutton() -> Button {
                 &button.label(),
                 button.x() + 1,
                 button.y() + 1,
-                button.w() - 4,
-                button.h() - 4,
+                button.w() - 6,
+                button.h() - 6,
                 Align::Center,
             );
         }

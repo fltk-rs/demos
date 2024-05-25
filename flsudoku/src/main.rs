@@ -142,11 +142,18 @@ fn main() -> Result<(), FltkError> {
     }
     {
         let mut hero = Flex::default_fill().column();
+        let mut col1 = crate::flex().column();
+        let mut col2 = crate::flex().column();
+        let mut col3 = crate::flex().column();
         for (x, row) in grid.iter().enumerate() {
             let mut hbox = Flex::default();
+            let mut row1 = crate::flex();
+            let mut row2 = crate::flex();
+            let mut row3 = crate::flex();
             for (y, _) in row.iter().enumerate() {
                 let menu = menu.clone();
-                crate::frame(&mut hbox, x, y).handle(move |frame, event| match event {
+                let mut frame = crate::frame(x, y);
+                frame.handle(move |frame, event| match event {
                     Event::Push => match app::event_mouse_button() {
                         app::MouseButton::Right => {
                             if let Some(item) = menu.popup() {
@@ -159,12 +166,22 @@ fn main() -> Result<(), FltkError> {
                     },
                     _ => false,
                 });
+                match y {
+                    0..=2 => row1.add(&frame),
+                    3..=5 => row2.add(&frame),
+                    _ => row3.add(&frame),
+                }
             }
             hbox.end();
-            hbox.set_pad(0);
+            hbox.set_pad(PAD);
+            match x {
+                0..=2 => col1.add(&hbox),
+                3..=5 => col2.add(&hbox),
+                _ => col3.add(&hbox),
+            }
             hero.fixed(&hbox, HEIGHT);
         }
-        hero.set_pad(0);
+        hero.set_pad(PAD);
     }
     page.end();
     page.set_pad(PAD);
@@ -215,7 +232,14 @@ fn menu() -> MenuButton {
     element
 }
 
-fn frame(flex: &mut Flex, x: usize, y: usize) -> Frame {
+fn flex() -> Flex {
+    let mut element = Flex::default();
+    element.end();
+    element.set_pad(0);
+    element
+}
+
+fn frame(x: usize, y: usize) -> Frame {
     let mut element = Frame::default();
     element.set_frame(FrameType::DownBox);
     element.set_label_size(HEIGHT);
@@ -239,14 +263,13 @@ fn frame(flex: &mut Flex, x: usize, y: usize) -> Frame {
             Align::Center,
         );
     });
-    flex.fixed(&element, HEIGHT);
     element
 }
 
 fn window() -> Window {
     const NAME: &str = "FlSudoku";
     let mut element = Window::default()
-        .with_size(290, 330)
+        .with_size(310, 350)
         .with_label(NAME)
         .center_screen();
     element.set_xclass(NAME);

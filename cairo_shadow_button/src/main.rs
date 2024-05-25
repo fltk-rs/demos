@@ -32,6 +32,7 @@ fn main() -> Result<(), FltkError> {
     Frame::default().draw(move |frame| {
         let value = app::GlobalState::<Model>::get().with(move |model| model.value);
             draw::set_draw_color(Color::Black);
+            draw::set_font(Font::CourierBold, 14);
             draw::draw_text2(
                 &value.to_string(),
                 frame.x() + 1,

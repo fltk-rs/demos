@@ -29,30 +29,24 @@ fn main() -> Result<(), FltkError> {
         .with_size(300, 200)
         .center_of_parent()
         .column();
-    Frame::default().draw(move |frame| {
+    Frame::default().handle(move |frame, event| if event == Event::Released {
         let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-            draw::set_draw_color(Color::Black);
-            draw::set_font(Font::CourierBold, 24);
-            draw::draw_text2(
-                &value.to_string(),
-                frame.x(),
-                frame.y(),
-                frame.w(),
-                frame.h(),
-                Align::Center,
-            );
+        frame.set_label(&value.to_string());
+        true
+    } else {
+        false
     });
     let row = Flex::default();
     for label in ["@#<", "@#>"] {
         crate::cairobutton()
             .with_label(label)
-            .set_callback(crate::count);
+            .handle(crate::count);
     }
     row.end();
     page.end();
     window.end();
     window.show();
-    app::redraw();
+    app::handle_main(Event::Released).unwrap();
     app.run()
 }
 
@@ -65,20 +59,30 @@ fn window() -> Window {
     element.set_xclass(NAME);
     element.set_color(Color::White);
     element.make_resizable(true);
-    element.draw(move |window| {
+    element.handle(move |widget, event| if event == Event::Released {
         let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-        window.set_label(&format!("{value} - {NAME}"));
+        widget.set_label(&format!("{value} - {NAME}"));
+        true
+    } else {
+        false
     });
     element
 }
 
-fn count(button: &mut Button) {
-    let label = button.label();
-    app::GlobalState::<Model>::get().with(move |model| match label == "@#<" {
-        true => model.dec(),
-        false => model.inc(),
-    });
-    app::redraw();
+fn count(button: &mut Button, event: Event) -> bool {
+    if event == Event::Push {
+        button.deactivate();
+        let label = button.label();
+        app::GlobalState::<Model>::get().with(move |model| match label == "@#<" {
+            true => model.dec(),
+            false => model.inc(),
+        });
+        app::handle_main(Event::Released).unwrap();
+        button.activate();
+        true
+    } else {
+        false
+    }
 }
 
 fn cairobutton() -> Button {

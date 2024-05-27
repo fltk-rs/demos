@@ -1,7 +1,8 @@
 #![forbid(unsafe_code)]
+mod model;
+
 use {
     ::image::{ImageBuffer, RgbImage},
-    csv::Reader,
     fltk::{
         browser::{Browser, BrowserType},
         button::Button,
@@ -14,60 +15,24 @@ use {
         *,
     },
     fltk_theme::{color_themes, ColorTheme},
-    serde::Deserialize,
-    std::{collections::HashMap, fs},
+    model::Model,
 };
 
-#[derive(Debug, Deserialize, Clone)]
-pub struct Price {
-    #[serde(rename = "Date")]
-    _date: String,
-    #[serde(rename = "Open")]
-    open: f64,
-    #[serde(rename = "High")]
-    high: f64,
-    #[serde(rename = "Low")]
-    low: f64,
-    #[serde(rename = "Close")]
-    close: f64,
-    #[serde(rename = "Volume")]
-    _volume: usize,
-}
-
+const HEARTBEAT: i32 = 404;
 const NAME: &str = "FlCSV";
 
-#[derive(Debug, Clone)]
-struct Model {
-    cash: HashMap<String, Vec<Price>>,
-    temp: Vec<String>,
-    curr: usize,
-    save: bool,
-}
-
-impl Model {
-    fn choice(&mut self, curr: usize) {
-        if self.cash.contains_key(&self.temp[curr]) {
-            self.curr = curr;
-        } else if let Ok(data) = fs::read(format!("assets/historical_data/{}.csv", self.temp[curr])) {
-            let mut prices: Vec<Price> = Vec::new();
-            for result in Reader::from_reader(data.as_slice()).deserialize() {
-                prices.push(result.unwrap());
-            }
-            self.cash.insert(self.temp[curr].clone(), prices);
-            self.curr = curr;
-        }
-    }
-}
-
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<Model>::new(Model {
-        cash: HashMap::new(),
-        temp: Vec::new(),
-        save: false,
-        curr: 0,
-    });
+    app::GlobalState::<Model>::new(Model::new());
     let app = app::App::default();
     let mut window = crate::window();
+    crate::view();
+    window.end();
+    window.show();
+    app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+    app.run()
+}
+
+fn view() {
     let mut page = Flex::default_fill();
     {
         let mut left = Flex::default_fill().column();
@@ -81,9 +46,6 @@ fn main() -> Result<(), FltkError> {
     page.end();
     page.set_pad(10);
     page.set_margin(10);
-    window.end();
-    window.show();
-    app.run()
 }
 
 fn browser(tooltip: &str) -> Browser {
@@ -91,28 +53,37 @@ fn browser(tooltip: &str) -> Browser {
         for file in std::fs::read_dir("assets/historical_data").unwrap() {
             let entry = file.unwrap().file_name().into_string().unwrap();
             if entry.ends_with(".csv") {
-                model.temp.push(entry.strip_suffix(".csv").unwrap().to_string());
+                model
+                    .temp
+                    .push(entry.strip_suffix(".csv").unwrap().to_string());
             }
             model.choice(0);
         }
     });
     let mut element = Browser::default().with_type(BrowserType::Hold);
     element.set_tooltip(tooltip);
-    element.draw(move |browser| {
-        let (curr, temp) =
-            app::GlobalState::<Model>::get().with(move |model| (model.curr, model.temp.clone()));
-        browser.clear();
-        for item in temp {
-            browser.add(&item);
-        }
-        browser.select(curr as i32 + 1);
-    });
-    element.set_trigger(CallbackTrigger::Changed);
-    element.set_callback(move |browser| {
-        if browser.value() > 0 {
-            let curr: usize = browser.value() as usize - 1;
-            app::GlobalState::<Model>::get().with(move |model| model.choice(curr));
-            app::redraw();
+    element.handle(move |browser, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let (curr, temp) = app::GlobalState::<Model>::get()
+                .with(move |model| (model.curr, model.temp.clone()));
+            if !temp.is_empty() {
+                browser.clear();
+                for item in temp {
+                    browser.add(&item);
+                }
+                browser.select(curr as i32 + 1);
+            }
+            true
+        } else if event == Event::Push {
+            if browser.value() > 0 {
+                let curr: usize = browser.value() as usize - 1;
+                app::GlobalState::<Model>::get().with(move |model| model.choice(curr));
+                app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+                app::redraw();
+            };
+            true
+        } else {
+            false
         }
     });
     element
@@ -121,9 +92,14 @@ fn browser(tooltip: &str) -> Browser {
 fn button(tooltip: &str, flex: &mut Flex) {
     let mut element = Button::default().with_label("@#filesave");
     element.set_tooltip(tooltip);
-    element.set_callback(move |_| {
-        app::GlobalState::<Model>::get().with(move |model| model.save = true);
-        app::redraw();
+    element.handle(move |button, event| {
+        if event == Event::Push {
+            button.deactivate();
+            app::GlobalState::<Model>::get().with(move |model| model.save = true);
+            app::redraw();
+            button.activate();
+        };
+        true
     });
     flex.fixed(&element, 30);
 }
@@ -198,14 +174,18 @@ fn window() -> Window {
     element.make_resizable(true);
     element.size_range(640, 360, 0, 0);
     element.set_xclass(NAME);
-    element.set_callback(move |_| {
-        if app::event() == Event::Close {
+    element.handle(move |window, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let value =
+                app::GlobalState::<Model>::get().with(move |model| model.temp[model.curr].clone());
+            window.set_label(&format!("{value} - {NAME}"));
+            true
+        } else if app::event() == Event::Close {
             app::quit();
+            true
+        } else {
+            false
         }
-    });
-    element.draw(move |window| {
-        let value = app::GlobalState::<Model>::get().with(move |model| model.temp[model.curr].clone());
-        window.set_label(&format!("{value} - {NAME}"));
     });
     ColorTheme::new(color_themes::DARK_THEME).apply();
     element

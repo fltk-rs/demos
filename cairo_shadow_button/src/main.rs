@@ -1,53 +1,44 @@
 #![forbid(unsafe_code)]
+mod model;
 use {
     cairo::{Context, Format, ImageSurface},
     fltk::{button::Button, enums::*, frame::Frame, group::Flex, prelude::*, window::Window, *},
+    model::Model,
 };
 
-#[derive(Debug, Clone)]
-struct Model {
-    value: u8,
-}
-impl Model {
-    fn inc(&mut self) {
-        if self.value < 255 {
-            self.value = self.value.saturating_add(1);
-        }
-    }
-    fn dec(&mut self) {
-        if self.value > 0 {
-            self.value = self.value.saturating_sub(1);
-        }
-    }
-}
+const HEARTBEAT: i32 = 404;
 
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<Model>::new(Model { value: 0 });
+    app::GlobalState::<Model>::new(Model::new());
     let app = app::App::default();
     let mut window = crate::window();
+    crate::view();
+    window.end();
+    window.show();
+    app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+    app.run()
+}
+
+fn view() {
     let page = Flex::default()
         .with_size(300, 200)
         .center_of_parent()
         .column();
-    Frame::default().handle(move |frame, event| if event == Event::Released {
-        let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-        frame.set_label(&value.to_string());
-        true
-    } else {
-        false
+    Frame::default().handle(move |frame, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let value = app::GlobalState::<Model>::get().with(move |model| model.value());
+            frame.set_label(&value.to_string());
+            true
+        } else {
+            false
+        }
     });
     let row = Flex::default();
     for label in ["@#<", "@#>"] {
-        crate::cairobutton()
-            .with_label(label)
-            .handle(crate::count);
+        crate::cairobutton().with_label(label).handle(crate::count);
     }
     row.end();
     page.end();
-    window.end();
-    window.show();
-    app::handle_main(Event::Released).unwrap();
-    app.run()
 }
 
 fn window() -> Window {
@@ -59,12 +50,17 @@ fn window() -> Window {
     element.set_xclass(NAME);
     element.set_color(Color::White);
     element.make_resizable(true);
-    element.handle(move |widget, event| if event == Event::Released {
-        let value = app::GlobalState::<Model>::get().with(move |model| model.value);
-        widget.set_label(&format!("{value} - {NAME}"));
-        true
-    } else {
-        false
+    element.handle(move |window, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let value = app::GlobalState::<Model>::get().with(move |model| model.value());
+            window.set_label(&format!("{value} - {NAME}"));
+            true
+        } else if app::event() == Event::Close {
+            app::quit();
+            true
+        } else {
+            false
+        }
     });
     element
 }
@@ -77,7 +73,7 @@ fn count(button: &mut Button, event: Event) -> bool {
             true => model.dec(),
             false => model.inc(),
         });
-        app::handle_main(Event::Released).unwrap();
+        app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
         button.activate();
         true
     } else {

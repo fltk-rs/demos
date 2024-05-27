@@ -78,7 +78,7 @@ impl CairoWidget {
 fltk::widget_extends!(CairoWidget, frame::Frame, frm);
 
 fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Base);
+    let app = app::App::default();
     let mut win = window::Window::default()
         .with_label("Demo: Cairo")
         .with_size(400, 300)

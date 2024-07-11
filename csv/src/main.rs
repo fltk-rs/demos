@@ -73,7 +73,7 @@ fn browser(tooltip: &str) -> Browser {
                 }
                 browser.select(curr as i32 + 1);
             }
-            true
+            false
         } else if event == Event::Push {
             if browser.value() > 0 {
                 let curr: usize = browser.value() as usize - 1;
@@ -179,7 +179,7 @@ fn window() -> Window {
             let value =
                 app::GlobalState::<Model>::get().with(move |model| model.temp[model.curr].clone());
             window.set_label(&format!("{value} - {NAME}"));
-            true
+            false
         } else if app::event() == Event::Close {
             app::quit();
             true

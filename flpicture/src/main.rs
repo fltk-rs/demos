@@ -102,7 +102,7 @@ fn choice(browser: &mut Browser, event: Event) -> bool {
             }
             browser.select(curr as i32 + 1);
         }
-        true
+        false
     } else if event == Event::Push {
         if browser.value() > 0 {
             let curr: usize = browser.value() as usize - 1;
@@ -130,7 +130,7 @@ fn show(frame: &mut Frame, event: Event) -> bool {
             frame.set_image(Some(image));
             frame.redraw();
         };
-        true
+        false
     } else {
         false
     }
@@ -143,9 +143,8 @@ fn browser(tooltip: &str, flex: &mut Flex) -> Browser {
     element
 }
 
-fn remove(button: &mut Button, event: Event) -> bool {
+fn remove(_: &mut Button, event: Event) -> bool {
     if [Event::from_i32(REM), Event::Push].contains(&event) {
-        button.deactivate();
         if !app::GlobalState::<Model>::get().with(move |model| model.empty()) {
             match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
                 Some(0) => app::GlobalState::<Model>::get().with(move |model| model.remove(false)),
@@ -154,7 +153,6 @@ fn remove(button: &mut Button, event: Event) -> bool {
             };
             app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
         };
-        button.activate();
         true
     } else {
         false
@@ -295,7 +293,7 @@ fn window() -> Window {
                 true => window.set_label(NAME),
                 false => window.set_label(&format!("{} - {NAME}", temp[curr].clone())),
             };
-            true
+            false
         } else if app::event() == Event::Close {
             fs::write(
                 &file,

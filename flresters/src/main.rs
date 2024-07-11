@@ -1,122 +1,246 @@
 #![forbid(unsafe_code)]
 use {
-    fltk::{enums::*, prelude::*, *},
+    fltk::{
+        button::Button,
+        enums::*,
+        frame::Frame,
+        group::Flex,
+        image::SvgImage,
+        menu::Choice,
+        misc::InputChoice,
+        prelude::*,
+        text::{StyleTableEntry, TextBuffer, TextDisplay, WrapMode},
+        valuator::Dial,
+        window::Window,
+        *,
+    },
     fltk_theme::{color_themes, ColorTheme},
     json_tools::{Buffer, BufferType, Lexer, Span, TokenType},
-    ureq::Error,
+    std::thread,
+    ureq::{Error, Response},
 };
 
-fn main() {
-    let mut sbuf = text::TextBuffer::default();
-    let styles: Vec<text::StyleTableEntry> = [0xdc322f, 0x268bd2, 0x859900]
+const DIAL: &str = "Spinner";
+
+#[derive(Clone)]
+struct Widget {
+    buffer: TextBuffer,
+    choice: Choice,
+    input: InputChoice,
+    text: TextDisplay,
+    status: Frame,
+}
+
+impl Widget {
+    fn view() -> Self {
+        let mut window = crate::window();
+        let mut page = Flex::default_fill().column(); //PAGE
+
+        let mut header = Flex::default(); //HEADER
+        header.fixed(&Frame::default(), WIDTH);
+        let choice = crate::choice();
+        header.fixed(&Frame::default(), WIDTH);
+        let input = crate::input();
+        header.fixed(&crate::info(), HEIGHT);
+        header.end();
+
+        let hero = Flex::default(); //HERO
+        let buffer = TextBuffer::default();
+        let text = crate::text(buffer.clone());
+        hero.end();
+
+        let mut footer = Flex::default(); //FOOTER
+        footer.fixed(&Frame::default().with_label("Status: "), WIDTH);
+        let status = Frame::default().with_align(Align::Left | Align::Inside);
+        footer.fixed(&crate::dial(), HEIGHT);
+        footer.end();
+
+        page.end();
+        window.end();
+        window.show();
+        {
+            header.set_pad(PAD);
+            header.fixed(&choice, WIDTH);
+            page.fixed(&header, HEIGHT);
+            page.fixed(&footer, HEIGHT);
+            page.set_pad(PAD);
+            page.set_margin(PAD);
+            page.set_frame(FrameType::FlatBox);
+        }
+        let mut component = Self {
+            buffer,
+            choice,
+            input,
+            text,
+            status,
+        };
+        let mut clone = component.clone();
+        component.input.set_callback(move |_| clone.update());
+        let mut clone = component.clone();
+        component
+            .input
+            .input()
+            .set_callback(move |_| clone.update());
+        component
+    }
+    fn update(&mut self) {
+        self.status.set_label("");
+        self.text.buffer().unwrap().set_text("");
+        self.buffer.set_text("");
+        let proto = "https://";
+        let path = match self.input.value().unwrap().starts_with(proto) {
+            true => self.input.value().unwrap(),
+            false => String::from(proto) + &self.input.value().unwrap(),
+        };
+        let req = match self.choice.value() {
+            0 => ureq::get(&path),
+            1 => ureq::post(&path),
+            _ => unreachable!(),
+        };
+        let handler = thread::spawn(move || -> Result<Response, Error> { req.call() });
+        while !handler.is_finished() {
+            app::wait();
+            app::sleep(0.02);
+            app::widget_from_id::<Dial>(crate::DIAL)
+                .unwrap()
+                .do_callback();
+        }
+        if let Ok(req) = handler.join() {
+            match req {
+                Ok(response) => {
+                    if let Ok(json) = response.into_json::<serde_json::Value>() {
+                        let json: String = serde_json::to_string_pretty(&json).unwrap();
+                        self.text.buffer().unwrap().set_text(&json);
+                        self.fill_style_buffer(&json);
+                        self.status.set_label("200 OK");
+                        self.status.set_label_color(enums::Color::Yellow);
+                    } else {
+                        dialog::message_default("Error parsing json");
+                    }
+                }
+                Err(Error::Status(code, response)) => {
+                    self.status
+                        .set_label(&format!("{} {}", code, response.status_text()));
+                    self.status.set_label_color(enums::Color::Red);
+                }
+                Err(e) => {
+                    dialog::message_default(&e.to_string());
+                }
+            }
+        };
+    }
+    fn fill_style_buffer(&mut self, s: &str) {
+        let mut buffer = vec![b'A'; s.len()];
+        for token in Lexer::new(s.bytes(), BufferType::Span) {
+            use TokenType::*;
+            let c = match token.kind {
+                CurlyOpen | CurlyClose | BracketOpen | BracketClose | Colon | Comma | Invalid => {
+                    'A'
+                }
+                String => 'B',
+                BooleanTrue | BooleanFalse | Null => 'C',
+                Number => 'D',
+            };
+            if let Buffer::Span(Span { first, end }) = token.buf {
+                let start = first as _;
+                let last = end as _;
+                buffer[start..last].copy_from_slice(c.to_string().repeat(last - start).as_bytes());
+            }
+        }
+        self.buffer.set_text(&String::from_utf8_lossy(&buffer));
+    }
+}
+
+fn main() -> Result<(), FltkError> {
+    Widget::view();
+    app::App::default().run()
+}
+
+fn window() -> Window {
+    const NAME: &str = "FlResters";
+    let mut element = Window::default()
+        .with_size(640, 360)
+        .with_label(NAME)
+        .center_screen();
+    element.make_resizable(true);
+    element.size_range(640, 360, 0, 0);
+    element.set_xclass(NAME);
+    element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
+    element.set_callback(move |_| {
+        if app::event() == Event::Close {
+            app::quit();
+        }
+    });
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::set_font(Font::Courier);
+    element
+}
+
+fn text(buffer: TextBuffer) -> TextDisplay {
+    let styles: Vec<StyleTableEntry> = [0xdc322f, 0x268bd2, 0x859900]
         .into_iter()
-        .map(|color| text::StyleTableEntry {
+        .map(|color| StyleTableEntry {
             color: Color::from_hex(color),
             font: Font::Courier,
             size: 16,
         })
         .collect();
-    let mut window = window::Window::default()
-        .with_size(640, 360)
-        .with_label("flResters")
-        .center_screen();
-    window.set_xclass("resters");
-    let mut flex = group::Flex::default_fill().column();
-    let mut header = group::Flex::default();
-    flex.fixed(&header, 30);
-    let mut choice = menu::Choice::default();
-    choice.add_choice("GET|POST");
-    choice.set_value(0);
-    header.fixed(&choice, 80);
-    header.fixed(&frame::Frame::default().with_label("https://"), 60);
-    let mut inp = input::Input::default();
-    inp.set_trigger(CallbackTrigger::EnterKeyAlways);
-    let mut info = button::Button::default().with_label("ℹ️");
-    info.set_label_size(18);
-    info.set_frame(FrameType::NoBox);
-    info.set_callback(move |_| {
+    let mut element = TextDisplay::default();
+    element.wrap_mode(WrapMode::AtBounds, 0);
+    element.set_buffer(TextBuffer::default());
+    element.set_color(Color::from_hex(0x002b36));
+    element.set_highlight_data(buffer, styles);
+    element
+}
+
+fn info() -> Button {
+    let mut element = Button::default().with_label("ℹ️");
+    element.set_label_size(18);
+    element.set_frame(FrameType::NoBox);
+    element.set_callback(move |_| {
         dialog::message_default("Resters was created using Rust and fltk-rs. It is MIT licensed!")
     });
-    header.fixed(&info, 30);
-    header.end();
-    header.set_pad(10);
-    let mut disp = text::TextDisplay::default();
-    disp.wrap_mode(text::WrapMode::AtBounds, 0);
-    disp.set_buffer(text::TextBuffer::default());
-    disp.set_color(Color::from_hex(0x002b36));
-    disp.set_highlight_data(sbuf.clone(), styles);
-    let mut footer = group::Flex::default();
-    flex.fixed(&footer, 20);
-    footer.fixed(&frame::Frame::default().with_label("Status: "), 80);
-    let mut status = frame::Frame::default().with_align(Align::Left | Align::Inside);
-    footer.end();
-    flex.end();
-    flex.set_pad(10);
-    flex.set_margin(10);
-    window.end();
-    window.make_resizable(true);
-    window.show();
-    window.set_icon(Some(image::SvgImage::from_data(SVG).unwrap()));
-    inp.set_callback(move |inp| {
-        status.set_label("");
-        disp.buffer().unwrap().set_text("");
-        sbuf.set_text("");
-        let mut path = inp.value();
-        if !path.starts_with("https://") {
-            path = String::from("https://") + &path;
-        }
-        let req = match choice.value() {
-            0 => ureq::get(&path),
-            1 => ureq::post(&path),
-            _ => unreachable!(),
-        };
-        match req.call() {
-            Ok(response) => {
-                if let Ok(json) = response.into_json::<serde_json::Value>() {
-                    let json: String = serde_json::to_string_pretty(&json).unwrap();
-                    disp.buffer().unwrap().set_text(&json);
-                    fill_style_buffer(&mut sbuf, &json);
-                    status.set_label("200 OK");
-                    status.set_label_color(enums::Color::Yellow);
-                } else {
-                    dialog::message_default("Error parsing json");
-                }
-            }
-            Err(Error::Status(code, response)) => {
-                status.set_label(&format!("{} {}", code, response.status_text()));
-                status.set_label_color(enums::Color::Red);
-            }
-            Err(e) => {
-                dialog::message_default(&e.to_string());
-            }
-        }
-    });
-    app::set_font(Font::Courier);
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::App::default()
-        .run()
-        .unwrap();
+    element
 }
 
-fn fill_style_buffer(sbuf: &mut text::TextBuffer, s: &str) {
-    let mut local_buf = vec![b'A'; s.len()];
-    for token in Lexer::new(s.bytes(), BufferType::Span) {
-        use TokenType::*;
-        let c = match token.kind {
-            CurlyOpen | CurlyClose | BracketOpen | BracketClose | Colon | Comma | Invalid => 'A',
-            String => 'B',
-            BooleanTrue | BooleanFalse | Null => 'C',
-            Number => 'D',
-        };
-        if let Buffer::Span(Span { first, end }) = token.buf {
-            let start = first as _;
-            let last = end as _;
-            local_buf[start..last].copy_from_slice(c.to_string().repeat(last - start).as_bytes());
-        }
+fn choice() -> Choice {
+    let mut element = Choice::default().with_label("Method: ");
+    element.add_choice("GET|POST");
+    element.set_value(0);
+    element
+}
+
+fn input() -> InputChoice {
+    let mut element = InputChoice::default().with_label("URL: ");
+    for item in ["users", "posts", "albums", "todos", "comments", "posts"] {
+        element.add(&(format!(r#"https:\/\/jsonplaceholder.typicode.com\/{item}"#)));
     }
-    sbuf.set_text(&String::from_utf8_lossy(&local_buf));
+    element.add(r#"https:\/\/lingva.ml\/api\/v1\/languages"#);
+    element.add(r#"https:\/\/ipinfo.io\/json"#);
+    element.input().set_trigger(CallbackTrigger::EnterKeyAlways);
+    element.set_value_index(0);
+    element
 }
 
+fn dial() -> Dial {
+    const DIAL: u8 = 120;
+    let mut element = Dial::default().with_id(crate::DIAL);
+    element.deactivate();
+    element.set_maximum((DIAL / 4 * 3) as f64);
+    element.set_precision(0);
+    element.set_callback(move |dial| {
+        dial.set_value(if dial.value() == (DIAL - 1) as f64 {
+            dial.minimum()
+        } else {
+            dial.value() + 1f64
+        })
+    });
+    element
+}
+
+const PAD: i32 = 10;
+const HEIGHT: i32 = PAD * 3;
+const WIDTH: i32 = HEIGHT * 3;
 const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
   <metadata id="metadata4">

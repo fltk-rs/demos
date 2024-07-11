@@ -1,85 +1,140 @@
 #![forbid(unsafe_code)]
+mod model;
 use {
     cairo::{Context, Format, ImageSurface},
-    fltk::{button::Button, enums::*, prelude::*, window::Window, *},
+    fltk::{button::Button, enums::*, frame::Frame, group::Flex, prelude::*, window::Window, *},
+    model::Model,
 };
 
-fn main() {
-    let app = app::App::default().with_scheme(app::AppScheme::Base);
+const HEARTBEAT: i32 = 404;
+
+fn main() -> Result<(), FltkError> {
+    app::GlobalState::<Model>::new(Model::new());
+    let app = app::App::default();
     let mut window = crate::window();
-    crate::cairobutton()
-        .with_size(200, 200)
-        .with_label("Cairo")
-        .center_of_parent()
-        .set_callback(|_| println!("clicked!"));
+    crate::view();
     window.end();
     window.show();
-    app.run().unwrap();
+    app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+    app.run()
+}
+
+fn view() {
+    let page = Flex::default()
+        .with_size(300, 200)
+        .center_of_parent()
+        .column();
+    Frame::default().handle(move |frame, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let value = app::GlobalState::<Model>::get().with(move |model| model.value());
+            frame.set_label(&value.to_string());
+            true
+        } else {
+            false
+        }
+    });
+    let row = Flex::default();
+    for label in ["@#<", "@#>"] {
+        crate::cairobutton().with_label(label).handle(crate::count);
+    }
+    row.end();
+    page.end();
 }
 
 fn window() -> Window {
+    const NAME: &str = "Demo: Cairo";
     let mut element = Window::default()
-        .with_label("Demo: Cairo")
-        .with_size(600, 600)
+        .with_label(NAME)
+        .with_size(640, 360)
         .center_screen();
+    element.set_xclass(NAME);
     element.set_color(Color::White);
     element.make_resizable(true);
+    element.handle(move |window, event| {
+        if event == Event::from_i32(HEARTBEAT) {
+            let value = app::GlobalState::<Model>::get().with(move |model| model.value());
+            window.set_label(&format!("{value} - {NAME}"));
+            true
+        } else if app::event() == Event::Close {
+            app::quit();
+            true
+        } else {
+            false
+        }
+    });
     element
+}
+
+fn count(button: &mut Button, event: Event) -> bool {
+    if event == Event::Push {
+        button.deactivate();
+        let label = button.label();
+        app::GlobalState::<Model>::get().with(move |model| match label == "@#<" {
+            true => model.dec(),
+            false => model.inc(),
+        });
+        app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+        button.activate();
+        true
+    } else {
+        false
+    }
 }
 
 fn cairobutton() -> Button {
     let mut element = button::Button::default();
     element.super_draw(false);
-    element.draw(|w| {
-        draw::draw_rect_fill(w.x(), w.y(), w.w(), w.h(), Color::White);
-        let mut surface =
-            ImageSurface::create(Format::ARgb32, w.w(), w.h()).expect("Couldn’t create surface");
-        crate::draw_surface(&mut surface, w.w(), w.h());
-        if !w.value() {
+    element.draw(move |button| {
+        draw::draw_rect_fill(button.x(), button.y(), button.w(), button.h(), Color::White);
+        let mut surface = ImageSurface::create(Format::ARgb32, button.w(), button.h())
+            .expect("Couldn’t create surface");
+        crate::draw_surface(&mut surface, button.w(), button.h());
+        if !button.value() {
             cairo_blur::blur_image_surface(&mut surface, 20);
         }
         surface
             .with_data(|s| {
-                let mut img = image::RgbImage::new(s, w.w(), w.h(), ColorDepth::Rgba8).unwrap();
-                img.draw(w.x(), w.y(), w.w(), w.h());
+                let mut img =
+                    image::RgbImage::new(s, button.w(), button.h(), ColorDepth::Rgba8).unwrap();
+                img.draw(button.x(), button.y(), button.w(), button.h());
             })
             .unwrap();
         draw::set_draw_color(Color::Black);
         draw::set_font(Font::Helvetica, app::font_size());
-        if !w.value() {
+        if button.value() {
             draw::draw_rbox(
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 6,
-                w.h() - 6,
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 4,
+                button.h() - 4,
                 15,
                 true,
                 Color::White,
             );
             draw::draw_text2(
-                &w.label(),
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 6,
-                w.h() - 6,
+                &button.label(),
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 4,
+                button.h() - 4,
                 Align::Center,
             );
         } else {
             draw::draw_rbox(
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 4,
-                w.h() - 4,
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 6,
+                button.h() - 6,
                 15,
                 true,
                 Color::White,
             );
             draw::draw_text2(
-                &w.label(),
-                w.x() + 1,
-                w.y() + 1,
-                w.w() - 4,
-                w.h() - 4,
+                &button.label(),
+                button.x() + 1,
+                button.y() + 1,
+                button.w() - 6,
+                button.h() - 6,
                 Align::Center,
             );
         }

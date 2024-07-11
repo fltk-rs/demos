@@ -1,7 +1,17 @@
-use crate::{cbs, dialogs, fbr, utils};
-use fltk::{enums::*, prelude::*, *};
-use fltk_theme::{color_themes, ColorTheme};
-use std::path::{Path, PathBuf};
+use {
+    crate::{cbs, dialogs, fbr, utils},
+    fltk::{
+        enums::*,
+        frame::Frame,
+        menu::{MenuButton, MenuButtonType},
+        group::{Flex, Tabs},
+        prelude::*,
+        window::Window,
+        *,
+    },
+    fltk_theme::{color_themes, ColorTheme},
+    std::path::{Path, PathBuf},
+};
 
 #[cfg(feature = "term")]
 use fltk_term as term;
@@ -14,9 +24,6 @@ const HEIGHT: i32 = 600;
 const MENU_HEIGHT: i32 = if cfg!(target_os = "macos") { 1 } else { 30 };
 
 pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App {
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_font(Font::Courier);
-    app::set_menu_linespacing(10);
     let mut buf = text::TextBuffer::default();
     buf.set_tab_distance(4);
 
@@ -24,34 +31,33 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     let _replace_dialog = dialogs::ReplaceDialog::new();
     let _image_dialog = dialogs::ImageDialog::new();
 
-    let mut popup = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
+    let mut popup = MenuButton::default()
+        .with_type(MenuButtonType::Popup3)
+        .with_id("Popup");
     init_edit_menu(&mut popup, "");
 
-    let mut w = window::Window::default()
-        .with_size(WIDTH, HEIGHT)
-        .with_label("flText");
-    w.set_xclass("red");
+    let mut window = window();
 
-    let mut col0 = group::Flex::default_fill().column();
-    col0.set_pad(2);
+    let mut page = Flex::default_fill().column();
     let mut m = menu::SysMenuBar::default().with_id("menu");
     init_menu(&mut m, current_file.is_none());
-    col0.fixed(&m, MENU_HEIGHT);
-    let mut row = group::Flex::default();
+    let mut row = Flex::default();
     row.set_pad(0);
     let fbr = fbr::Fbr::new(current_path);
-    if current_file.is_none() {
-        row.fixed(&*fbr, 180);
-    } else {
-        row.fixed(&*fbr, 1);
-    }
-    let mut fbr_splitter = frame::Frame::default();
+    row.fixed(
+        &*fbr,
+        match current_file.is_none() {
+            true => 180,
+            false => 1,
+        },
+    );
+    let mut fbr_splitter = Frame::default();
     fbr_splitter.handle(cbs::fbr_splitter_cb);
     row.fixed(&fbr_splitter, 4);
-    let mut col = group::Flex::default().column();
+    let mut col = Flex::default().column();
     col.set_pad(0);
-    let mut tabs = group::Tabs::default().with_id("tabs");
-    tabs.handle(move |t, ev| tabs_handle(t, ev, &mut popup));
+    let mut tabs = Tabs::default().with_id("tabs");
+    tabs.handle(tabs_handle);
     tabs.handle_overflow(group::TabsOverflow::Pulldown);
     tabs.end();
     tabs.auto_layout();
@@ -65,31 +71,43 @@ pub fn init_gui(current_file: &Option<PathBuf>, current_path: &Path) -> app::App
     }
     col.end();
     row.end();
-    let info = frame::Frame::default()
+    let info = Frame::default()
         .with_label(&format!(
             "Directory: {}",
             utils::strip_unc_path(current_path)
         ))
         .with_align(enums::Align::Left | enums::Align::Inside)
         .with_id("info");
-    col0.fixed(&info, 20);
-    col0.end();
-    w.resizable(&row);
-    w.end();
-    w.make_resizable(true);
-    w.show();
-    w.set_callback(cbs::win_cb);
+    page.set_pad(2);
+    page.fixed(&m, MENU_HEIGHT);
+    page.fixed(&info, 20);
+    page.end();
+    //w.resizable(&row);
+    window.end();
+    window.show();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::set_font(Font::Courier);
+    app::set_menu_linespacing(10);
     app::App::default()
 }
 
-pub fn tabs_handle(t: &mut group::Tabs, ev: Event, popup: &mut menu::MenuButton) -> bool {
+fn window() -> Window {
+    const NAME: &str = "FlText";
+    let mut element = Window::default().with_size(WIDTH, HEIGHT).with_label(NAME);
+    element.set_xclass(NAME);
+    element.make_resizable(true);
+    element.set_callback(cbs::win_cb);
+    element
+}
+
+pub fn tabs_handle(t: &mut group::Tabs, ev: Event) -> bool {
     match ev {
         Event::Push => {
             if app::event_mouse_button() == app::MouseButton::Right
                 && app::event_y() > t.y() + 30
                 && t.children() > 0
             {
-                popup.popup();
+                app::widget_from_id::<MenuButton>("Popup").unwrap().popup();
                 true
             } else {
                 false

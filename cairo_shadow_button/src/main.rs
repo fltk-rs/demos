@@ -2,56 +2,111 @@
 mod model;
 use {
     cairo::{Context, Format, ImageSurface},
-    fltk::{button::Button, enums::*, frame::Frame, group::Flex, prelude::*, window::Window, *},
+    fltk::{
+        app,
+        button::Button,
+        draw,
+        enums::{Align, Color, ColorDepth, Event, Font, Shortcut},
+        frame::Frame,
+        group::Flex,
+        image::RgbImage,
+        menu::{MenuButton, MenuButtonType, MenuFlag},
+        prelude::*,
+        window::Window,
+    },
     model::Model,
 };
 
-const HEARTBEAT: i32 = 404;
+const HEARTBEAT: Event = Event::from_i32(404);
 
 fn main() -> Result<(), FltkError> {
     app::GlobalState::<Model>::new(Model::new());
-    let app = app::App::default();
+    let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut window = crate::window();
     crate::view();
     window.end();
     window.show();
-    app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+    app::handle_main(HEARTBEAT).unwrap();
     app.run()
 }
 
 fn view() {
-    let page = Flex::default()
-        .with_size(300, 200)
+    let mut page = Flex::default()
+        .with_size(600, 200)
         .center_of_parent()
         .column();
-    Frame::default().handle(move |frame, event| {
-        if event == Event::from_i32(HEARTBEAT) {
+
+    let hero = Flex::default(); //HERO
+    crate::cairobutton().with_label("@#<").handle(crate::count);
+    crate::frame().handle(crate::popup);
+    crate::cairobutton().with_label("@#>").handle(crate::count);
+    hero.end();
+
+    page.end();
+    page.set_pad(0);
+    page.set_margin(0);
+}
+
+fn frame() -> Frame {
+    let mut element = Frame::default();
+    element.set_label_size(60);
+    element
+}
+
+fn popup(frame: &mut Frame, event: Event) -> bool {
+    match event {
+        Event::Push => match app::event_mouse_button() {
+            app::MouseButton::Right => {
+                crate::menu().popup();
+                true
+            }
+            _ => false,
+        },
+        HEARTBEAT => {
             let value = app::GlobalState::<Model>::get().with(move |model| model.value());
             frame.set_label(&value.to_string());
             true
-        } else {
-            false
         }
-    });
-    let row = Flex::default();
-    for label in ["@#<", "@#>"] {
-        crate::cairobutton().with_label(label).handle(crate::count);
+        _ => false,
     }
-    row.end();
-    page.end();
+}
+
+fn menu() -> MenuButton {
+    let mut element = MenuButton::default()
+        .with_type(MenuButtonType::Popup3)
+        .with_label("@#menu");
+    element.add(
+        "@#+  &Increment",
+        Shortcut::Ctrl | 'i',
+        MenuFlag::Normal,
+        move |_| {
+            app::GlobalState::<Model>::get().with(move |model| model.inc());
+            app::handle_main(HEARTBEAT).unwrap();
+        },
+    );
+    element.add(
+        "@#-  &Decrement",
+        Shortcut::Ctrl | 'd',
+        MenuFlag::Normal,
+        move |_| {
+            app::GlobalState::<Model>::get().with(move |model| model.dec());
+            app::handle_main(HEARTBEAT).unwrap();
+        },
+    );
+    element
 }
 
 fn window() -> Window {
-    const NAME: &str = "Demo: Cairo";
+    const NAME: &str = "FlCairoButton";
     let mut element = Window::default()
         .with_label(NAME)
         .with_size(640, 360)
         .center_screen();
     element.set_xclass(NAME);
-    element.set_color(Color::White);
-    element.make_resizable(true);
+    element.set_color(Color::from_u32(0xfdf6e3));
+    element.make_resizable(false);
     element.handle(move |window, event| {
-        if event == Event::from_i32(HEARTBEAT) {
+        if event == HEARTBEAT {
             let value = app::GlobalState::<Model>::get().with(move |model| model.value());
             window.set_label(&format!("{value} - {NAME}"));
             true
@@ -73,7 +128,7 @@ fn count(button: &mut Button, event: Event) -> bool {
             true => model.dec(),
             false => model.inc(),
         });
-        app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+        app::handle_main(HEARTBEAT).unwrap();
         button.activate();
         true
     } else {
@@ -82,10 +137,16 @@ fn count(button: &mut Button, event: Event) -> bool {
 }
 
 fn cairobutton() -> Button {
-    let mut element = button::Button::default();
+    let mut element = Button::default();
     element.super_draw(false);
     element.draw(move |button| {
-        draw::draw_rect_fill(button.x(), button.y(), button.w(), button.h(), Color::White);
+        draw::draw_rect_fill(
+            button.x(),
+            button.y(),
+            button.w(),
+            button.h(),
+            Color::from_u32(0xfdf6e3),
+        );
         let mut surface = ImageSurface::create(Format::ARgb32, button.w(), button.h())
             .expect("Couldn’t create surface");
         crate::draw_surface(&mut surface, button.w(), button.h());
@@ -94,8 +155,7 @@ fn cairobutton() -> Button {
         }
         surface
             .with_data(|s| {
-                let mut img =
-                    image::RgbImage::new(s, button.w(), button.h(), ColorDepth::Rgba8).unwrap();
+                let mut img = RgbImage::new(s, button.w(), button.h(), ColorDepth::Rgba8).unwrap();
                 img.draw(button.x(), button.y(), button.w(), button.h());
             })
             .unwrap();

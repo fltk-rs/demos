@@ -12,6 +12,7 @@ members = [
     "flcalculator",
     "fldialect",
     "flmusic",
+    "flhudson",
     "flpicture",
     "flresters",
     "fltext",

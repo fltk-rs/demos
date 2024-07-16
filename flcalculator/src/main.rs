@@ -94,7 +94,7 @@ fn button(title: &'static str) -> Button {
     }
     element
 }
-pub fn display(tooltip: &str) {
+fn display(tooltip: &str) {
     let mut element = TextDisplay::default().with_id(tooltip);
     element.set_text_size(HEIGHT - 5);
     element.set_scrollbar_size(3);
@@ -109,7 +109,7 @@ pub fn display(tooltip: &str) {
         )
     });
 }
-pub fn output(tooltip: &str, label: &str) -> Frame {
+fn output(tooltip: &str, label: &str) -> Frame {
     let mut element = Frame::default()
         .with_align(Align::Right | Align::Inside)
         .with_id(tooltip);
@@ -118,7 +118,7 @@ pub fn output(tooltip: &str, label: &str) -> Frame {
     element.set_frame(FrameType::FlatBox);
     element
 }
-pub fn menu(tooltip: &str, theme: u8) -> MenuButton {
+fn menu(tooltip: &str, theme: u8) -> MenuButton {
     let mut element = MenuButton::default()
         .with_id(tooltip)
         .with_type(MenuButtonType::Popup3);
@@ -176,7 +176,8 @@ fn info(_: &mut MenuButton) {
         app::wait();
     }
 }
-pub fn hide(_: &mut MenuButton) {
+
+fn hide(_: &mut MenuButton) {
     let mut page = app::widget_from_id::<Flex>(crate::PAGE).unwrap();
     let mut footer = app::widget_from_id::<Flex>(crate::BUTTONS).unwrap();
     if footer.visible() {
@@ -188,7 +189,8 @@ pub fn hide(_: &mut MenuButton) {
     };
     page.redraw();
 }
-pub fn theme(menu: &mut MenuButton) {
+
+fn theme(menu: &mut MenuButton) {
     const COLORS: [[Color; 6]; 2] = [
         [
             Color::from_hex(0xfdf6e3),

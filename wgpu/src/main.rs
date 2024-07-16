@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use fltk::{prelude::*, *};
 use wgpu::include_wgsl;
 

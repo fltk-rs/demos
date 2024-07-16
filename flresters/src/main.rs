@@ -159,11 +159,10 @@ fn main() -> Result<(), FltkError> {
 fn window() -> Window {
     const NAME: &str = "FlResters";
     let mut element = Window::default()
-        .with_size(640, 360)
+        .with_size(960, 540)
         .with_label(NAME)
         .center_screen();
-    element.make_resizable(true);
-    element.size_range(640, 360, 0, 0);
+    element.make_resizable(false);
     element.set_xclass(NAME);
     element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
     element.set_callback(move |_| {
@@ -215,7 +214,7 @@ fn input() -> InputChoice {
     for item in ["users", "posts", "albums", "todos", "comments", "posts"] {
         element.add(&(format!(r#"https:\/\/jsonplaceholder.typicode.com\/{item}"#)));
     }
-    element.add(r#"https:\/\/lingva.ml\/api\/v1\/languages"#);
+    element.add(r#"https:\/\/lingva.thedaviddelta.com\/api\/v1\/languages"#);
     element.add(r#"https:\/\/ipinfo.io\/json"#);
     element.input().set_trigger(CallbackTrigger::EnterKeyAlways);
     element.set_value_index(0);

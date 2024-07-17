@@ -4,12 +4,12 @@ resolver = "2"
 members = [
     "cairo",
     "cairo_shadow_button",
+    "calculator",
     "calendar",
     "csv",
     "egui",
     "femtovg",
     "ffmpeg",
-    "flcalculator",
     "fldialect",
     "flmusic",
     "flhudson",

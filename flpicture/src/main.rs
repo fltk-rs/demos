@@ -262,7 +262,6 @@ fn window() -> Window {
             if value.len() == DEFAULT.len() {
                 value
             } else {
-                fs::remove_file(&file).unwrap();
                 Vec::from(DEFAULT)
             }
         } else {

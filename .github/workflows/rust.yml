@@ -97,8 +97,8 @@ jobs:
         case ${RUNNER_OS} in
             Linux | macOS) cargo build --quiet || cargo build --verbose;;
         esac
-    - name: Build flcalculator
-      working-directory: flcalculator
+    - name: Build calculator
+      working-directory: calculator
       shell: bash
       run: |
         cargo build --quiet || cargo build --verbose

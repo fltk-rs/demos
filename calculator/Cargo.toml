@@ -8,4 +8,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "^1.4.29", features = ["use-ninja"] }
+fltk = { version = "^1.4", features = ["use-ninja"] }
+serde = { version="1.0", features = ["derive"] }
+rmp-serde = { version="1.1" }

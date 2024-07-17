@@ -3,7 +3,7 @@ pub struct Model {
     value: u8,
 }
 impl Model {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Self { value: 0 }
     }
     pub fn value(&mut self) -> u8 {

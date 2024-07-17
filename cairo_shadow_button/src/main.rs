@@ -20,7 +20,7 @@ use {
 const HEARTBEAT: Event = Event::from_i32(404);
 
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<Model>::new(Model::new());
+    app::GlobalState::<Model>::new(Model::default());
     let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut window = crate::window();
     crate::view();
@@ -62,6 +62,14 @@ fn popup(frame: &mut Frame, event: Event) -> bool {
             }
             _ => false,
         },
+        Event::Enter => {
+            frame.window().unwrap().set_cursor(Cursor::Hand);
+            true
+        }
+        Event::Leave => {
+            frame.window().unwrap().set_cursor(Cursor::Arrow);
+            true
+        }
         HEARTBEAT => {
             let value = app::GlobalState::<Model>::get().with(move |model| model.value());
             frame.set_label(&value.to_string());

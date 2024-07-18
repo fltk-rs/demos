@@ -6,7 +6,7 @@ use {
         app,
         button::Button,
         draw,
-        enums::{Align, Color, ColorDepth, Event, Font, Shortcut},
+        enums::{Align, Color, ColorDepth, Cursor, Event, Font, Shortcut},
         frame::Frame,
         group::Flex,
         image::RgbImage,
@@ -20,7 +20,6 @@ use {
 const HEARTBEAT: Event = Event::from_i32(404);
 
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<Model>::new(Model::default());
     let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut window = crate::window();
     crate::view();
@@ -105,6 +104,7 @@ fn menu() -> MenuButton {
 }
 
 fn window() -> Window {
+    app::GlobalState::<Model>::new(Model::default());
     const NAME: &str = "FlCairoButton";
     let mut element = Window::default()
         .with_label(NAME)

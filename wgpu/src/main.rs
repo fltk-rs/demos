@@ -29,7 +29,8 @@ impl State<'_> {
                 &wgpu::DeviceDescriptor {
                     label: Some("device"),
                     required_features: wgpu::Features::empty(),
-                    required_limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
+                    required_limits: wgpu::Limits::downlevel_defaults()
+                        .using_resolution(adapter.limits()),
                 },
                 None,
             )
@@ -45,7 +46,6 @@ impl State<'_> {
             alpha_mode: wgpu::CompositeAlphaMode::Auto,
             desired_maximum_frame_latency: 2,
             view_formats: vec![swapchain_format],
-
         };
         surface.configure(&device, &config);
         // Pipeline

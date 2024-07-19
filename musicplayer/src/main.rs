@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use {
-    fltk::{app, draw, enums::*, valuator::*, group::*, image::*, frame::*, prelude::*, window::*},
+    fltk::{app, draw, enums::*, frame::*, group::*, image::*, prelude::*, valuator::*, window::*},
     soloud::{audio, AudioExt, LoadExt, Soloud},
     std::{cell::RefCell, rc::Rc},
 };

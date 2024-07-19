@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
-use fltk::{app, prelude::*, window::Window, enums::{Font,Event}};
+use fltk::{
+    app,
+    enums::{Event, Font},
+    prelude::*,
+    window::Window,
+};
 use fltk_theme::{color_themes, ColorTheme};
 
 fn main() {

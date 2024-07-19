@@ -93,8 +93,8 @@ fn frame(tooltip: &str) -> Frame {
 
 fn choice(browser: &mut Browser, event: Event) -> bool {
     if event == Event::from_i32(HEARTBEAT) {
-        let (curr, temp) = app::GlobalState::<Model>::get()
-            .with(move |model| (model.curr, model.temp.clone()));
+        let (curr, temp) =
+            app::GlobalState::<Model>::get().with(move |model| (model.curr, model.temp.clone()));
         if !temp.is_empty() {
             browser.clear();
             for item in temp {
@@ -286,8 +286,8 @@ fn window() -> Window {
     element.make_resizable(true);
     element.handle(move |window, event| {
         if event == Event::from_i32(HEARTBEAT) {
-            let (temp, curr) =
-                app::GlobalState::<Model>::get().with(move |model| (model.temp.clone(), model.curr));
+            let (temp, curr) = app::GlobalState::<Model>::get()
+                .with(move |model| (model.temp.clone(), model.curr));
             match temp.is_empty() {
                 true => window.set_label(NAME),
                 false => window.set_label(&format!("{} - {NAME}", temp[curr].clone())),

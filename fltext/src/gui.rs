@@ -3,8 +3,8 @@ use {
     fltk::{
         enums::*,
         frame::Frame,
-        menu::{MenuButton, MenuButtonType},
         group::{Flex, Tabs},
+        menu::{MenuButton, MenuButtonType},
         prelude::*,
         window::Window,
         *,

@@ -6,7 +6,7 @@ use {
         app::WidgetId,
         button::{Button, ButtonType},
         dialog::{alert_default, FileChooser, FileChooserType, HelpDialog},
-        enums::{Color, Cursor, Event, Font, FrameType, Shortcut, CallbackTrigger},
+        enums::{CallbackTrigger, Color, Cursor, Event, Font, FrameType, Shortcut},
         frame::Frame,
         group::{Flex, FlexType},
         image::SvgImage,
@@ -228,7 +228,7 @@ fn input(tooltip: &'static str) {
             {
                 choice.add(&lang);
             }
-        };
+        }
     });
     element.input().do_callback();
     element.set_value_index(0);

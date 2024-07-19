@@ -108,7 +108,6 @@ fn app() {
     window.end();
     window.show();
     ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_color(Color::Blue, 200, 200, 255);
     crate::rename();
     app::widget_from_id::<Choice>(crate::FONTS)
         .unwrap()
@@ -292,6 +291,8 @@ fn info(_: &mut MenuButton) {
  written using
  <a href="https://fltk-rs.github.io/fltk-rs">FLTK-RS</a>
 </p>"#;
+    let (r, g, b) = Color::from_hex(0x2aa198).to_rgb();
+    app::set_color(Color::Blue, r, g, b);
     let mut dialog = HelpDialog::default();
     dialog.set_value(INFO);
     dialog.set_text_size(16);

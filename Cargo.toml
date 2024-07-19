@@ -14,7 +14,7 @@ members = [
     "flmusic",
     "flhudson",
     "flpicture",
-    "flresters",
+    "resters",
     "fltext",
     "framebuffer",
     "glium",

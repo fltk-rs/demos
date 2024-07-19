@@ -20,8 +20,6 @@ use {
     ureq::{Error, Response},
 };
 
-const DIAL: &str = "Spinner";
-
 #[derive(Clone)]
 struct Widget {
     buffer: TextBuffer,
@@ -29,6 +27,7 @@ struct Widget {
     input: InputChoice,
     text: TextDisplay,
     status: Frame,
+    dial: Dial,
 }
 
 impl Widget {
@@ -52,7 +51,8 @@ impl Widget {
         let mut footer = Flex::default(); //FOOTER
         footer.fixed(&Frame::default().with_label("Status: "), WIDTH);
         let status = Frame::default().with_align(Align::Left | Align::Inside);
-        footer.fixed(&crate::dial(), HEIGHT);
+        let dial = crate::dial();
+        footer.fixed(&dial, HEIGHT);
         footer.end();
 
         page.end();
@@ -73,6 +73,7 @@ impl Widget {
             input,
             text,
             status,
+            dial,
         };
         let mut clone = component.clone();
         component.input.set_callback(move |_| clone.update());
@@ -101,9 +102,7 @@ impl Widget {
         while !handler.is_finished() {
             app::wait();
             app::sleep(0.02);
-            app::widget_from_id::<Dial>(crate::DIAL)
-                .unwrap()
-                .do_callback();
+            self.dial.do_callback();
         }
         if let Ok(req) = handler.join() {
             match req {
@@ -223,7 +222,7 @@ fn input() -> InputChoice {
 
 fn dial() -> Dial {
     const DIAL: u8 = 120;
-    let mut element = Dial::default().with_id(crate::DIAL);
+    let mut element = Dial::default();
     element.deactivate();
     element.set_maximum((DIAL / 4 * 3) as f64);
     element.set_precision(0);

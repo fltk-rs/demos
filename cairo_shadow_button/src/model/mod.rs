@@ -1,13 +1,10 @@
 #[derive(Debug, Clone)]
 pub struct Model {
-    value: u8,
+    pub value: u8,
 }
 impl Model {
     pub fn default() -> Self {
         Self { value: 0 }
-    }
-    pub fn value(&mut self) -> u8 {
-        self.value
     }
     pub fn inc(&mut self) {
         if self.value < 255 {

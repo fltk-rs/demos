@@ -214,6 +214,7 @@ fn input() -> InputChoice {
         element.add(&(format!(r#"https:\/\/jsonplaceholder.typicode.com\/{item}"#)));
     }
     element.add(r#"https:\/\/lingva.thedaviddelta.com\/api\/v1\/languages"#);
+    element.add(r#"https:\/\/lingva.thedaviddelta.com\/api\/v1\/en\/de\/mother"#);
     element.add(r#"https:\/\/ipinfo.io\/json"#);
     element.input().set_trigger(CallbackTrigger::EnterKeyAlways);
     element.set_value_index(0);

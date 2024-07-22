@@ -25,16 +25,26 @@ pub struct Model {
     pub cash: HashMap<String, Vec<Price>>,
     pub temp: Vec<String>,
     pub curr: usize,
-    pub save: bool,
 }
 
 impl Model {
-    pub fn new() -> Self {
-        Self {
+    pub fn default() -> Self {
+        let mut default = Self {
             cash: HashMap::new(),
             temp: Vec::new(),
-            save: false,
             curr: 0,
+        };
+        default.init();
+        default
+    }
+    pub fn init(&mut self) {
+        for file in std::fs::read_dir("assets/historical_data").unwrap() {
+            let entry = file.unwrap().file_name().into_string().unwrap();
+            if entry.ends_with(".csv") {
+                self.temp
+                    .push(entry.strip_suffix(".csv").unwrap().to_string());
+            }
+            self.choice(0);
         }
     }
     pub fn choice(&mut self, curr: usize) {

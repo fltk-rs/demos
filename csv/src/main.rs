@@ -16,102 +16,117 @@ use {
     },
     fltk_theme::{color_themes, ColorTheme},
     model::Model,
+    std::{cell::RefCell, rc::Rc},
 };
 
-const HEARTBEAT: i32 = 404;
-const NAME: &str = "FlCSV";
+const HEARTBEAT: Event = Event::from_i32(404);
+const SAVE: Event = Event::from_i32(405);
+const PAD: i32 = 10;
+const HEIGHT: i32 = 3 * PAD;
+const WIDTH: i32 = 3 * HEIGHT;
 
 fn main() -> Result<(), FltkError> {
-    app::GlobalState::<Model>::new(Model::new());
     let app = app::App::default();
-    let mut window = crate::window();
-    crate::view();
-    window.end();
-    window.show();
-    app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
+    crate::window();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::handle_main(HEARTBEAT).unwrap();
     app.run()
 }
 
-fn view() {
-    let mut page = Flex::default_fill();
-    {
-        let mut left = Flex::default_fill().column();
-        crate::browser("Browser");
-        crate::button("Save image", &mut left);
-        left.end();
-        left.set_pad(10);
-        page.fixed(&left, 90);
-    }
-    crate::frame("Canvas");
-    page.end();
-    page.set_pad(10);
-    page.set_margin(10);
-}
-
-fn browser(tooltip: &str) -> Browser {
-    app::GlobalState::<Model>::get().with(move |model| {
-        for file in std::fs::read_dir("assets/historical_data").unwrap() {
-            let entry = file.unwrap().file_name().into_string().unwrap();
-            if entry.ends_with(".csv") {
-                model
-                    .temp
-                    .push(entry.strip_suffix(".csv").unwrap().to_string());
-            }
-            model.choice(0);
-        }
-    });
-    let mut element = Browser::default().with_type(BrowserType::Hold);
-    element.set_tooltip(tooltip);
-    element.handle(move |browser, event| {
-        if event == Event::from_i32(HEARTBEAT) {
-            let (curr, temp) = app::GlobalState::<Model>::get()
-                .with(move |model| (model.curr, model.temp.clone()));
-            if !temp.is_empty() {
-                browser.clear();
-                for item in temp {
-                    browser.add(&item);
-                }
-                browser.select(curr as i32 + 1);
-            }
+fn window() {
+    const HEIGHT: i32 = 360;
+    const WIDTH: i32 = 640;
+    const NAME: &str = "FlCSV";
+    let state = Rc::from(RefCell::from(Model::default()));
+    let mut element = Window::default()
+        .with_size(WIDTH, HEIGHT)
+        .with_label(NAME)
+        .center_screen();
+    element.make_resizable(true);
+    element.size_range(WIDTH, HEIGHT, 0, 0);
+    element.set_xclass(NAME);
+    crate::view(state.clone());
+    element.handle(move |window, event| {
+        if event == HEARTBEAT {
+            let value = &state.borrow().temp[state.borrow().curr];
+            window.set_label(&format!("{value} - {NAME}"));
             false
-        } else if event == Event::Push {
-            if browser.value() > 0 {
-                let curr: usize = browser.value() as usize - 1;
-                app::GlobalState::<Model>::get().with(move |model| model.choice(curr));
-                app::handle_main(Event::from_i32(HEARTBEAT)).unwrap();
-                app::redraw();
-            };
+        } else if app::event() == Event::Close {
+            app::quit();
             true
         } else {
             false
         }
     });
+    element.end();
+    element.show();
+}
+
+fn view(state: Rc<RefCell<Model>>) {
+    let mut page = Flex::default_fill();
+    {
+        let mut left = Flex::default_fill().column();
+        crate::browser("Browser", state.clone());
+        left.fixed(
+            &crate::button("Save image").with_label("@#filesave"),
+            HEIGHT,
+        );
+        left.end();
+        left.set_pad(PAD);
+        page.fixed(&left, WIDTH);
+        crate::frame("Canvas", state);
+    }
+    page.end();
+    page.set_pad(PAD);
+    page.set_margin(PAD);
+}
+
+fn browser(tooltip: &str, state: Rc<RefCell<Model>>) -> Browser {
+    let mut element = Browser::default().with_type(BrowserType::Hold);
+    element.set_tooltip(tooltip);
+    element.handle(move |browser, event| match event {
+        HEARTBEAT => {
+            let (curr, temp) = (state.borrow().curr, &state.borrow().temp);
+            if !temp.is_empty() {
+                browser.clear();
+                for item in temp {
+                    browser.add(item);
+                }
+                browser.select(curr as i32 + 1);
+            }
+            false
+        }
+        Event::Push => {
+            if browser.value() > 0 {
+                let curr: usize = browser.value() as usize - 1;
+                state.borrow_mut().choice(curr);
+                app::handle_main(HEARTBEAT).unwrap();
+                app::redraw();
+            };
+            true
+        }
+        _ => false,
+    });
     element
 }
 
-fn button(tooltip: &str, flex: &mut Flex) {
-    let mut element = Button::default().with_label("@#filesave");
+fn button(tooltip: &str) -> Button {
+    let mut element = Button::default();
     element.set_tooltip(tooltip);
-    element.handle(move |button, event| {
-        if event == Event::Push {
-            button.deactivate();
-            app::GlobalState::<Model>::get().with(move |model| model.save = true);
-            app::redraw();
-            button.activate();
-        };
-        true
+    element.set_callback(move |_| {
+        app::handle_main(SAVE).unwrap();
     });
-    flex.fixed(&element, 30);
+    element
 }
 
-fn frame(tooltip: &str) -> Frame {
+fn frame(tooltip: &str, state: Rc<RefCell<Model>>) -> Frame {
     let mut element = Frame::default();
     element.set_frame(FrameType::DownBox);
     element.set_tooltip(tooltip);
     element.set_color(Color::Black);
-    element.set_callback(crate::save);
-    element.draw(|frame| {
-        let model = app::GlobalState::<Model>::get().with(move |model| model.clone());
+    element.handle(crate::save);
+    element.draw(move |frame| {
+        let model = state.borrow().clone();
         if let Some(data) = model.cash.get(&model.temp[model.curr]) {
             let mut highest = data
                 .iter()
@@ -142,51 +157,27 @@ fn frame(tooltip: &str) -> Frame {
                     idx += step;
                 }
             };
-            if model.save {
-                app::GlobalState::<Model>::get().with(move |model| model.save = false);
-                frame.do_callback();
-            }
         }
     });
     element
 }
 
-fn save(frame: &mut Frame) {
-    let sur = ImageSurface::new(frame.w(), frame.h(), false);
-    ImageSurface::push_current(&sur);
-    draw::set_draw_color(enums::Color::White);
-    draw::draw_rectf(0, 0, frame.w(), frame.h());
-    sur.draw(frame, 0, 0);
-    let img = sur.image().unwrap();
-    ImageSurface::pop_current();
-    let mut imgbuf: RgbImage = ImageBuffer::new(frame.w() as _, frame.h() as _); // this is from the image crate
-    imgbuf.copy_from_slice(&img.to_rgb_data());
-    imgbuf
-        .save(frame.window().unwrap().label() + ".jpg")
-        .unwrap();
-}
-
-fn window() -> Window {
-    let mut element = Window::default()
-        .with_size(640, 360)
-        .with_label(NAME)
-        .center_screen();
-    element.make_resizable(true);
-    element.size_range(640, 360, 0, 0);
-    element.set_xclass(NAME);
-    element.handle(move |window, event| {
-        if event == Event::from_i32(HEARTBEAT) {
-            let value =
-                app::GlobalState::<Model>::get().with(move |model| model.temp[model.curr].clone());
-            window.set_label(&format!("{value} - {NAME}"));
-            false
-        } else if app::event() == Event::Close {
-            app::quit();
-            true
-        } else {
-            false
-        }
-    });
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    element
+fn save(frame: &mut Frame, event: Event) -> bool {
+    if event == crate::SAVE {
+        let sur = ImageSurface::new(frame.w(), frame.h(), false);
+        ImageSurface::push_current(&sur);
+        draw::set_draw_color(enums::Color::White);
+        draw::draw_rectf(0, 0, frame.w(), frame.h());
+        sur.draw(frame, 0, 0);
+        let img = sur.image().unwrap();
+        ImageSurface::pop_current();
+        let mut imgbuf: RgbImage = ImageBuffer::new(frame.w() as _, frame.h() as _); // this is from the image crate
+        imgbuf.copy_from_slice(&img.to_rgb_data());
+        imgbuf
+            .save(frame.window().unwrap().label() + ".jpg")
+            .unwrap();
+        true
+    } else {
+        false
+    }
 }

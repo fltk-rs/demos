@@ -34,6 +34,9 @@ impl Model {
     pub fn save(&mut self, file: &str) {
         fs::write(file, rmp_serde::to_vec(&self).unwrap()).unwrap();
     }
+    pub fn theme(&mut self) {
+        self.theme = !self.theme;
+    }
     pub fn click(&mut self, value: &str) {
         match value {
             "/" | "x" | "+" | "-" | "%" => {

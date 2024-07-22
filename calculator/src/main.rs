@@ -17,6 +17,7 @@ use {
         window::Window,
     },
     model::Model,
+    std::{cell::RefCell, rc::Rc},
 };
 
 const HEARTBEAT: Event = Event::from_i32(404);
@@ -44,48 +45,82 @@ const COLORS: [[Color; 6]; 2] = [
 
 fn main() -> Result<(), FltkError> {
     let app = app::App::default().with_scheme(app::AppScheme::Base);
-    let mut window = crate::window();
-    crate::view();
-    window.end();
-    window.show();
+    crate::window();
     app::handle_main(HEARTBEAT).unwrap();
     app::set_font(Font::Courier);
     app.run()
 }
 
-fn view() {
+fn window() {
+    const NAME: &str = "FlCalculator";
+    let file = std::env::var("HOME").unwrap() + "/.config/" + NAME;
+    let state = Rc::from(RefCell::from(Model::default(&file)));
+    let mut element = Window::default()
+        .with_size(360, 640)
+        .with_label(NAME)
+        .center_screen();
+    element.make_resizable(false);
+    element.set_xclass(NAME);
+    element.set_icon(Some(
+        SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap(),
+    ));
+    crate::view(state.clone());
+    element.set_callback(move |_| {
+        if app::event() == Event::Close {
+            let value = file.clone();
+            state.borrow_mut().save(&value);
+            app::quit();
+        }
+    });
+    element.end();
+    element.show();
+}
+
+fn view(state: Rc<RefCell<Model>>) {
     let mut page = Flex::default_fill().column();
-    crate::display("Output");
+    crate::display("Output").handle(glib::clone!(@strong state => move |display, event| {
+        if event == HEARTBEAT {
+            let (theme, value) = (state.borrow().theme, state.borrow().output.clone());
+            display.set_color(crate::COLORS[theme as usize][0]);
+            display.set_text_color(crate::COLORS[theme as usize][1]);
+            display.buffer().unwrap().set_text(&value);
+        };
+        false
+    }));
     let mut row = Flex::default();
-    crate::output("Operation").handle(move |frame, event| {
+    crate::output("Operation").handle(glib::clone!(@strong state => move |frame, event| {
         if event == HEARTBEAT {
-            let value = app::GlobalState::<Model>::get().with(move |model| model.operation.clone());
-            frame.set_label(&value.to_string());
+            let (theme, value) = (state.borrow().theme, &state.borrow().operation);
+            frame.set_color(crate::COLORS[theme as usize][0]);
+            frame.set_label_color(crate::COLORS[theme as usize][1]);
+            frame.set_label(value);
         };
         false
-    });
+    }));
     let mut col = Flex::default().column();
-    crate::output("Previous").handle(move |frame, event| {
+    crate::output("Previous").handle(glib::clone!(@strong state => move |frame, event| {
         if event == HEARTBEAT {
-            let value = app::GlobalState::<Model>::get().with(move |model| model.prev);
-            frame.set_label(&value.to_string());
+            let (theme, value) = (state.borrow().theme, &state.borrow().prev.to_string());
+            frame.set_color(crate::COLORS[theme as usize][0]);
+            frame.set_label_color(crate::COLORS[theme as usize][1]);
+            frame.set_label(value);
         };
         false
-    });
-    crate::output("Current").handle(move |frame, event| {
+    }));
+    crate::output("Current").handle(glib::clone!(@strong state => move |frame, event| {
         if event == HEARTBEAT {
-            let value = app::GlobalState::<Model>::get().with(move |model| model.current.clone());
-            frame.set_label(&value);
+            let (theme, value) = (state.borrow().theme, &state.borrow().current.to_string());
+            frame.set_color(crate::COLORS[theme as usize][0]);
+            frame.set_label_color(crate::COLORS[theme as usize][1]);
+            frame.set_label(value);
         };
         false
-    });
+    }));
     col.end();
     col.set_pad(0);
-    col.handle(crate::theme);
     row.end();
     row.set_pad(0);
     row.set_margin(0);
-    row.handle(crate::theme);
     row.fixed(&row.child(0).unwrap(), 30);
     let mut buttons = Flex::default_fill().column();
     for line in [
@@ -97,13 +132,64 @@ fn view() {
     ] {
         let mut row = Flex::default();
         for label in line {
-            crate::button(label).handle(crate::click);
+            crate::button(label).handle(glib::clone!(@strong state => move |button, event| {
+                match event {
+                    Event::Push => {
+                        let value = button.label();
+                        state.borrow_mut().click(&value);
+                        app::handle_main(HEARTBEAT).unwrap();
+                        true
+                    }
+                    HEARTBEAT => {
+                        let theme = state.borrow().theme;
+                        match button.label().as_str() {
+                            "C" | "x" | "/" | "+" | "-" | "%" => {
+                                button.set_color(crate::COLORS[theme as usize][2]);
+                                button.set_label_color(crate::COLORS[theme as usize][0]);
+                            }
+                            "CE" => {
+                                button.set_color(crate::COLORS[theme as usize][4]);
+                                button.set_label_color(crate::COLORS[theme as usize][0]);
+                            }
+                            crate::EQUAL => {
+                                button.set_color(crate::COLORS[theme as usize][5]);
+                                button.set_label_color(crate::COLORS[theme as usize][0]);
+                            }
+                            _ => {
+                                button.set_color(crate::COLORS[theme as usize][3]);
+                                button.set_label_color(crate::COLORS[theme as usize][1]);
+                            }
+                        };
+                        false
+                    }
+                    _ => false,
+                }
+            }));
         }
         row.end();
         row.set_pad(PAD);
         row.set_margin(0);
     }
-    buttons.handle(crate::popup);
+    buttons.handle(glib::clone!(@strong state => move |flex, event| {
+        match event {
+            Event::Push => match app::event_mouse_button() {
+                app::MouseButton::Right => {
+                    crate::menu(state.clone()).popup();
+                    true
+                }
+                _ => false,
+            },
+            Event::Enter => {
+                flex.window().unwrap().set_cursor(Cursor::Hand);
+                true
+            }
+            Event::Leave => {
+                flex.window().unwrap().set_cursor(Cursor::Arrow);
+                true
+            }
+            _ => false,
+        }
+    }));
     buttons.end();
     buttons.set_pad(PAD);
     buttons.set_margin(0);
@@ -113,13 +199,12 @@ fn view() {
     page.set_pad(PAD);
     page.set_frame(FrameType::FlatBox);
     page.fixed(&row, 60);
-    page.handle(move |flex, event| {
+    page.handle(glib::clone!(@strong state => move |flex, event| {
         if event == HEARTBEAT {
-            let theme = app::GlobalState::<Model>::get().with(move |model| model.theme);
-            flex.set_color(crate::COLORS[theme as usize][0]);
+            flex.set_color(crate::COLORS[state.borrow().theme as usize][0]);
         };
         false
-    });
+    }));
 }
 
 fn button(title: &'static str) -> Button {
@@ -136,7 +221,7 @@ fn button(title: &'static str) -> Button {
     element
 }
 
-fn display(tooltip: &str) {
+fn display(tooltip: &str) -> TextDisplay {
     let mut element = TextDisplay::default();
     element.set_text_size(HEIGHT - 5);
     element.set_tooltip(tooltip);
@@ -151,16 +236,7 @@ fn display(tooltip: &str) {
             0,
         )
     });
-    element.handle(move |display, event| {
-        if event == HEARTBEAT {
-            let theme = app::GlobalState::<Model>::get().with(move |model| model.theme);
-            display.set_color(crate::COLORS[theme as usize][0]);
-            display.set_text_color(crate::COLORS[theme as usize][1]);
-            let value = app::GlobalState::<Model>::get().with(move |model| model.output.clone());
-            display.buffer().unwrap().set_text(&value);
-        };
-        false
-    })
+    element
 }
 
 fn output(tooltip: &str) -> Frame {
@@ -171,7 +247,7 @@ fn output(tooltip: &str) -> Frame {
     element
 }
 
-fn menu() -> MenuButton {
+fn menu(state: Rc<RefCell<Model>>) -> MenuButton {
     let mut element = MenuButton::default().with_type(MenuButtonType::Popup3);
     element.set_frame(FrameType::FlatBox);
     element.set_tooltip("Menu");
@@ -179,13 +255,13 @@ fn menu() -> MenuButton {
         "&Night mode\t",
         Shortcut::Ctrl | 'n',
         MenuFlag::Toggle,
-        move |_| {
-            app::GlobalState::<Model>::get().with(move |model| model.theme = !model.theme);
+        glib::clone!(@strong state => move |_| {
+            state.borrow_mut().theme();
             app::handle_main(HEARTBEAT).unwrap();
             app::redraw();
-        },
+        }),
     );
-    match app::GlobalState::<Model>::get().with(move |model| model.theme) {
+    match state.borrow().theme {
         true => element.at(item).unwrap().set(),
         false => element.at(item).unwrap().clear(),
     };
@@ -204,14 +280,14 @@ fn menu() -> MenuButton {
         },
     );
     element.at(item).unwrap().set_label_color(Color::Red);
-    element.handle(move |menu, event| {
+    element.handle(glib::clone!(@strong state => move |menu, event| {
         if event == HEARTBEAT {
-            let theme = app::GlobalState::<Model>::get().with(move |model| model.theme);
+            let theme = state.borrow().theme;
             menu.set_color(crate::COLORS[theme as usize][0]);
             menu.set_text_color(crate::COLORS[theme as usize][1]);
         };
         false
-    });
+    }));
     element
 }
 
@@ -229,117 +305,5 @@ fn info(_: &mut MenuButton) {
     dialog.show();
     while dialog.shown() {
         app::wait();
-    }
-}
-
-fn theme(flex: &mut Flex, event: Event) -> bool {
-    if event == HEARTBEAT {
-        let theme = app::GlobalState::<Model>::get().with(move |model| model.theme);
-        for idx in 0..flex.children() {
-            let mut frame = flex.child(idx).unwrap();
-            frame.set_color(crate::COLORS[theme as usize][0]);
-            frame.set_label_color(crate::COLORS[theme as usize][1]);
-        }
-    };
-    false
-}
-
-fn window() -> Window {
-    const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
-  <metadata id="metadata4">
-    <rdf:RDF>
-      <cc:Work rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-        <dc:title/>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs id="defs6">
-    <linearGradient id="linearGradient8" x1="159" y1="91" x2="23" y2="13" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
-      <stop id="stop10" style="stop-color:#000000;stop-opacity:0" offset="0"/>
-      <stop id="stop12" style="stop-color:#000000;stop-opacity:0.192" offset="0.33"/>
-      <stop id="stop14" style="stop-color:#000000;stop-opacity:0.5" offset="0.72"/>
-      <stop id="stop16" style="stop-color:#000000;stop-opacity:1" offset="1"/>
-    </linearGradient>
-  </defs>
-  <rect width="254" height="93" id="rect22" style="fill:#d6ddf2;stroke:#7c808d;stroke-width:4"/>
-  <path d="m 271,-31.5 -71,71 0,-36.5 -90,0 0,17 28,0 0,53 -46,0 0,-70 -89,0 0,87 17,0 0,-34.5 36,0 0,-17 -36,0 0,-18.5 55,0 0,70 80,0 0,-70 28,0 0,70 17,0 0,-36 71,71 z M 254,84 216.75,46.75 254,9.5" id="path24" style="fill:#7c808d;stroke:#7c808d;stroke-width:6;stroke-linejoin:round"/>
-  <rect width="254" height="93" id="rect26" style="fill:url(#linearGradient8)"/>
-  <path d="m 72,11.5 -60.5,0 0,78.5 m 0,-43 44.5,0 m 27.5,-44 0,78.5 51.5,0 m -25,-70 70,0 m -33.5,0 0,78.5 m 45,-87 0,87 m 71,-101 -57.75,57.75 57.75,57.75" id="path28" style="fill:none;stroke:#ffffff;stroke-width:17"/>
-</svg>"#;
-    const NAME: &str = "FlCalculator";
-    let file = std::env::var("HOME").unwrap() + "/.config/" + NAME;
-    app::GlobalState::<Model>::new(Model::default(&file));
-    let mut element = Window::default()
-        .with_size(360, 640)
-        .with_label(NAME)
-        .center_screen();
-    element.make_resizable(false);
-    element.set_xclass(NAME);
-    element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
-    element.set_callback(move |_| {
-        if app::event() == Event::Close {
-            let value = file.clone();
-            app::GlobalState::<Model>::get().with(move |model| model.save(&value));
-            app::quit();
-        }
-    });
-    element
-}
-
-fn popup(flex: &mut Flex, event: Event) -> bool {
-    match event {
-        Event::Push => match app::event_mouse_button() {
-            app::MouseButton::Right => {
-                crate::menu().popup();
-                true
-            }
-            _ => false,
-        },
-        Event::Enter => {
-            flex.window().unwrap().set_cursor(Cursor::Hand);
-            true
-        }
-        Event::Leave => {
-            flex.window().unwrap().set_cursor(Cursor::Arrow);
-            true
-        }
-        _ => false,
-    }
-}
-
-fn click(button: &mut Button, event: Event) -> bool {
-    match event {
-        Event::Push => {
-            let value = button.label();
-            app::GlobalState::<Model>::get().with(move |model| model.click(&value));
-            app::handle_main(HEARTBEAT).unwrap();
-            true
-        }
-        HEARTBEAT => {
-            let theme = app::GlobalState::<Model>::get().with(move |model| model.theme);
-            match button.label().as_str() {
-                "C" | "x" | "/" | "+" | "-" | "%" => {
-                    button.set_color(crate::COLORS[theme as usize][2]);
-                    button.set_label_color(crate::COLORS[theme as usize][0]);
-                }
-                "CE" => {
-                    button.set_color(crate::COLORS[theme as usize][4]);
-                    button.set_label_color(crate::COLORS[theme as usize][0]);
-                }
-                crate::EQUAL => {
-                    button.set_color(crate::COLORS[theme as usize][5]);
-                    button.set_label_color(crate::COLORS[theme as usize][0]);
-                }
-                _ => {
-                    button.set_color(crate::COLORS[theme as usize][3]);
-                    button.set_label_color(crate::COLORS[theme as usize][1]);
-                }
-            };
-            false
-        }
-        _ => false,
     }
 }

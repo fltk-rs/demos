@@ -101,7 +101,9 @@ jobs:
       working-directory: calculator
       shell: bash
       run: |
-        cargo build --quiet || cargo build --verbose
+        case ${RUNNER_OS} in
+            Linux | macOS) cargo build --quiet || cargo build --verbose;;
+        esac
     - name: Build fldialect
       working-directory: fldialect
       shell: bash
@@ -113,10 +115,12 @@ jobs:
       run: |
         cargo build --quiet || cargo build --verbose
     - name: Build flpicture
-      working-directory: flpicture
+      working-directory: picture
       shell: bash
       run: |
-        cargo build --quiet || cargo build --verbose
+        case ${RUNNER_OS} in
+            Linux | macOS) cargo build --quiet || cargo build --verbose;;
+        esac
     - name: Build flresters
       working-directory: resters
       shell: bash

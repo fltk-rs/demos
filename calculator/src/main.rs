@@ -250,7 +250,6 @@ fn output(tooltip: &str) -> Frame {
 fn menu(state: Rc<RefCell<Model>>) -> MenuButton {
     let mut element = MenuButton::default().with_type(MenuButtonType::Popup3);
     element.set_frame(FrameType::FlatBox);
-    element.set_tooltip("Menu");
     let mut item: i32 = element.add(
         "&Night mode\t",
         Shortcut::Ctrl | 'n',

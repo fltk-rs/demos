@@ -152,6 +152,8 @@ impl Widget {
 
 fn main() -> Result<(), FltkError> {
     Widget::view();
+    ColorTheme::new(color_themes::DARK_THEME).apply();
+    app::set_font(Font::Courier);
     app::App::default().run()
 }
 
@@ -163,14 +165,12 @@ fn window() -> Window {
         .center_screen();
     element.make_resizable(false);
     element.set_xclass(NAME);
-    element.set_icon(Some(SvgImage::from_data(SVG).unwrap()));
+    element.set_icon(Some(SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap()));
     element.set_callback(move |_| {
         if app::event() == Event::Close {
             app::quit();
         }
     });
-    ColorTheme::new(color_themes::DARK_THEME).apply();
-    app::set_font(Font::Courier);
     element
 }
 
@@ -240,27 +240,3 @@ fn dial() -> Dial {
 const PAD: i32 = 10;
 const HEIGHT: i32 = PAD * 3;
 const WIDTH: i32 = HEIGHT * 3;
-const SVG: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="254" height="93" clip-path="url(#clipPath18)" id="svg2">
-  <metadata id="metadata4">
-    <rdf:RDF>
-      <cc:Work rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-        <dc:title/>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs id="defs6">
-    <linearGradient id="linearGradient8" x1="159" y1="91" x2="23" y2="13" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
-      <stop id="stop10" style="stop-color:#000000;stop-opacity:0" offset="0"/>
-      <stop id="stop12" style="stop-color:#000000;stop-opacity:0.192" offset="0.33"/>
-      <stop id="stop14" style="stop-color:#000000;stop-opacity:0.5" offset="0.72"/>
-      <stop id="stop16" style="stop-color:#000000;stop-opacity:1" offset="1"/>
-    </linearGradient>
-  </defs>
-  <rect width="254" height="93" id="rect22" style="fill:#d6ddf2;stroke:#7c808d;stroke-width:4"/>
-  <path d="m 271,-31.5 -71,71 0,-36.5 -90,0 0,17 28,0 0,53 -46,0 0,-70 -89,0 0,87 17,0 0,-34.5 36,0 0,-17 -36,0 0,-18.5 55,0 0,70 80,0 0,-70 28,0 0,70 17,0 0,-36 71,71 z M 254,84 216.75,46.75 254,9.5" id="path24" style="fill:#7c808d;stroke:#7c808d;stroke-width:6;stroke-linejoin:round"/>
-  <rect width="254" height="93" id="rect26" style="fill:url(#linearGradient8)"/>
-  <path d="m 72,11.5 -60.5,0 0,78.5 m 0,-43 44.5,0 m 27.5,-44 0,78.5 51.5,0 m -25,-70 70,0 m -33.5,0 0,78.5 m 45,-87 0,87 m 71,-101 -57.75,57.75 57.75,57.75" id="path28" style="fill:none;stroke:#ffffff;stroke-width:17"/>
-</svg>"#;

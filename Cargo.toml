@@ -13,7 +13,7 @@ members = [
     "fldialect",
     "flmusic",
     "flhudson",
-    "flpicture",
+    "picture",
     "resters",
     "fltext",
     "framebuffer",

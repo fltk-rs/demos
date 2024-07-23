@@ -6,11 +6,13 @@ use {
     std::{cell::RefCell, rc::Rc},
 };
 
-const TRACK: &str = "assets/Alarm.mp3";
-const HEIGHT: i32 = 30;
+const TRACK: &str = "../../assets/Alarm.mp3";
+const PAD: i32 = 10;
+const HEIGHT: i32 = 3 * PAD;
+const WIDTH: i32 = 3 * HEIGHT;
 
 fn main() -> Result<(), FltkError> {
-    let sl = Rc::from(RefCell::from(Soloud::default().unwrap()));
+    let state = Rc::from(RefCell::from(Soloud::default().unwrap()));
     let app = app::App::default();
     let mut wind = Window::default()
         .with_label("Music Player")
@@ -18,165 +20,111 @@ fn main() -> Result<(), FltkError> {
         .center_screen();
 
     let mut page = Flex::default_fill().column();
-    Frame::default();
-    crate::label(&mut page);
-    Frame::default();
-    crate::slider(&mut page).handle({
-        let sl_clone = sl.clone();
-        move |slider, ev| match ev {
-            Event::Push => true,
-            Event::Drag => {
-                let slider_x = slider.x() as f32 / 50.0;
-                let (x, _y) = app::event_coords();
-                if x > 45 && x < 350 {
-                    sl_clone.borrow_mut().set_global_volume(slider_x);
-                }
-                app::redraw();
-                true
-            }
-            _ => false,
+    {
+        Frame::default();
+        page.fixed(&crate::label(), HEIGHT);
+        page.fixed(&crate::slider(state.clone()), PAD);
+        let mut footer = Flex::default();
+        {
+            Frame::default();
+            footer.fixed(&crate::button(state.clone()), WIDTH);
+            Frame::default();
         }
-    });
-    Frame::default();
-    let mut footer = Flex::default();
-    Frame::default();
-    crate::frame(&mut footer).set_callback({
-        let sl_clone = sl.clone();
-        move |_| {
-            if sl_clone.borrow().active_voice_count() > 0 {
-                // Checks that no active audio is playing
-                sl_clone.borrow().stop_all();
-            } else {
-                let mut wav = audio::Wav::default();
-                if wav.load(std::path::Path::new(TRACK)).is_ok() {
-                    wav.set_looping(true);
-                    sl_clone.borrow().play(&wav);
-                    while sl_clone.borrow().active_voice_count() > 0 {
-                        app::wait();
-                    }
-                }
-            }
-        }
-    });
-    Frame::default();
-    footer.end();
-    Frame::default();
+        footer.end();
+        page.fixed(&footer, WIDTH);
+        Frame::default();
+    }
     page.end();
-    page.set_pad(30);
-    page.set_margin(10);
-    page.fixed(&footer, 80);
+    page.set_pad(WIDTH);
+    page.set_margin(HEIGHT);
     wind.end();
     wind.make_resizable(true);
     wind.set_color(Color::Black);
     wind.show();
     wind.set_callback(move |_| {
         // Triggered when the window closes
-        sl.borrow().stop_all(); // Stop any playing audio before quitting
+        state.borrow().stop_all(); // Stop any playing audio before quitting
         app.quit();
     });
 
     app.run()
 }
 
-fn label(flex: &mut Flex) {
+fn label() -> Frame {
     let mut element = Frame::default().with_label(TRACK).center_of_parent();
     element.set_label_color(Color::White);
-    element.set_label_size(20);
-    flex.fixed(&element, HEIGHT);
-}
-
-fn frame(flex: &mut Flex) -> Frame {
-    const POWER: &str = r#"<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 19.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-     viewBox="0 0 315.083 315.083" style="enable-background:new 0 0 315.083 315.083;" xml:space="preserve">
-<g id="Layer_1">
-    <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="157.5417" y1="4.5417" x2="157.5417" y2="310.5417">
-        <stop  offset="0" style="stop-color:#939598"/>
-        <stop  offset="0.25" style="stop-color:#414042"/>
-        <stop  offset="0.5" style="stop-color:#252223"/>
-        <stop  offset="1" style="stop-color:#000000"/>
-    </linearGradient>
-    <circle style="fill:url(#SVGID_1_);" cx="157.542" cy="157.542" r="153"/>
-</g>
-<g id="Layer_2">
-    <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="157.5417" y1="292.5417" x2="157.5417" y2="22.5417">
-        <stop  offset="0" style="stop-color:#58595B"/>
-        <stop  offset="0.1" style="stop-color:#414042"/>
-        <stop  offset="0.2" style="stop-color:#242122"/>
-        <stop  offset="1" style="stop-color:#000000"/>
-    </linearGradient>
-    <circle style="fill:url(#SVGID_2_);stroke:#58595B;stroke-miterlimit:10;" cx="157.542" cy="157.542" r="135"/>
-</g>
-<g id="Layer_4">
-    <radialGradient id="SVGID_3_" cx="157.5417" cy="89.9217" r="62.2727" gradientUnits="userSpaceOnUse">
-        <stop  offset="0" style="stop-color:#58595B"/>
-        <stop  offset="0.5" style="stop-color:#414042"/>
-        <stop  offset="1" style="stop-color:#231F20"/>
-    </radialGradient>
-    <radialGradient id="SVGID_4_" cx="157.5417" cy="89.9217" r="62.7723" gradientUnits="userSpaceOnUse">
-        <stop  offset="0" style="stop-color:#FFFFFF"/>
-        <stop  offset="0.6561" style="stop-color:#231F20"/>
-        <stop  offset="1" style="stop-color:#000000"/>
-    </radialGradient>
-
-        <ellipse style="fill:url(#SVGID_3_);stroke:url(#SVGID_4_);stroke-miterlimit:10;" cx="157.542" cy="89.922" rx="59.833" ry="64.62"/>
-</g>
-<g id="Layer_6">
-    <path style="fill:none;stroke:red;stroke-width:10;stroke-linecap:round;stroke-miterlimit:10;" d="M119.358,119.358
-        c-9.772,9.772-15.816,23.272-15.816,38.184c0,14.912,6.044,28.412,15.816,38.184s23.272,15.816,38.184,15.816
-        c14.912,0,28.412-6.044,38.184-15.816s15.816-23.272,15.816-38.184c0-14.912-6.044-28.412-15.816-38.184"/>
-
-        <line style="fill:none;stroke:red;stroke-width:10;stroke-linecap:round;stroke-miterlimit:10;" x1="157.542" y1="154.542" x2="157.542" y2="100.542"/>
-</g>
-</svg>"#;
-    let mut element = Frame::default();
-    let on = Rc::from(RefCell::from(false));
-    element.draw({
-        let on = on.clone();
-        move |frame| {
-            let image_data = if *on.borrow() {
-                POWER.to_string().replace("red", "green")
-            } else {
-                POWER.to_string()
-            };
-            let mut svg = SvgImage::from_data(&image_data).unwrap();
-            svg.scale(frame.width(), frame.height(), true, true);
-            svg.draw(frame.x(), frame.y(), frame.width(), frame.height());
-        }
-    });
-    element.handle({
-        let on = on.clone();
-        move |frame, event| match event {
-            Event::Push => {
-                let prev = *on.borrow();
-                *on.borrow_mut() = !prev;
-                frame.do_callback();
-                frame.redraw();
-                true
-            }
-            _ => false,
-        }
-    });
-    flex.fixed(&element, 80);
+    element.set_label_size(HEIGHT);
     element
 }
 
-fn slider(flex: &mut Flex) -> Slider {
+fn button(state: Rc<RefCell<Soloud>>) -> Frame {
+    const POWER: &str = include_str!("../../assets/button.svg");
+    let mut element = Frame::default();
+    element.set_tooltip("start");
+    element.handle(move |frame, event| match event {
+        Event::Push => {
+            if state.borrow().active_voice_count() > 0 {
+                // Checks that no active audio is playing
+                frame.set_tooltip("play");
+                frame.redraw();
+                state.borrow().stop_all();
+            } else {
+                frame.set_tooltip("stop");
+                frame.redraw();
+                let mut wav = audio::Wav::default();
+                if wav.load(TRACK).is_ok() {
+                    wav.set_looping(true);
+                    state.borrow().play(&wav);
+                    while state.borrow().active_voice_count() > 0 {
+                        app::wait();
+                        app::sleep(0.02);
+                    }
+                }
+            }
+            true
+        }
+        _ => false,
+    });
+    element.draw(move |frame| {
+        let image_data = match frame.tooltip().unwrap().as_str() {
+            "stop" => POWER.to_string().replace("red", "green"),
+            _ => POWER.to_string(),
+        };
+        let mut svg = SvgImage::from_data(&image_data).unwrap();
+        svg.scale(frame.width(), frame.height(), true, true);
+        svg.draw(frame.x(), frame.y(), frame.width(), frame.height());
+    });
+    element
+}
+
+fn slider(state: Rc<RefCell<Soloud>>) -> Slider {
     let mut element = Slider::default().with_type(SliderType::Horizontal);
     element.set_color(Color::from_u32(0x868db1));
     element.set_frame(FrameType::RFlatBox);
-    element.draw(|slider| {
+    element.set_maximum(3.0);
+    element.set_value(0.0);
+    element.draw(move |slider| {
         draw::set_draw_color(Color::Blue);
         draw::draw_pie(
-            slider.x() - 10 + (slider.w() as f64 * slider.value()) as i32,
-            slider.y() - 10,
-            30,
-            30,
-            0.,
-            360.,
+            (slider.x() - HEIGHT / 2)
+                + (slider.value() * (slider.w()) as f64 / slider.maximum()) as i32,
+            slider.y() - slider.h(),
+            HEIGHT,
+            HEIGHT,
+            0_f64,
+            360_f64,
         );
     });
-    flex.fixed(&element, 10);
+    element.handle(move |slider, event| match event {
+        Event::Push => true,
+        Event::Drag => {
+            if (slider.x()..slider.w() + slider.x()).contains(&app::event_coords().0) {
+                state.borrow_mut().set_global_volume(slider.value() as f32);
+            }
+            app::redraw();
+            true
+        }
+        _ => false,
+    });
     element
 }

@@ -2,7 +2,7 @@
 #[cfg(target_os = "linux")]
 use {
     cairo::Context,
-    fltk::{enums::*, frame::Frame, prelude::*, *},
+    fltk::{enums::*, frame::Frame, image::SvgImage, prelude::*, *},
     std::{cell::RefCell, rc::Rc},
 };
 
@@ -30,7 +30,9 @@ fn main() {
     win.set_color(Color::White);
     win.make_resizable(true);
     win.show();
-
+    win.set_icon(Some(
+        SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
+    ));
     app::cairo::set_autolink_context(true);
     app.run().unwrap();
 }

@@ -19,11 +19,12 @@ use {
     },
     fltk_theme::{color_themes, ColorTheme},
     model::Model,
-    std::{cell::RefCell, env, fs, path::Path, rc::Rc},
+    std::{cell::RefCell, collections::HashMap, env, rc::Rc},
 };
 
 const PAD: i32 = 10;
 const HEIGHT: i32 = 3 * PAD;
+const WIDTH: i32 = 3 * HEIGHT;
 const HEARTBEAT: Event = Event::from_i32(404);
 const NEXT: Event = Event::from_i32(405);
 const PREV: Event = Event::from_i32(406);
@@ -39,46 +40,20 @@ fn main() -> Result<(), FltkError> {
 }
 
 fn window() {
-    const DEFAULT: [u8; 4] = [
-        2,   // [2] window_width * U8 +
-        130, // [3] window_width_fract
-        1,   // [4] window_height * U8 +
-        105, // [5] window_height_fract
-    ];
-    const U8: i32 = 255;
+    const WIDTH: i32 = 640;
+    const HEIGHT: i32 = 360;
     const NAME: &str = "FlPicture";
     let file: String = env::var("HOME").unwrap() + "/.config/" + NAME;
-    let state = Rc::from(RefCell::from(Model::default()));
-    let params: Vec<u8> = if Path::new(&file).exists() {
-        if let Ok(value) = fs::read(&file) {
-            if value.len() == DEFAULT.len() {
-                value
-            } else {
-                Vec::from(DEFAULT)
-            }
-        } else {
-            Vec::from(DEFAULT)
-        }
-    } else {
-        Vec::from(DEFAULT)
-    };
+    let state = Rc::from(RefCell::from(Model::default(&file)));
     let mut element = Window::default()
-        .with_size(
-            params[0] as i32 * U8 + params[1] as i32,
-            params[2] as i32 * U8 + params[3] as i32,
-        )
+        .with_size(WIDTH, HEIGHT)
+        .with_label(NAME)
         .center_screen();
-    element.size_range(
-        DEFAULT[0] as i32 * U8 + DEFAULT[1] as i32,
-        DEFAULT[2] as i32 * U8 + DEFAULT[3] as i32,
-        0,
-        0,
-    );
+    element.make_resizable(true);
     element.set_xclass(NAME);
     element.set_icon(Some(
-        SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap(),
+        SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
-    element.make_resizable(true);
     crate::view(state.clone());
     element.handle(move |window, event| {
         if event == HEARTBEAT {
@@ -89,16 +64,8 @@ fn window() {
             };
             false
         } else if app::event() == Event::Close {
-            fs::write(
-                &file,
-                [
-                    (window.width() / U8) as u8,
-                    (window.width() % U8) as u8,
-                    (window.height() / U8) as u8,
-                    (window.height() % U8) as u8,
-                ],
-            )
-            .unwrap();
+            let value = file.clone();
+            state.borrow().save(&value);
             app::quit();
             true
         } else {
@@ -110,186 +77,178 @@ fn window() {
 }
 
 fn view(state: Rc<RefCell<Model>>) {
-    let mut page = Flex::default_fill().column(); //Page
+    let mut page = Flex::default_fill().column();
     {
-        let mut header = Flex::default(); //HEADER
-        crate::button("Open", "@#fileopen", &mut header).handle(
-            glib::clone!(@strong state => move |button, event| {
-                if [OPEN, Event::Push].contains(&event) {
-                    button.deactivate();
-                    let mut dialog = FileChooser::new(
-                        std::env::var("HOME").unwrap(),
-                        "*.{png,svg}",
-                        FileChooserType::Multi,
-                        "Choose File...",
-                    );
-                    dialog.show();
-                    button.activate();
-                    while dialog.shown() {
-                        app::wait();
-                    }
-                    if dialog.count() > 0 {
-                        for item in 1..=dialog.count() {
-                            if let Some(file) = dialog.value(item) {
-                                state.borrow_mut().temp.push(file);
-                            };
-                            state.borrow_mut().choice(0);
-                        }
-                    };
-                    app::handle_main(HEARTBEAT).unwrap();
-                    true
-                } else {
-                    false
-                }
-            }),
-        );
-        crate::button("Prev", "@#|<", &mut header).handle(
-            glib::clone!(@strong state => move |button, event| {
-                if [PREV, Event::Push].contains(&event) {
-                    button.deactivate();
-                    state.borrow_mut().dec();
-                    app::handle_main(HEARTBEAT).unwrap();
-                    button.activate();
-                    true
-                } else {
-                    false
-                }
-            }),
-        );
-        crate::slider("Size").set_callback(glib::clone!(@strong state => move |slider| {
-            state.borrow_mut().size = slider.value() as i32;
-            app::handle_main(HEARTBEAT).unwrap();
-        }));
-        crate::button("Next", "@#>|", &mut header).handle(
-            glib::clone!(@strong state => move |button, event| {
-                if [NEXT, Event::Push].contains(&event) {
-                    button.deactivate();
-                    state.borrow_mut().inc();
-                    app::handle_main(HEARTBEAT).unwrap();
-                    button.activate();
-                    true
-                } else {
-                    false
-                }
-            }),
-        );
-        crate::button("Remove", "@#1+", &mut header).handle(
-            glib::clone!(@strong state => move |button, event| {
-                if [REMOVE, Event::Push].contains(&event) {
-                    if ! state.borrow().temp.is_empty() {
-                        button.deactivate();
-                        match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
-                            Some(0) => state.borrow_mut().remove(false),
-                            Some(2) => state.borrow_mut().remove(true),
-                            _ => {}
-                        };
-                        app::handle_main(HEARTBEAT).unwrap();
-                        button.activate();
-                    };
-                    true
-                } else {
-                    false
-                }
-            }),
-        );
+        let mut header = Flex::default();
+        crate::button("Open", &mut header)
+            .with_label("@#fileopen")
+            .set_callback(move |_| {
+                app::handle_main(crate::OPEN).unwrap();
+            });
+        crate::button("Prev", &mut header)
+            .with_label("@#|<")
+            .set_callback(move |_| {
+                app::handle_main(crate::PREV).unwrap();
+            });
+        crate::slider("Size", state.clone());
+        crate::button("Next", &mut header)
+            .with_label("@#>|")
+            .set_callback(move |_| {
+                app::handle_main(crate::NEXT).unwrap();
+            });
+        crate::button("Remove", &mut header)
+            .with_label("@#1+")
+            .set_callback(move |_| {
+                app::handle_main(crate::REMOVE).unwrap();
+            });
         header.end();
         header.set_pad(0);
         page.fixed(&header, HEIGHT);
-        crate::frame("Image").handle(glib::clone!(@strong state => move |frame, event| {
-            match event {
-                Event::Push => match app::event_mouse_button() {
-                    app::MouseButton::Right => {
-                        crate::menu().popup();
-                        true
-                    }
-                    _ => false,
-                },
-                Event::Enter => {
-                    frame.window().unwrap().set_cursor(Cursor::Hand);
-                    true
-                }
-                Event::Leave => {
-                    frame.window().unwrap().set_cursor(Cursor::Arrow);
-                    true
-                }
-                HEARTBEAT => {
-                    if state.borrow().temp.is_empty() {
-                        frame.set_image(None::<SharedImage>);
-                    } else {
-                        let mut image = state.borrow().cash[&state.borrow().temp[state.borrow().curr]].clone();
-                        image.scale(
-                            frame.width() * state.borrow().size / 100,
-                            frame.height() * state.borrow().size / 100,
-                            true,
-                            true,
-                        );
-                        frame.set_image(Some(image));
-                        frame.redraw();
-                    };
-                    false
-                }
-                _ => false
-            }
-        }));
-        crate::browser("List", &mut page).handle(
-            glib::clone!(@strong state => move |browser, event| {
-                match event {
-                    HEARTBEAT => {
-                        let (curr, temp) = (state.borrow().curr, &state.borrow().temp);
-                        if !temp.is_empty() {
-                            browser.clear();
-                            for item in temp {
-                                browser.add(item);
-                            }
-                            browser.select(curr as i32 + 1);
-                        }
-                        false
-                    }
-                    Event::Push => {
-                        if browser.value() > 0 {
-                            state.borrow_mut().choice(browser.value() as usize - 1);
-                            app::handle_main(HEARTBEAT).unwrap();
-                        };
-                        true
-                    }
-                    _ => false
-                }
-            }),
-        );
+        crate::canvas("Image", state.clone());
+        page.fixed(&crate::browser("List", state.clone()), WIDTH);
     }
     page.end();
     page.set_pad(PAD);
     page.set_margin(PAD);
     page.set_frame(FrameType::FlatBox);
+    page.handle(move |_, event| match event {
+        REMOVE => {
+            if !state.borrow().temp.is_empty() {
+                match choice2_default("Remove ...?", "Remove", "Cancel", "Permanent") {
+                    Some(0) => state.borrow_mut().remove(false),
+                    Some(2) => state.borrow_mut().remove(true),
+                    _ => {}
+                };
+                app::handle_main(HEARTBEAT).unwrap();
+            };
+            true
+        }
+        OPEN => {
+            let mut dialog = FileChooser::new(
+                std::env::var("HOME").unwrap(),
+                "*.{png,svg}",
+                FileChooserType::Multi,
+                "Choose File...",
+            );
+            dialog.show();
+            while dialog.shown() {
+                app::wait();
+            }
+            if dialog.count() > 0 {
+                for item in 1..=dialog.count() {
+                    if let Some(file) = dialog.value(item) {
+                        state.borrow_mut().temp.push(file);
+                    };
+                    state.borrow_mut().choice(0);
+                }
+            };
+            app::handle_main(HEARTBEAT).unwrap();
+            true
+        }
+        NEXT => {
+            state.borrow_mut().inc();
+            app::handle_main(HEARTBEAT).unwrap();
+            true
+        }
+        PREV => {
+            state.borrow_mut().dec();
+            app::handle_main(HEARTBEAT).unwrap();
+            true
+        }
+        _ => false,
+    });
 }
 
-fn button(tooltip: &str, label: &str, flex: &mut Flex) -> Button {
-    let mut element = Button::default().with_label(label);
+fn button(tooltip: &str, flex: &mut Flex) -> Button {
+    let mut element = Button::default();
     element.set_tooltip(tooltip);
     flex.fixed(&element, crate::HEIGHT);
     element
 }
 
-fn slider(tooltip: &str) -> Slider {
+fn slider(tooltip: &str, state: Rc<RefCell<Model>>) {
     let mut element = Slider::default().with_type(SliderType::Horizontal);
     element.set_tooltip(tooltip);
     element.set_maximum(100f64);
     element.set_precision(0);
     element.set_value(element.maximum());
-    element
+    element.set_callback(move |slider| {
+        state.borrow_mut().size = slider.value() as i32;
+        app::handle_main(HEARTBEAT).unwrap();
+    });
 }
 
-fn frame(tooltip: &str) -> Frame {
+fn canvas(tooltip: &str, state: Rc<RefCell<Model>>) {
+    let cash = Rc::from(RefCell::from(HashMap::new()));
     let mut element = Frame::default_fill();
     element.set_frame(FrameType::DownBox);
     element.set_tooltip(tooltip);
-    element
+    element.handle(move |frame, event| match event {
+        Event::Push => match app::event_mouse_button() {
+            app::MouseButton::Right => {
+                crate::menu().popup();
+                true
+            }
+            _ => false,
+        },
+        Event::Enter => {
+            frame.window().unwrap().set_cursor(Cursor::Hand);
+            true
+        }
+        Event::Leave => {
+            frame.window().unwrap().set_cursor(Cursor::Arrow);
+            true
+        }
+        HEARTBEAT => {
+            if state.borrow().temp.is_empty() {
+                frame.set_image(None::<SharedImage>);
+            } else {
+                let file = state.borrow().curr();
+                if !cash.borrow().contains_key(&file) {
+                    if let Ok(image) = SharedImage::load(&file) {
+                        cash.borrow_mut().insert(file.clone(), image.clone());
+                    }
+                }
+                let mut image = cash.borrow().get(&file).unwrap().clone();
+                image.scale(
+                    frame.width() * state.borrow().size / 100,
+                    frame.height() * state.borrow().size / 100,
+                    true,
+                    true,
+                );
+                frame.set_image(Some(image));
+                frame.redraw();
+            };
+            false
+        }
+        _ => false,
+    });
 }
 
-fn browser(tooltip: &str, flex: &mut Flex) -> Browser {
+fn browser(tooltip: &str, state: Rc<RefCell<Model>>) -> Browser {
     let mut element = Browser::default().with_type(BrowserType::Hold);
     element.set_tooltip(tooltip);
-    flex.fixed(&element, crate::HEIGHT * 2);
+    element.handle(move |browser, event| match event {
+        HEARTBEAT => {
+            let (curr, temp) = (state.borrow().curr, &state.borrow().temp);
+            if !temp.is_empty() {
+                browser.clear();
+                for item in temp {
+                    browser.add(item);
+                }
+                browser.select(curr as i32 + 1);
+            }
+            false
+        }
+        Event::Push => {
+            if browser.value() > 0 {
+                state.borrow_mut().choice(browser.value() as usize - 1);
+                app::handle_main(HEARTBEAT).unwrap();
+            };
+            true
+        }
+        _ => false,
+    });
     element
 }
 

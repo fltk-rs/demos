@@ -165,7 +165,7 @@ fn window() -> Window {
         .center_screen();
     element.make_resizable(false);
     element.set_xclass(NAME);
-    element.set_icon(Some(SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap()));
+    element.set_icon(Some(SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap()));
     element.set_callback(move |_| {
         if app::event() == Event::Close {
             app::quit();

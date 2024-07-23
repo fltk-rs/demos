@@ -98,8 +98,7 @@ fn browser(tooltip: &str, state: Rc<RefCell<Model>>) -> Browser {
         }
         Event::Push => {
             if browser.value() > 0 {
-                let curr: usize = browser.value() as usize - 1;
-                state.borrow_mut().choice(curr);
+                state.borrow_mut().choice(browser.value() as usize - 1);
                 app::handle_main(HEARTBEAT).unwrap();
                 app::redraw();
             };

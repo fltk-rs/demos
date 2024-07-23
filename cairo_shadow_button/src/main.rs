@@ -6,10 +6,10 @@ use {
         app,
         button::Button,
         draw,
-        enums::{Align, Color, ColorDepth, Cursor, Event, Font, Shortcut},
+        enums::{Align, Color, ColorDepth, Cursor, Event, Font, FrameType, Shortcut},
         frame::Frame,
         group::Flex,
-        image::{RgbImage,SvgImage},
+        image::{RgbImage, SvgImage},
         menu::{MenuButton, MenuButtonType, MenuFlag},
         prelude::*,
         window::Window,
@@ -19,6 +19,8 @@ use {
 };
 
 const HEARTBEAT: Event = Event::from_i32(404);
+const INC: Event = Event::from_i32(405);
+const DEC: Event = Event::from_i32(406);
 
 fn main() -> Result<(), FltkError> {
     let app = app::App::default();
@@ -35,7 +37,9 @@ fn window() {
         .with_size(640, 360)
         .center_screen();
     element.set_xclass(NAME);
-    element.set_icon(Some(SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap()));
+    element.set_icon(Some(
+        SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
+    ));
     element.set_color(Color::from_u32(0xfdf6e3));
     element.make_resizable(false);
     crate::view(state.clone());
@@ -61,14 +65,31 @@ fn view(state: Rc<RefCell<Model>>) {
         .column();
     {
         let hero = Flex::default();
-        crate::button(state.clone()).with_label("@#<");
+        crate::button().with_label("@#<").set_callback(move |_| {
+            app::handle_main(crate::DEC).unwrap();
+        });
         crate::frame(state.clone());
-        crate::button(state).with_label("@#>");
+        crate::button().with_label("@#>").set_callback(move |_| {
+            app::handle_main(crate::INC).unwrap();
+        });
         hero.end();
     }
     page.end();
     page.set_pad(0);
     page.set_margin(0);
+    page.handle(move |_, event| match event {
+        INC => {
+            state.borrow_mut().inc();
+            app::handle_main(HEARTBEAT).unwrap();
+            true
+        }
+        DEC => {
+            state.borrow_mut().dec();
+            app::handle_main(HEARTBEAT).unwrap();
+            true
+        }
+        _ => false,
+    });
 }
 
 fn frame(state: Rc<RefCell<Model>>) -> Frame {
@@ -77,7 +98,7 @@ fn frame(state: Rc<RefCell<Model>>) -> Frame {
     element.handle(move |frame, event| match event {
         Event::Push => match app::event_mouse_button() {
             app::MouseButton::Right => {
-                crate::menu(state.clone()).popup();
+                crate::menu().popup();
                 true
             }
             _ => false,
@@ -99,32 +120,29 @@ fn frame(state: Rc<RefCell<Model>>) -> Frame {
     element
 }
 
-fn menu(state: Rc<RefCell<Model>>) -> MenuButton {
-    let mut element = MenuButton::default()
-        .with_type(MenuButtonType::Popup3)
-        .with_label("@#menu");
+fn menu() -> MenuButton {
+    let mut element = MenuButton::default().with_type(MenuButtonType::Popup3);
+    element.set_frame(FrameType::FlatBox);
     element.add(
         "@#+  &Increment",
         Shortcut::Ctrl | '+',
         MenuFlag::Normal,
-        glib::clone!(@strong state => move |_| {
-            state.borrow_mut().inc();
-            app::handle_main(HEARTBEAT).unwrap();
-        }),
+        move |_| {
+            app::handle_main(INC).unwrap();
+        },
     );
     element.add(
         "@#-  &Decrement",
         Shortcut::Ctrl | '-',
         MenuFlag::Normal,
         move |_| {
-            state.borrow_mut().dec();
-            app::handle_main(HEARTBEAT).unwrap();
+            app::handle_main(DEC).unwrap();
         },
     );
     element
 }
 
-fn button(state: Rc<RefCell<Model>>) -> Button {
+fn button() -> Button {
     let mut element = Button::default();
     element.super_draw(false);
     element.draw(move |button| {
@@ -186,14 +204,6 @@ fn button(state: Rc<RefCell<Model>>) -> Button {
                 Align::Center,
             );
         }
-    });
-    element.set_callback(move |button| {
-        let label = button.label();
-        match label == "@#<" {
-            true => state.borrow_mut().dec(),
-            false => state.borrow_mut().inc(),
-        };
-        app::handle_main(HEARTBEAT).unwrap();
     });
     element
 }

@@ -11,3 +11,4 @@ fltk-theme = { version="0.7" }
 soloud = { version="^1.0" }
 serde = { version="1.0", features = ["derive"] }
 rmp-serde = { version="^1.1" }
+glib = "0.18"

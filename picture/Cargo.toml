@@ -10,4 +10,5 @@ edition = "2021"
 [dependencies]
 fltk = { version = "^1.4", features = ["use-ninja"] }
 fltk-theme = { version="0.7" }
-glib = "0.18"
+serde = { version="1.0", features = ["derive"] }
+rmp-serde = { version="1.1" }

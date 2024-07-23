@@ -1,30 +1,36 @@
 use {
-    fltk::image::SharedImage,
-    std::{collections::HashMap, fs},
+    serde::{Deserialize, Serialize},
+    std::fs,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Model {
-    pub cash: HashMap<String, SharedImage>,
     pub temp: Vec<String>,
     pub curr: usize,
     pub size: i32,
 }
 impl Model {
-    pub fn default() -> Self {
+    pub fn default(file: &str) -> Self {
+        if let Ok(value) = fs::read(file) {
+            if let Ok(value) = rmp_serde::from_slice::<Self>(&value) {
+                return value;
+            }
+        }
         Self {
-            cash: HashMap::new(),
             temp: Vec::new(),
             size: 100,
             curr: 0,
         }
     }
-    pub fn choice(&mut self, curr: usize) {
-        if self.cash.contains_key(&self.temp[curr]) {
-            self.curr = curr;
-        } else if let Ok(image) = SharedImage::load(&self.temp[curr]) {
-            self.cash.insert(self.temp[curr].clone(), image.clone());
-            self.curr = curr;
+    pub fn save(&self, file: &str) {
+        fs::write(file, rmp_serde::to_vec(&self).unwrap()).unwrap();
+    }
+    pub fn curr(&self) -> String {
+        self.temp[self.curr].clone()
+    }
+    pub fn choice(&mut self, idx: usize) {
+        if idx < self.temp.len() {
+            self.curr = idx;
         }
     }
     pub fn remove(&mut self, permanent: bool) {

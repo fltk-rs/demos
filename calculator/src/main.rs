@@ -62,7 +62,7 @@ fn window() {
     element.make_resizable(false);
     element.set_xclass(NAME);
     element.set_icon(Some(
-        SvgImage::from_data(include_str!("../../assets/icon.svg")).unwrap(),
+        SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
     crate::view(state.clone());
     element.set_callback(move |_| {
@@ -78,15 +78,7 @@ fn window() {
 
 fn view(state: Rc<RefCell<Model>>) {
     let mut page = Flex::default_fill().column();
-    crate::display("Output").handle(glib::clone!(@strong state => move |display, event| {
-        if event == HEARTBEAT {
-            let (theme, value) = (state.borrow().theme, state.borrow().output.clone());
-            display.set_color(crate::COLORS[theme as usize][0]);
-            display.set_text_color(crate::COLORS[theme as usize][1]);
-            display.buffer().unwrap().set_text(&value);
-        };
-        false
-    }));
+    crate::display("Output", state.clone());
     let mut row = Flex::default();
     crate::output("Operation").handle(glib::clone!(@strong state => move |frame, event| {
         if event == HEARTBEAT {
@@ -221,7 +213,7 @@ fn button(title: &'static str) -> Button {
     element
 }
 
-fn display(tooltip: &str) -> TextDisplay {
+fn display(tooltip: &str, state: Rc<RefCell<Model>>) {
     let mut element = TextDisplay::default();
     element.set_text_size(HEIGHT - 5);
     element.set_tooltip(tooltip);
@@ -236,7 +228,15 @@ fn display(tooltip: &str) -> TextDisplay {
             0,
         )
     });
-    element
+    element.handle(move |display, event| {
+        if event == HEARTBEAT {
+            let (theme, value) = (state.borrow().theme, state.borrow().output.clone());
+            display.set_color(crate::COLORS[theme as usize][0]);
+            display.set_text_color(crate::COLORS[theme as usize][1]);
+            display.buffer().unwrap().set_text(&value);
+        };
+        false
+    });
 }
 
 fn output(tooltip: &str) -> Frame {
@@ -284,6 +284,7 @@ fn menu(state: Rc<RefCell<Model>>) -> MenuButton {
             let theme = state.borrow().theme;
             menu.set_color(crate::COLORS[theme as usize][0]);
             menu.set_text_color(crate::COLORS[theme as usize][1]);
+            menu.redraw();
         };
         false
     }));
@@ -291,15 +292,8 @@ fn menu(state: Rc<RefCell<Model>>) -> MenuButton {
 }
 
 fn info(_: &mut MenuButton) {
-    const INFO: &str = "<p>
-<a href=\"https://gitlab.com/kbit/kbit.gitlab.io/-/tree/master/app/front/flcalculator\">FlCalculator</a>
- is similar to
- <a href=\"https://apps.gnome.org/Calculator\">Calculator</a>
- written using
- <a href=\"https://fltk-rs.github.io/fltk-rs\">FLTK-RS</a>
-</p>";
     let mut dialog = HelpDialog::default();
-    dialog.set_value(INFO);
+    dialog.set_value(include_str!("../README.md"));
     dialog.set_text_size(16);
     dialog.show();
     while dialog.shown() {

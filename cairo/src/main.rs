@@ -34,7 +34,7 @@ fn main() -> Result<(), FltkError> {
         SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
     app::cairo::set_autolink_context(true);
-    app.run();
+    app.run()
 }
 
 fn draw_box_with_alpha(rect: &mut Frame) {

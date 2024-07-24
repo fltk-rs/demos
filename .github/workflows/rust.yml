@@ -51,11 +51,6 @@ jobs:
         cmake --build bin --parallel --target install
         export CFLTK_BUNDLE_DIR="${PWD}/bin/lib"
       shell: bash
-    - name: Build wgpu
-      working-directory: wgpu
-      shell: bash
-      run: |
-        cargo build --quiet || cargo build --verbose
     - name: Build cairo
       working-directory: cairo
       shell: bash
@@ -70,6 +65,11 @@ jobs:
         if [[ ${RUNNER_OS} == "Linux" ]]; then
             cargo build --quiet || cargo build --verbose
         fi
+    - name: Build calculator
+      working-directory: calculator
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
     - name: Build calendar
       working-directory: calendar
       shell: bash
@@ -97,15 +97,8 @@ jobs:
         case ${RUNNER_OS} in
             Linux | macOS) cargo build --quiet || cargo build --verbose;;
         esac
-    - name: Build calculator
-      working-directory: calculator
-      shell: bash
-      run: |
-        case ${RUNNER_OS} in
-            Linux | macOS) cargo build --quiet || cargo build --verbose;;
-        esac
-    - name: Build fldialect
-      working-directory: fldialect
+    - name: Build dialect
+      working-directory: dialect
       shell: bash
       run: |
         cargo build --quiet || cargo build --verbose
@@ -113,15 +106,15 @@ jobs:
       working-directory: flmusic
       shell: bash
       run: |
-        cargo build --quiet || cargo build --verbose
-    - name: Build flpicture
-      working-directory: picture
-      shell: bash
-      run: |
         case ${RUNNER_OS} in
             Linux | macOS) cargo build --quiet || cargo build --verbose;;
         esac
-    - name: Build flresters
+    - name: Build picture
+      working-directory: picture
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose
+    - name: Build resters
       working-directory: resters
       shell: bash
       run: |
@@ -253,3 +246,8 @@ jobs:
         if [[ ${RUNNER_OS} == "Linux" ]]; then
             cargo build --quiet || cargo build --verbose
         fi
+    - name: Build wgpu
+      working-directory: wgpu
+      shell: bash
+      run: |
+        cargo build --quiet || cargo build --verbose

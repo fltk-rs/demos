@@ -20,9 +20,10 @@ use {
     fltk_theme::{color_themes, ColorTheme},
     model::Model,
     soloud::{audio::Wav, AudioExt, LoadExt, Soloud},
-    std::{cell::RefCell, env, rc::Rc},
+    std::{cell::RefCell, rc::Rc},
 };
 
+const NAME: &str = "FlMusic";
 const HEARTBEAT: Event = Event::from_i32(404);
 const REMOVE: Event = Event::from_i32(405);
 const OPEN: Event = Event::from_i32(406);
@@ -43,7 +44,6 @@ fn main() -> Result<(), FltkError> {
 fn window() {
     const WIDTH: i32 = 640;
     const HEIGHT: i32 = 360;
-    const NAME: &str = "FlMusic";
     let mut element = Window::default()
         .with_size(WIDTH, HEIGHT)
         .with_label(NAME)
@@ -54,17 +54,26 @@ fn window() {
     element.set_icon(Some(
         SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
-    let file = env::var("HOME").unwrap() + "/.config/" + NAME;
-    let state = Rc::from(RefCell::from(Model::default(&file)));
     let play = Rc::from(RefCell::from(
         Soloud::default().expect("Cannot access audio backend"),
     ));
+    let state = Rc::from(RefCell::from(Model::default()));
     crate::view(state.clone(), play.clone());
-    element.set_callback(move |_| {
-        if app::event() == Event::Close {
+    element.handle(move |window, event| {
+        if event == HEARTBEAT {
+            window.set_label(&format!(
+                "{} to {} - {NAME}",
+                state.borrow().time,
+                state.borrow().duration
+            ));
+            false
+        } else if app::event() == Event::Close {
             play.borrow().stop_all();
-            state.borrow().save(&file);
+            state.borrow().save();
             app::quit();
+            true
+        } else {
+            false
         }
     });
     element.end();

@@ -11,4 +11,3 @@ edition = "2021"
 fltk = { version = "^1.4", features = ["use-ninja"] }
 serde = { version="1.0", features = ["derive"] }
 rmp-serde = { version="1.1" }
-glib = "0.18"

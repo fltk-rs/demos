@@ -6,7 +6,7 @@ use {
     std::{cell::RefCell, rc::Rc},
 };
 
-fn main() {
+fn main() -> Result<(), FltkError> {
     let app = app::App::default().with_scheme(app::AppScheme::Base);
     let mut win = window::Window::default()
         .with_label("Demo: Cairo")
@@ -34,7 +34,7 @@ fn main() {
         SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
     app::cairo::set_autolink_context(true);
-    app.run().unwrap();
+    app.run();
 }
 
 fn draw_box_with_alpha(rect: &mut Frame) {

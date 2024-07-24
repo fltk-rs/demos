@@ -1,6 +1,6 @@
 use {
     serde::{Deserialize, Serialize},
-    std::fs,
+    std::{env, fs},
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -12,8 +12,8 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn default(file: &str) -> Self {
-        if let Ok(value) = fs::read(file) {
+    pub fn default() -> Self {
+        if let Ok(value) = fs::read(file()) {
             if let Ok(value) = rmp_serde::from_slice::<Self>(&value) {
                 return value;
             }
@@ -30,8 +30,8 @@ impl Model {
             self.curr = idx;
         }
     }
-    pub fn save(&self, file: &str) {
-        fs::write(file, rmp_serde::to_vec(&self).unwrap()).unwrap();
+    pub fn save(&self) {
+        fs::write(file(), rmp_serde::to_vec(&self).unwrap()).unwrap();
     }
     pub fn inc(&mut self) {
         if !self.list.is_empty() {
@@ -62,4 +62,8 @@ impl Model {
             self.inc();
         }
     }
+}
+
+fn file() -> String {
+    env::var("HOME").unwrap() + "/.config/" + crate::NAME
 }

@@ -19,9 +19,10 @@ use {
     },
     fltk_theme::{color_themes, ColorTheme},
     model::Model,
-    std::{cell::RefCell, collections::HashMap, env, rc::Rc},
+    std::{cell::RefCell, collections::HashMap, rc::Rc},
 };
 
+const NAME: &str = "FlPicture";
 const PAD: i32 = 10;
 const HEIGHT: i32 = 3 * PAD;
 const WIDTH: i32 = 3 * HEIGHT;
@@ -42,9 +43,6 @@ fn main() -> Result<(), FltkError> {
 fn window() {
     const WIDTH: i32 = 640;
     const HEIGHT: i32 = 360;
-    const NAME: &str = "FlPicture";
-    let file: String = env::var("HOME").unwrap() + "/.config/" + NAME;
-    let state = Rc::from(RefCell::from(Model::default(&file)));
     let mut element = Window::default()
         .with_size(WIDTH, HEIGHT)
         .with_label(NAME)
@@ -54,6 +52,7 @@ fn window() {
     element.set_icon(Some(
         SvgImage::from_data(include_str!("../../assets/logo.svg")).unwrap(),
     ));
+    let state = Rc::from(RefCell::from(Model::default()));
     crate::view(state.clone());
     element.handle(move |window, event| {
         if event == HEARTBEAT {
@@ -64,8 +63,7 @@ fn window() {
             };
             false
         } else if app::event() == Event::Close {
-            let value = file.clone();
-            state.borrow().save(&value);
+            state.borrow().save();
             app::quit();
             true
         } else {

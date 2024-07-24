@@ -17,7 +17,7 @@ fn main() {
     std::process::Command::new("mpv")
         .args([
             &format!("--wid={}", inner.raw_handle()),
-            "../libvlc/video.mp4",
+            "../assets/video.mp4",
         ])
         .spawn()
         .unwrap();

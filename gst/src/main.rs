@@ -28,7 +28,7 @@ fn main() {
     let handle = gst_win.raw_handle();
 
     // gstreamer requires a uri
-    let uri = "../libvlc/video.mp4".to_owned();
+    let uri = "../assets/video.mp4".to_owned();
     let mut path = String::from("file:///");
     let current_dir = std::env::current_dir().unwrap();
     let video_file = current_dir.join(uri);

@@ -30,7 +30,6 @@ fn main() -> Result<(), FltkError> {
 }
 
 fn window() {
-    let state = Rc::from(RefCell::from(Model::default()));
     const NAME: &str = "FlCairoButton";
     let mut element = Window::default()
         .with_label(NAME)
@@ -42,13 +41,14 @@ fn window() {
     ));
     element.set_color(Color::from_u32(0xfdf6e3));
     element.make_resizable(false);
+    let state = Rc::from(RefCell::from(Model::default()));
     crate::view(state.clone());
     element.end();
     element.show();
     element.handle(move |window, event| {
         if event == HEARTBEAT {
             window.set_label(&format!("{} - {NAME}", state.borrow().value));
-            true
+            false
         } else if app::event() == Event::Close {
             app::quit();
             true

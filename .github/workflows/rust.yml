@@ -135,10 +135,6 @@ jobs:
       run: cargo build --verbose
       working-directory: web-todo2
       shell: bash
-    - name: Build webview
-      run: cargo build --verbose
-      working-directory: webview
-      shell: bash
     - name: Build wgpu
       run: cargo build --verbose
       working-directory: wgpu

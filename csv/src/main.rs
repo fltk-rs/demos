@@ -35,19 +35,20 @@ fn main() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     app::background(79, 79, 79);
     app::background2(41, 41, 41);
-    app::foreground(255, 255, 255);
+    app::foreground(150, 150, 150);
     let mut wind = window::Window::default().with_size(800, 600);
-    wind.make_resizable(true);
-    let mut browser = browser::Browser::new(5, 10, 100, 520, "");
-    let mut frame = frame::Frame::default()
-        .with_size(680, 520)
-        .right_of(&browser, 10);
+    let mut row = group::Flex::default_fill().row();
+    wind.resizable(&row);
+    let mut col = group::Flex::default().column();
+    let mut browser = browser::Browser::default();
     let mut btn = button::Button::default()
-        .with_label("Save image")
-        .with_size(100, 30)
-        .below_of(&frame, 15)
-        .center_x(&wind);
-    wind.make_resizable(true);
+        .with_label("@filesave");
+    // btn.set_label_color(Color::Magenta);
+    col.end();
+    col.fixed(&btn, 50);
+    row.fixed(&col, 100);
+    let mut frame = frame::Frame::default();
+    wind.end();
     wind.show();
 
     browser.set_type(browser::BrowserType::Hold);

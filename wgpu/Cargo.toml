@@ -9,5 +9,5 @@ resolver = "2"
 
 [dependencies]
 fltk = { version = "1", features = ["fltk-bundled", "rwh06"] }
-wgpu = "0.19"
+wgpu = "22.0"
 pollster = "0.3"

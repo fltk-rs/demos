@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 fltk = "1"
-fltk-webview = "0.2"
+fltk-webview = "0.4"

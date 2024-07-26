@@ -1,22 +1,19 @@
-use fltk::{
-    prelude::*,
-    *,
-};
+use fltk::{prelude::*, *};
 use wgpu::include_wgsl;
 
-struct State {
+struct State<'a> {
     device: wgpu::Device,
-    surface: wgpu::Surface,
+    surface: wgpu::Surface<'a>,
     queue: wgpu::Queue,
     render_pipeline: wgpu::RenderPipeline,
 }
 
-impl State {
-    pub async fn new(win: &window::Window) -> Self {
+impl State<'_> {
+    pub async fn new(win: window::Window) -> Self {
         let size = (win.pixel_w() as _, win.pixel_h() as _);
         // Instance, surface, adapter, device
-        let instance = wgpu::Instance::new(wgpu::Backends::all());
-        let surface = unsafe { instance.create_surface(win) };
+        let instance = wgpu::Instance::default();
+        let surface = instance.create_surface(win).unwrap();
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::default(),
@@ -29,20 +26,24 @@ impl State {
             .request_device(
                 &wgpu::DeviceDescriptor {
                     label: Some("device"),
-                    features: wgpu::Features::empty(),
-                    limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
+                    required_features: wgpu::Features::empty(),
+                    required_limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
                 },
                 None,
             )
             .await
             .expect("Failed to create device");
-        let swapchain_format = surface.get_supported_formats(&adapter)[0];
+        let swapchain_format = surface.get_capabilities(&adapter).formats[0];
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: swapchain_format,
             width: size.0,
             height: size.1,
             present_mode: wgpu::PresentMode::Fifo,
+            alpha_mode: wgpu::CompositeAlphaMode::Auto,
+            desired_maximum_frame_latency: 2,
+            view_formats: vec![swapchain_format],
+
         };
         surface.configure(&device, &config);
         // Pipeline
@@ -86,7 +87,7 @@ fn main() {
     win.make_resizable(true);
     win.end();
     win.show();
-    let state = pollster::block_on(State::new(&win));
+    let state = pollster::block_on(State::new(win));
     while app.wait() {
         let frame = state
             .surface
@@ -108,10 +109,12 @@ fn main() {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
-                        store: true,
+                        store: wgpu::StoreOp::Store,
                     },
                 })],
                 depth_stencil_attachment: None,
+                occlusion_query_set: None,
+                timestamp_writes: None,
             });
             rpass.set_pipeline(&state.render_pipeline);
             rpass.draw(0..3, 0..1);

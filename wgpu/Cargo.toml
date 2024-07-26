@@ -8,7 +8,6 @@ resolver = "2"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fltk = { version = "1", features = ["fltk-bundled", "raw-window-handle"] }
-wgpu = "0.13"
-
-pollster = "0.2"
+fltk = { version = "1", features = ["fltk-bundled", "rwh06"] }
+wgpu = "0.19"
+pollster = "0.3"

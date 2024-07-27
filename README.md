@@ -95,6 +95,7 @@ The current demos include:
 - <a href="#cairo-demo">🏜️ cairo-demo: </a>Use cairo for custom drawing inside fltk widgets
 - <a href="#glyphmap">📍 glyphmap: </a>Maps glyphs (specifically font icons) to their unicode codepoint.
 - <a href="#terminal">📟 terminal: </a>A minimal terminal emulator.
+- <a href="#softbuf">🎞️ softbuf: </a>Use the softbuffer crate to draw using native graphics api's.
 </div>
 
 ---

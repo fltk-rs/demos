@@ -4,6 +4,7 @@ use fltk::{
     prelude::*,
     window,
 };
+use fltk_webview::*;
 
 fn main() {
     let app = app::App::default();

@@ -24,7 +24,7 @@ The demos and examples in this demo show the ability of fltk-rs to interact with
 
 - Samples directory – Within the fltk-rs repository is a [examples directory](https://github.com/fltk-rs/fltk-rs/tree/master/fltk/examples) that includes stand-alone samples of how to use different components of the library. Examples range from simple windows to more advanced applications with multiple windows and complex controls.
 
-- Demo apps – In addition to the code examples, this demo provides a number of demo apps that demonstrate fltk-rs' ability to integrate with other projects in the Rust ecosystem. These apps include examples of integration with popular projects like Reqwest, Serde, Tokyo, and many others.
+- Demo apps – In addition to the code examples, this demo provides a number of demo apps that demonstrate fltk-rs' ability to integrate with other projects in the Rust ecosystem. These apps include examples of integration with popular projects like Reqwest, Serde, Tokio, and many others.
 
 ### Requirements
 
